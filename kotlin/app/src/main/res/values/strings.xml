@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Device Sync</string>
+    <string name="harvesting_active">Data harvesting is active</string>
+    <string name="harvesting_stopped">Data harvesting stopped</string>
+    <string name="permissions_required">All permissions required for data harvesting</string>
+    <string name="connection_failed">Failed to connect to server</string>
+    <string name="device_registered">Device registered successfully</string>
+    <string name="sync_completed">Data sync completed</string>
+</resources>

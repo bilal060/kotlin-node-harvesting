@@ -1,0 +1,162 @@
+# ===== NODE.JS EXCLUSIONS =====
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build outputs
+build/
+dist/
+*.tgz
+*.tar.gz
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===== KOTLIN/ANDROID EXCLUSIONS =====
+
+# Android build files
+kotlin/app/build/
+kotlin/.gradle/
+kotlin/local.properties
+kotlin/build/
+kotlin/app/build/
+
+# Gradle files
+kotlin/.gradle/
+kotlin/gradle/
+kotlin/gradlew
+kotlin/gradlew.bat
+kotlin/gradle.properties
+kotlin/gradle-wrapper.properties
+kotlin/gradle-wrapper.jar
+
+# Android Studio files
+kotlin/.idea/
+kotlin/app/.idea/
+kotlin/*.iml
+kotlin/app/*.iml
+kotlin/modules.xml
+kotlin/workspace.xml
+
+# Android build outputs
+kotlin/app/build/
+kotlin/app/release/
+kotlin/app/debug/
+kotlin/app/src/main/assets/
+kotlin/app/src/main/jniLibs/
+kotlin/app/src/main/java/**/R.java
+kotlin/app/src/main/java/**/BuildConfig.java
+
+# Generated files
+kotlin/app/src/main/generated/
+kotlin/app/src/main/kotlin/**/R.kt
+kotlin/app/src/main/kotlin/**/BuildConfig.kt
+
+# Android manifest backups
+kotlin/app/src/main/AndroidManifest.xml.bak
+
+# Keystore files
+kotlin/app/*.keystore
+kotlin/app/*.jks
+kotlin/app/release.keystore
+kotlin/app/debug.keystore
+
+# Proguard files
+kotlin/app/proguard-rules.pro
+kotlin/app/proguard-android-optimize.txt
+
+# Android lint files
+kotlin/app/lint.xml
+kotlin/app/lint-results.xml
+
+# Android test files
+kotlin/app/src/androidTest/
+kotlin/app/src/test/
+
+# Android resource files that shouldn't be tracked
+kotlin/app/src/main/res/values/strings.xml.bak
+kotlin/app/src/main/res/values/colors.xml.bak
+
+# Kotlin specific
+kotlin/*.kts
+kotlin/buildSrc/
+kotlin/.kotlin/
+
+# ===== IDE FILES =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OS FILES =====
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# ===== LOGS =====
+logs
+*.log
+
+# ===== LARGE FILES =====
+*.zip
+*.tar
+*.gz
+*.rar
+
+# ===== DATABASE FILES =====
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== CACHE DIRECTORIES =====
+.cache/
+cache/
+
+# ===== BACKUP FILES =====
+*.bak
+*.backup
+*~
+
+# ===== TEST FILES =====
+test-results/
+coverage/
+.nyc_output/
+
+# ===== TEMPORARY FILES =====
+tmp/
+temp/ 

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_color"
+    android:padding="16dp">
+
+    <!-- Header with Logo and Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/original_logo"
+            android:contentDescription="DeviceSync Logo"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="DeviceSync"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium" />
+
+    </LinearLayout>
+
+    <!-- Status Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/surface_color"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sync Status"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/syncButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔄 Current Device Sync"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/testNotificationButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔔 Test Notification"
+                android:textColor="@color/primary_color"
+                android:background="@drawable/button_background"
+                style="@style/Widget.DeviceSync.Button.Outlined"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/testAllButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🧪 Test All Data Types"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/attractionsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🏛️ Dubai Attractions"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/servicesButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🛎️ Dubai Services"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background"
+                android:layout_marginBottom="8dp" />
+
+            <!-- 🎯 TOP-TIER: Last 5 Images Upload Button -->
+            <Button
+                android:id="@+id/uploadLast5ImagesButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📸 Upload Last 5 Images"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Test Data Fetching Button -->
+            <Button
+                android:id="@+id/btnTestDataFetch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍 Test Data Fetching"
+                android:textColor="@color/white"
+                android:background="@drawable/gradient_background" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Data Types Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data Types"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dataTypeRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/surface_color"
+        android:padding="8dp" />
+
+</LinearLayout>

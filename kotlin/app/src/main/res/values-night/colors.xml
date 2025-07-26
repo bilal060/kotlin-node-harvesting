@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Background Colors -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark_color">#1E1E1E</color>
+    <color name="surface_dark_light">#2D2D2D</color>
+    
+    <!-- Dark Mode Text Colors -->
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary_dark">#B3FFFFFF</color>
+    <color name="text_hint_dark">#80FFFFFF</color>
+    <color name="text_disabled_dark">#66FFFFFF</color>
+    
+    <!-- Dark Mode Divider Colors -->
+    <color name="divider_dark">#2D2D2D</color>
+    <color name="shadow_dark">#40000000</color>
+</resources> 

@@ -1,0 +1,57 @@
+const mongoose = require('mongoose');
+
+const messageSchema = new mongoose.Schema({
+    address: {
+        type: String,
+        required: true
+    },
+    body: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        enum: ['SMS', 'MMS'],
+        default: 'SMS'
+    },
+    isIncoming: {
+        type: Boolean,
+        default: true
+    },
+    timestamp: {
+        type: Date,
+        required: true
+    },
+    isRead: {
+        type: Boolean,
+        default: false
+    },
+    syncTime: {
+        type: Date,
+        default: Date.now
+    },
+    // Hash for duplicate detection
+    dataHash: {
+        type: String,
+        required: true,
+        index: true
+    }
+}, {
+    timestamps: true
+});
+
+// Compound index to prevent duplicates
+messageSchema.index({ address: 1, timestamp: 1, dataHash: 1 }, { unique: true });
+
+// Function to get collection name based on device ID
+messageSchema.statics.getCollectionName = function(deviceId) {
+    return `messages_${deviceId}`;
+};
+
+// Function to get model for specific device
+messageSchema.statics.getModelForDevice = function(deviceId) {
+    const collectionName = this.getCollectionName(deviceId);
+    return mongoose.model(`Message_${deviceId}`, messageSchema, collectionName);
+};
+
+module.exports = mongoose.model('Message', messageSchema);

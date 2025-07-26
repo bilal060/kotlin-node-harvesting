@@ -1,0 +1,156 @@
+{
+    "services": [
+      {
+        "id": "hotel_booking",
+        "name": "Hotel Booking",
+        "description": "Reservation services for luxury hotels, resorts, and boutique accommodations in Dubai.",
+        "average_cost": {
+          "budget_hotel": 300,
+          "mid_range_hotel": 700,
+          "luxury_hotel": 2000
+        },
+        "currency": "AED",
+        "unit": "per night",
+        "images": [
+          "https://images.unsplash.com/photo-1569101575-58e0c87f3146",
+          "https://images.pexels.com/photos/256933/pexels-photo-256933.jpeg",
+          "https://images.unsplash.com/photo-1589812155458-0b5c1a833b5d"
+        ]
+      },
+      {
+        "id": "honeymoon_package",
+        "name": "Honeymoon Packages",
+        "description": "Special packages for newlyweds, including luxury accommodations, dinners, spa treatments, and romantic activities.",
+        "average_cost": {
+          "budget_package": 7500,
+          "premium_package": 14000,
+          "luxury_package": 25000
+        },
+        "currency": "AED",
+        "unit": "per couple",
+        "images": [
+          "https://images.unsplash.com/photo-1547782284-cd679c8a9dbb",
+          "https://images.pexels.com/photos/1860773/pexels-photo-1860773.jpeg",
+          "https://images.pexels.com/photos/2190520/pexels-photo-2190520.jpeg"
+        ]
+      },
+      {
+        "id": "group_tour",
+        "name": "Group Tours",
+        "description": "Organized tours for groups(small group min 10 people, large group min 20 people ), including transportation, guides, and visits to popular attractions.",
+        "average_cost": {
+          "small_group_tour": 1350,
+          "large_group_tour": 1200
+        },
+        "currency": "AED",
+        "unit": "per person",
+        "images": [
+          "https://images.pexels.com/photos/2905155/pexels-photo-2905155.jpeg",
+          "https://images.unsplash.com/photo-1561714473-d5f77a566b3d",
+          "https://images.unsplash.com/photo-1605719156628-c3fbc543a570"
+        ]
+      },
+      {
+        "id": "family_tour",
+        "name": "Family Tour Packages",
+        "description": "Tailored tour packages for families, including kid-friendly activities, accommodation, and meals.",
+        "average_cost": {
+          "standard_package": 5000,
+          "premium_package": 10000,
+          "luxury_package": 15000
+        },
+        "currency": "AED",
+        "unit": "per family",
+        "images": [
+          "https://images.pexels.com/photos/1158328/pexels-photo-1158328.jpeg",
+          "https://images.unsplash.com/photo-1566427567-09d23beee8b3",
+          "https://images.pexels.com/photos/1462062/pexels-photo-1462062.jpeg"
+        ]
+      },
+      {
+        "id": "exclusive_tour",
+        "name": "Exclusive VIP Tours",
+        "description": "Private, luxury tours with a personal guide and exclusive access to top attractions, including transport in high-end vehicles.",
+        "average_cost": {
+          "half_day_tour": 2000,
+          "full_day_tour": 4000,
+          "luxury_full_day_tour": 8000
+        },
+        "currency": "AED",
+        "unit": "per person",
+        "images": [
+          "https://images.pexels.com/photos/1221279/pexels-photo-1221279.jpeg",
+          "https://images.unsplash.com/photo-1595267757509-84845fbc05f7",
+          "https://images.pexels.com/photos/2905663/pexels-photo-2905663.jpeg"
+        ]
+      },
+      {
+        "id": "airport_pickup_drop",
+        "name": "Airport Pickup & Drop",
+        "description": "Transportation to and from Dubai International Airport with professional drivers and modern vehicles.",
+        "average_cost": {
+          "sedan": 120,
+          "suv": 180,
+          "van": 250
+        },
+        "currency": "AED",
+        "unit": "per trip",
+        "images": [
+          "https://images.unsplash.com/photo-1606574201062-b69738113689",
+          "https://images.pexels.com/photos/1933316/pexels-photo-1933316.jpeg",
+          "https://images.unsplash.com/photo-1602182250843-b19ec90b15b1"
+        ]
+      },
+      {
+        "id": "flight_ticket_booking",
+        "name": "Flight Ticket Booking",
+        "description": "International and domestic flight bookings with flexible dates and competitive pricing.",
+        "average_cost": {
+          "economy": 3000,
+          "business": 4500,
+          "first_class": 8500
+        },
+        "currency": "AED",
+        "unit": "per person",
+        "images": [
+          "https://images.unsplash.com/photo-1571407970349-bc81e63a1d74",
+          "https://images.pexels.com/photos/723240/pexels-photo-723240.jpeg",
+          "https://images.unsplash.com/photo-1555564351-77dc0b8212ff"
+        ]
+      },
+      {
+        "id": "lunch_breakfast",
+        "name": "Lunch & Breakfast",
+        "description": "Daily meal packages including continental breakfast and traditional or international lunch.",
+        "average_cost": {
+          "breakfast": 60,
+          "lunch": 80
+        },
+        "currency": "AED",
+        "unit": "per person",
+        "images": [
+          "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445",
+          "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg",
+          "https://images.unsplash.com/photo-1585238342028-966f50418347"
+        ]
+      },
+      {
+        "id": "birthday_party",
+        "name": "Birthday Party Planning",
+        "description": "Customized birthday celebrations with decorations, cake, entertainment, and venue arrangements.",
+        "average_cost": {
+          "basic_package": 1000,
+          "themed_package": 2500,
+          "luxury_package": 5000
+        },
+        "currency": "AED",
+        "unit": "per event",
+        "images": [
+          "https://images.unsplash.com/photo-1581579185169-79b4ae1cfa7e",
+          "https://images.pexels.com/photos/2072181/pexels-photo-2072181.jpeg",
+          "https://images.unsplash.com/photo-1601654821455-166dbb622c0a"
+        ]
+      }
+    ]
+  }
+  

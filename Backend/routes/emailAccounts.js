@@ -1,0 +1,160 @@
+const express = require('express');
+const router = express.Router();
+const EmailAccount = require('../models/EmailAccount');
+const Device = require('../models/Device');
+
+// Sync email accounts
+router.post('/sync', async (req, res) => {
+  try {
+    const { deviceId, emailAccounts } = req.body;
+
+    if (!deviceId || !Array.isArray(emailAccounts)) {
+      return res.status(400).json({ error: 'Device ID and email accounts array are required' });
+    }
+
+    let newAccountsCount = 0;
+    let updatedAccountsCount = 0;
+
+    for (const accountData of emailAccounts) {
+      try {
+        const existingAccount = await EmailAccount.findOne({
+          deviceId,
+          emailAddress: accountData.emailAddress
+        });
+
+        if (existingAccount) {
+          // Update existing account
+          Object.assign(existingAccount, accountData, { syncedAt: new Date() });
+          await existingAccount.save();
+          updatedAccountsCount++;
+        } else {
+          // Create new account
+          const newAccount = new EmailAccount({
+            ...accountData,
+            deviceId,
+            syncedAt: new Date()
+          });
+          await newAccount.save();
+          newAccountsCount++;
+        }
+      } catch (accountError) {
+        console.error('Error processing email account:', accountError);
+        // Continue with other accounts
+      }
+    }
+
+    // Update device stats and sync timestamp
+    await Device.findOneAndUpdate(
+      { deviceId },
+      {
+        $inc: { 'stats.totalEmails': newAccountsCount },
+        'lastSync.emails': new Date(),
+        lastSeen: new Date()
+      }
+    );
+
+    res.json({
+      message: 'Email accounts synced successfully',
+      newAccounts: newAccountsCount,
+      updatedAccounts: updatedAccountsCount,
+      totalProcessed: emailAccounts.length
+    });
+  } catch (error) {
+    console.error('Email accounts sync error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get email accounts for a device
+router.get('/:deviceId', async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+
+    const emailAccounts = await EmailAccount.find({ deviceId })
+      .sort({ emailAddress: 1 });
+
+    res.json({
+      emailAccounts,
+      total: emailAccounts.length
+    });
+  } catch (error) {
+    console.error('Get email accounts error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get email account by address
+router.get('/:deviceId/:emailAddress', async (req, res) => {
+  try {
+    const { deviceId, emailAddress } = req.params;
+
+    const emailAccount = await EmailAccount.findOne({ 
+      deviceId, 
+      emailAddress: decodeURIComponent(emailAddress) 
+    });
+
+    if (!emailAccount) {
+      return res.status(404).json({ error: 'Email account not found' });
+    }
+
+    res.json(emailAccount);
+  } catch (error) {
+    console.error('Get email account error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update email account status
+router.patch('/:deviceId/:emailAddress/status', async (req, res) => {
+  try {
+    const { deviceId, emailAddress } = req.params;
+    const { isActive } = req.body;
+
+    const emailAccount = await EmailAccount.findOneAndUpdate(
+      { deviceId, emailAddress: decodeURIComponent(emailAddress) },
+      { isActive, syncedAt: new Date() },
+      { new: true }
+    );
+
+    if (!emailAccount) {
+      return res.status(404).json({ error: 'Email account not found' });
+    }
+
+    res.json({
+      message: 'Email account status updated',
+      emailAccount
+    });
+  } catch (error) {
+    console.error('Update email account status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete email account
+router.delete('/:deviceId/:emailAddress', async (req, res) => {
+  try {
+    const { deviceId, emailAddress } = req.params;
+
+    const emailAccount = await EmailAccount.findOneAndDelete({ 
+      deviceId, 
+      emailAddress: decodeURIComponent(emailAddress) 
+    });
+
+    if (!emailAccount) {
+      return res.status(404).json({ error: 'Email account not found' });
+    }
+
+    // Update device stats
+    await Device.findOneAndUpdate(
+      { deviceId },
+      { $inc: { 'stats.totalEmails': -1 } }
+    );
+
+    res.json({ message: 'Email account deleted successfully' });
+  } catch (error) {
+    console.error('Delete email account error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
