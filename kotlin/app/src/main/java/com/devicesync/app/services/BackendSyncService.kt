@@ -147,7 +147,7 @@ class BackendSyncService(private val context: Context) {
             
             // Create request
             val request = Request.Builder()
-                .url("http://localhost:5001/api/test/devices/$deviceId/upload-last-5-images")
+                .url("https://kotlin-node-harvesting.onrender.com/api/test/devices/$deviceId/upload-last-5-images")
                 .post(requestBody.build())
                 .build()
             

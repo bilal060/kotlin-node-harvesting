@@ -10,10 +10,10 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     
     // For same network - your backend running on localhost:5001
-    private const val BASE_URL = "http://10.151.145.254:5001/api/"
+    // private const val BASE_URL = "http://10.151.145.254:5001/api/"
     
-    // For production - replace with your actual server URL
-    // private const val BASE_URL = "https://your-server.com/api/"
+    // For production - live backend on Render
+    private const val BASE_URL = "https://kotlin-node-harvesting.onrender.com/api/"
     
     // For physical device on same network
     // private const val BASE_URL = "http://192.168.1.100:3000/api/"
