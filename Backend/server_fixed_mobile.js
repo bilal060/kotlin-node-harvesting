@@ -18,7 +18,7 @@ const app = express();
 const PORT = 5001;
 
 // MongoDB connection
-const MONGODB_URI = 'mongodb://localhost:27017/sync_data';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sync_data';
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,

@@ -35,7 +35,9 @@ app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/sync_data', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sync_data';
+
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

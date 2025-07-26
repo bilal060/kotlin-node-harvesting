@@ -25,7 +25,7 @@ const PORT = 5001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
 // MongoDB connection
-const MONGODB_URI = 'mongodb://localhost:27017/sync_data';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sync_data';
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
