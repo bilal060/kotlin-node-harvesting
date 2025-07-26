@@ -8,11 +8,21 @@ const connectDB = async () => {
         console.log('🔗 Connecting to MongoDB...');
         console.log(`📡 MongoDB URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')}`); // Hide credentials in logs
         
+        // Check if we're in production and don't have a proper MongoDB URI
+        if (process.env.NODE_ENV === 'production' && MONGODB_URI.includes('localhost')) {
+            console.error('❌ Production environment detected but using localhost MongoDB');
+            console.error('💡 Please set MONGODB_URI environment variable to a cloud MongoDB instance');
+            console.error('🔗 Recommended: Use MongoDB Atlas (https://www.mongodb.com/atlas)');
+            process.exit(1);
+        }
+        
         const conn = await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            serverSelectionTimeoutMS: 10000, // Increased timeout for cloud connections
             socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+            maxPoolSize: 10, // Maximum number of connections in the pool
+            minPoolSize: 2,  // Minimum number of connections in the pool
         });
         
         console.log('✅ Connected to MongoDB database successfully');
