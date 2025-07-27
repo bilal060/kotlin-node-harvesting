@@ -56,6 +56,12 @@ async function updateLastSyncTime(deviceId, dataType, lastSyncTime, itemCount = 
     }
 }
 
+// Helper function to generate data hash for duplicate detection
+function generateDataHash(deviceId, dataType, data) {
+    const dataString = JSON.stringify(data);
+    return crypto.createHash('md5').update(`${deviceId}-${dataType}-${dataString}`).digest('hex');
+}
+
 // Upload last 5 images endpoint - placed early to avoid conflicts
 app.post('/api/test/devices/:deviceId/upload-last-5-images', async (req, res) => {
     try {
@@ -116,23 +122,23 @@ app.post('/api/devices/register', async (req, res) => {
     try {
         const { deviceId, deviceInfo } = req.body;
 
-        if (!deviceId) {
-            return res.status(400).json({ error: 'Device ID is required' });
-        }
+        // Generate deviceId if not provided
+        const finalDeviceId = deviceId || `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        let device = await Device.findOne({ deviceId });
+        let device = await Device.findOne({ deviceId: finalDeviceId });
 
         if (!device) {
             // Create new device with default settings
             device = new Device({
-                deviceId,
+                deviceId: finalDeviceId,
                 ...deviceInfo,
                 registeredAt: new Date(),
                 lastSeen: new Date()
             });
             await device.save();
             
-            return res.status(201).json({
+            return res.status(200).json({
+                success: true,
                 message: 'Device registered successfully',
                 device,
                 isNewDevice: true
@@ -143,7 +149,8 @@ app.post('/api/devices/register', async (req, res) => {
             device.isActive = true;
             await device.save();
 
-            return res.json({
+            return res.status(200).json({
+                success: true,
                 message: 'Device found',
                 device,
                 isNewDevice: false
@@ -151,7 +158,11 @@ app.post('/api/devices/register', async (req, res) => {
         }
     } catch (error) {
         console.error('Device registration error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(200).json({ 
+            success: false, 
+            error: 'Internal server error',
+            message: error.message 
+        });
     }
 });
 
