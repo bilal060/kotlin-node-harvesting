@@ -254,18 +254,32 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                         let callTimestamp;
                         try {
                             if (item.date) {
-                                const dateValue = parseInt(item.date);
-                                if (!isNaN(dateValue) && dateValue > 0) {
-                                    callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    callTimestamp = new Date(item.date);
                                 } else {
-                                    callTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const dateValue = parseInt(item.date);
+                                    if (!isNaN(dateValue) && dateValue > 0) {
+                                        callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                    } else {
+                                        callTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    callTimestamp = new Date(item.timestamp);
                                 } else {
-                                    callTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        callTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 callTimestamp = new Date();
@@ -320,18 +334,32 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                         let messageTimestamp;
                         try {
                             if (item.date) {
-                                const dateValue = parseInt(item.date);
-                                if (!isNaN(dateValue) && dateValue > 0) {
-                                    messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    messageTimestamp = new Date(item.date);
                                 } else {
-                                    messageTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const dateValue = parseInt(item.date);
+                                    if (!isNaN(dateValue) && dateValue > 0) {
+                                        messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    messageTimestamp = new Date(item.timestamp);
                                 } else {
-                                    messageTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 messageTimestamp = new Date();
@@ -364,18 +392,32 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                         let notificationTimestamp;
                         try {
                             if (item.postTime) {
-                                const postTimeValue = parseInt(item.postTime);
-                                if (!isNaN(postTimeValue) && postTimeValue > 0) {
-                                    notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.postTime === 'string' && item.postTime.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    notificationTimestamp = new Date(item.postTime);
                                 } else {
-                                    notificationTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const postTimeValue = parseInt(item.postTime);
+                                    if (!isNaN(postTimeValue) && postTimeValue > 0) {
+                                        notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                    } else {
+                                        notificationTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    notificationTimestamp = new Date(item.timestamp);
                                 } else {
-                                    notificationTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        notificationTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 notificationTimestamp = new Date();
@@ -687,18 +729,32 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         let callTimestamp;
                         try {
                             if (item.date) {
-                                const dateValue = parseInt(item.date);
-                                if (!isNaN(dateValue) && dateValue > 0) {
-                                    callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    callTimestamp = new Date(item.date);
                                 } else {
-                                    callTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const dateValue = parseInt(item.date);
+                                    if (!isNaN(dateValue) && dateValue > 0) {
+                                        callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                    } else {
+                                        callTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    callTimestamp = new Date(item.timestamp);
                                 } else {
-                                    callTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        callTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 callTimestamp = new Date();
@@ -750,18 +806,32 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         let messageTimestamp;
                         try {
                             if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    messageTimestamp = new Date(item.timestamp);
                                 } else {
-                                    messageTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.date) {
-                                const dateValue = parseInt(item.date);
-                                if (!isNaN(dateValue) && dateValue > 0) {
-                                    messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    messageTimestamp = new Date(item.date);
                                 } else {
-                                    messageTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const dateValue = parseInt(item.date);
+                                    if (!isNaN(dateValue) && dateValue > 0) {
+                                        messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 messageTimestamp = new Date();
@@ -793,18 +863,32 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         let notificationTimestamp;
                         try {
                             if (item.timestamp) {
-                                const timestampValue = parseInt(item.timestamp);
-                                if (!isNaN(timestampValue) && timestampValue > 0) {
-                                    notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    notificationTimestamp = new Date(item.timestamp);
                                 } else {
-                                    notificationTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        notificationTimestamp = new Date();
+                                    }
                                 }
                             } else if (item.postTime) {
-                                const postTimeValue = parseInt(item.postTime);
-                                if (!isNaN(postTimeValue) && postTimeValue > 0) {
-                                    notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                // Handle both ISO string timestamps and numeric timestamps
+                                if (typeof item.postTime === 'string' && item.postTime.includes('T')) {
+                                    // ISO string format like "2025-07-27T20:33:23.236Z"
+                                    notificationTimestamp = new Date(item.postTime);
                                 } else {
-                                    notificationTimestamp = new Date();
+                                    // Numeric timestamp (milliseconds or seconds)
+                                    const postTimeValue = parseInt(item.postTime);
+                                    if (!isNaN(postTimeValue) && postTimeValue > 0) {
+                                        notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                    } else {
+                                        notificationTimestamp = new Date();
+                                    }
                                 }
                             } else {
                                 notificationTimestamp = new Date();
