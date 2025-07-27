@@ -2,47 +2,64 @@ const express = require('express');
 const router = express.Router();
 const Device = require('../models/Device');
 
-// Register or get device
+// Register or get device - SIMPLIFIED
 router.post('/register', async (req, res) => {
   try {
-    const { deviceId, deviceInfo } = req.body;
-
+    console.log('📱 Device registration request body:', JSON.stringify(req.body, null, 2));
+    
+    // Extract deviceId from request or generate one if not provided
+    let deviceId = req.body.deviceId;
+    
     if (!deviceId) {
-      return res.status(400).json({ error: 'Device ID is required' });
+      deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      console.log(`📱 No deviceId provided, generated: ${deviceId}`);
     }
 
-    let device = await Device.findOne({ deviceId });
+    console.log(`📱 Checking if device exists: ${deviceId}`);
 
-    if (!device) {
-      // Create new device with default settings
-      device = new Device({
-        deviceId,
-        ...deviceInfo,
-        registeredAt: new Date(),
-        lastSeen: new Date()
-      });
-      await device.save();
-      
-      return res.status(201).json({
-        message: 'Device registered successfully',
-        device,
-        isNewDevice: true
-      });
-    } else {
-      // Update existing device
-      device.lastSeen = new Date();
-      device.isActive = true;
-      await device.save();
+    // Check if device already exists
+    const existingDevice = await Device.findOne({ deviceId: deviceId });
 
-      return res.json({
-        message: 'Device found',
-        device,
+    if (existingDevice) {
+      console.log(`✅ Device already exists: ${deviceId}`);
+      return res.status(200).json({
+        success: true,
+        message: 'Device already registered',
+        device: existingDevice,
         isNewDevice: false
       });
     }
+
+    // Device doesn't exist - create it with minimal data
+    const newDevice = new Device({
+      deviceId: deviceId,
+      deviceName: req.body.deviceName || 'Unknown Device',
+      model: req.body.model || 'Unknown Model',
+      manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
+      androidVersion: req.body.androidVersion || 'Unknown Version',
+      userName: req.body.userName || 'Unknown User',
+      registeredAt: new Date(),
+      lastSeen: new Date(),
+      isActive: true
+    });
+    
+    await newDevice.save();
+    
+    console.log(`✅ New device registered: ${deviceId}`);
+    return res.status(200).json({
+      success: true,
+      message: 'Device registered successfully',
+      device: newDevice,
+      isNewDevice: true
+    });
+    
   } catch (error) {
-    console.error('Device registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('❌ Device registration error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Device registration failed',
+      message: error.message 
+    });
   }
 });
 
