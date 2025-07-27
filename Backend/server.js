@@ -1,5 +1,4 @@
 // Load environment configuration
-const config = require('./config/environment');
 
 const express = require('express');
 const cors = require('cors');
