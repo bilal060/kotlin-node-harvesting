@@ -581,6 +581,10 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
             }
             
             existingData = await Model.find(query).lean();
+            console.log(`🔍 Query used:`, JSON.stringify(query, null, 2));
+            if (dataType === 'EMAIL_ACCOUNTS' || dataType === 'NOTIFICATIONS') {
+                console.log(`🔍 Sample dataHash from mappedItems:`, mappedItems.slice(0, 3).map(item => item.dataHash));
+            }
             console.log(`📋 Found ${existingData.length} existing records for ${dataType}`);
             
         } catch (error) {
@@ -1111,6 +1115,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
             }
             
             existingData = await Model.find(query).lean();
+            console.log(`🔍 Query used:`, JSON.stringify(query, null, 2));
+            if (dataType === 'EMAIL_ACCOUNTS' || dataType === 'NOTIFICATIONS') {
+                console.log(`🔍 Sample dataHash from mappedItems:`, mappedItems.slice(0, 3).map(item => item.dataHash));
+            }
             console.log(`📋 Found ${existingData.length} existing records for ${dataType}`);
             
         } catch (error) {
