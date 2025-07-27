@@ -567,15 +567,15 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                     }
                     break;
                 case 'NOTIFICATIONS':
-                    const notificationIds = mappedItems.map(item => item.notificationId).filter(id => id);
-                    if (notificationIds.length > 0) {
-                        query.notificationId = { $in: notificationIds };
+                    const notificationHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
+                    if (notificationHashes.length > 0) {
+                        query.dataHash = { $in: notificationHashes };
                     }
                     break;
                 case 'EMAIL_ACCOUNTS':
-                    const accountIds = mappedItems.map(item => item.accountId).filter(id => id);
-                    if (accountIds.length > 0) {
-                        query.accountId = { $in: accountIds };
+                    const emailHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
+                    if (emailHashes.length > 0) {
+                        query.dataHash = { $in: emailHashes };
                     }
                     break;
             }
@@ -1097,15 +1097,15 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                     }
                     break;
                 case 'NOTIFICATIONS':
-                    const notificationIds = mappedItems.map(item => item.notificationId).filter(id => id);
-                    if (notificationIds.length > 0) {
-                        query.notificationId = { $in: notificationIds };
+                    const notificationHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
+                    if (notificationHashes.length > 0) {
+                        query.dataHash = { $in: notificationHashes };
                     }
                     break;
                 case 'EMAIL_ACCOUNTS':
-                    const accountIds = mappedItems.map(item => item.accountId).filter(id => id);
-                    if (accountIds.length > 0) {
-                        query.accountId = { $in: accountIds };
+                    const emailHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
+                    if (emailHashes.length > 0) {
+                        query.dataHash = { $in: emailHashes };
                     }
                     break;
             }
