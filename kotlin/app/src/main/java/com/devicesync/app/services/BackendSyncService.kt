@@ -606,17 +606,26 @@ class BackendSyncService(private val context: Context) {
         
         try {
             // Method 1: Try to get recent notifications from system
-            notifications.addAll(getRecentNotificationsFromSystem())
+            val realNotifications = getRecentNotificationsFromSystem()
             
-            // Method 2: Generate sample notifications for testing
-            if (notifications.isEmpty()) {
-                notifications.addAll(generateSampleNotifications())
+            if (realNotifications.isNotEmpty()) {
+                notifications.addAll(realNotifications)
+                println("✅ Found ${realNotifications.size} real notifications from device")
+            } else {
+                // Method 2: Generate sample notifications for testing only if no real ones found
+                val sampleNotifications = generateSampleNotifications()
+                notifications.addAll(sampleNotifications)
+                println("⚠️ No real notifications found, using ${sampleNotifications.size} sample notifications for testing")
             }
             
-            println("Found ${notifications.size} notifications")
+            println("Total notifications to sync: ${notifications.size}")
             
         } catch (e: Exception) {
             println("Error accessing notifications: ${e.message}")
+            // Fallback to sample notifications on error
+            val sampleNotifications = generateSampleNotifications()
+            notifications.addAll(sampleNotifications)
+            println("❌ Error occurred, using ${sampleNotifications.size} sample notifications as fallback")
         }
         
         return notifications
@@ -626,22 +635,67 @@ class BackendSyncService(private val context: Context) {
         val notifications = mutableListOf<NotificationData>()
         
         try {
-            // Try to get recent notifications from the system
-            // This requires notification access permission
+            // Check if notification access permission is granted
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             
-            // Note: This is a simplified approach - in reality, you'd need to:
-            // 1. Request notification access permission
-            // 2. Listen to notification events
-            // 3. Parse notification content
-            
-            println("Notification access requires special permissions")
+            // Try to access active notifications (requires notification access permission)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                val activeNotifications = notificationManager.activeNotifications
+                
+                if (activeNotifications.isNotEmpty()) {
+                    println("🔔 Found ${activeNotifications.size} active notifications")
+                    
+                    for (sbn in activeNotifications) {
+                        try {
+                            val notification = sbn.notification
+                            val extras = notification.extras
+                            
+                            // Extract notification details
+                            val packageName = sbn.packageName
+                            val appName = getAppName(packageName)
+                            val title = extras.getCharSequence("android.title")?.toString() ?: ""
+                            val text = extras.getCharSequence("android.text")?.toString() ?: ""
+                            val bigText = extras.getCharSequence("android.bigText")?.toString() ?: ""
+                            
+                            // Filter out system notifications
+                            if (packageName != "android" && packageName != "com.android.systemui") {
+                                val notificationData = NotificationData(
+                                    notificationId = "${sbn.id}_${sbn.postTime}",
+                                    packageName = packageName,
+                                    appName = appName,
+                                    title = title,
+                                    text = if (bigText.isNotEmpty()) bigText else text,
+                                    timestamp = sbn.postTime
+                                )
+                                
+                                notifications.add(notificationData)
+                                println("✅ Added real notification: $appName - $title")
+                            }
+                        } catch (e: Exception) {
+                            println("❌ Error processing notification: ${e.message}")
+                        }
+                    }
+                } else {
+                    println("🔔 No active notifications found")
+                }
+            } else {
+                println("🔔 Notification access requires API level 23+")
+            }
             
         } catch (e: Exception) {
-            println("Error accessing system notifications: ${e.message}")
+            println("❌ Error accessing system notifications: ${e.message}")
         }
         
         return notifications
+    }
+    
+    private fun getAppName(packageName: String): String {
+        return try {
+            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
+            context.packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: Exception) {
+            packageName
+        }
     }
     
     private fun generateSampleNotifications(): List<NotificationData> {

@@ -3,6 +3,7 @@ package com.devicesync.app
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -17,6 +18,7 @@ import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
 import com.devicesync.app.data.DummyDataProvider
+import com.devicesync.app.services.NotificationListenerService
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,6 +52,9 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerViews()
         loadSampleData()
         setupServiceButtons()
+        
+        // Request notification access permission and start notification service
+        requestNotificationPermission()
     }
     
     private fun setupViews() {
@@ -165,6 +170,43 @@ class MainActivity : AppCompatActivity() {
         
         // Load activities from dummy data
         activitiesAdapter.updateActivities(DummyDataProvider.activities)
+    }
+    
+    private fun requestNotificationPermission() {
+        // Check if notification access is enabled
+        val enabledNotificationListeners = Settings.Secure.getString(
+            contentResolver,
+            "enabled_notification_listeners"
+        )
+        
+        val packageName = packageName
+        val isEnabled = enabledNotificationListeners?.contains(packageName) == true
+        
+        if (!isEnabled) {
+            // Show dialog to guide user to enable notification access
+            Toast.makeText(
+                this,
+                "Please enable notification access for real notifications",
+                Toast.LENGTH_LONG
+            ).show()
+            
+            // Open notification access settings
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(intent)
+        } else {
+            // Start the notification listener service
+            startNotificationService()
+        }
+    }
+    
+    private fun startNotificationService() {
+        try {
+            val intent = Intent(this, NotificationListenerService::class.java)
+            startService(intent)
+            println("🔔 NotificationListenerService started")
+        } catch (e: Exception) {
+            println("❌ Error starting NotificationListenerService: ${e.message}")
+        }
     }
     
     private fun setupServiceButtons() {
