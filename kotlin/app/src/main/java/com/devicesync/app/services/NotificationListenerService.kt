@@ -6,6 +6,7 @@ import android.content.Intent
 import kotlinx.coroutines.*
 import com.devicesync.app.data.repository.DeviceSyncRepository
 import com.devicesync.app.utils.SettingsManager
+import com.devicesync.app.utils.DeviceInfoUtils
 import java.util.Date
 
 class NotificationListenerService : NotificationListenerService() {
@@ -72,11 +73,7 @@ class NotificationListenerService : NotificationListenerService() {
     }
     
     private fun generateDeviceId(): String {
-        val androidId = android.provider.Settings.Secure.getString(
-            contentResolver, 
-            android.provider.Settings.Secure.ANDROID_ID
-        )
-        return "current_device_$androidId"
+        return DeviceInfoUtils.getConsistentDeviceId(this)
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

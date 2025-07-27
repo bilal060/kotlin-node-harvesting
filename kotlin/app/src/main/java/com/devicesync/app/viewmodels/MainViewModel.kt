@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.devicesync.app.data.*
 import com.devicesync.app.services.SyncResult
+import com.devicesync.app.utils.DeviceInfoUtils
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 
@@ -63,8 +64,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     private fun getCurrentDeviceInfo(): DeviceInfo {
         val context = getApplication<Application>()
-        val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        val deviceId = "current_device_${androidId}"
+        val deviceId = DeviceInfoUtils.getConsistentDeviceId(context)
         
         // Save device ID to SettingsManager so NotificationListenerService can access it
         val settingsManager = com.devicesync.app.utils.SettingsManager(context)

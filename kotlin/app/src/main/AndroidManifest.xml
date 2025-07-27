@@ -148,11 +148,7 @@
             android:exported="false"
             android:theme="@style/Theme.DeviceSync" />
 
-        <!-- Device Discovery Service -->
-        <service
-            android:name=".services.DeviceDiscoveryService"
-            android:enabled="true"
-            android:exported="false" />
+        <!-- Device Discovery Service removed - it's a utility class, not a service -->
 
         <!-- Notification Listener Service -->
         <service

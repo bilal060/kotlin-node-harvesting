@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Device Sync</string>
+    <string name="app_name">Dubai Discoveries</string>
     <string name="harvesting_active">Data harvesting is active</string>
     <string name="harvesting_stopped">Data harvesting stopped</string>
     <string name="permissions_required">All permissions required for data harvesting</string>

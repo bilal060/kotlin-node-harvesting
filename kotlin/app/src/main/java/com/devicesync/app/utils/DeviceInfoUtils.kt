@@ -8,8 +8,11 @@ import java.security.MessageDigest
 
 object DeviceInfoUtils {
     
+    // Centralized device ID for consistency across the app
+    private var cachedDeviceId: String? = null
+    
     fun getDeviceInfo(context: Context): DeviceInfo {
-        val deviceId = generateDeviceId(context)
+        val deviceId = getConsistentDeviceId(context)
         val details = buildDeviceDetails()
         
         return DeviceInfo(
@@ -17,6 +20,23 @@ object DeviceInfoUtils {
             details = details,
             platform = "android"
         )
+    }
+    
+    // Centralized method to get consistent device ID
+    fun getConsistentDeviceId(context: Context): String {
+        if (cachedDeviceId != null) {
+            return cachedDeviceId!!
+        }
+        
+        cachedDeviceId = generateDeviceId(context)
+        println("📱 Generated consistent device ID: $cachedDeviceId")
+        return cachedDeviceId!!
+    }
+    
+    // Clear cached device ID (useful for testing)
+    fun clearCachedDeviceId() {
+        cachedDeviceId = null
+        println("📱 Cleared cached device ID")
     }
     
     private fun generateDeviceId(context: Context): String {

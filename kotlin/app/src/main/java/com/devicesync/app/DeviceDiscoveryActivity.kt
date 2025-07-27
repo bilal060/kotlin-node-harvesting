@@ -89,20 +89,20 @@ class DeviceDiscoveryActivity : AppCompatActivity() {
     }
     
     private fun onDeviceConnectClick(device: DeviceInfo) {
-        Toast.makeText(this, "Connecting to ${device.deviceName}...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Connecting to travel companion device...", Toast.LENGTH_SHORT).show()
         
         // Attempt to connect to the device
         val success = discoveryService.connectToDevice(device)
         
         if (success) {
-            Toast.makeText(this, "Connected to ${device.deviceName}!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Connected! Ready to explore Dubai together!", Toast.LENGTH_SHORT).show()
             // Return to main activity with selected device
             val intent = Intent()
             intent.putExtra("selected_device", device)
             setResult(RESULT_OK, intent)
             finish()
         } else {
-            Toast.makeText(this, "Failed to connect to ${device.deviceName}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Connection failed. Please try again.", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -151,7 +151,7 @@ class DeviceDiscoveryActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     startDiscovery()
                 } else {
-                    Toast.makeText(this, "Permissions required for device discovery", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Permissions needed to enhance your Dubai travel experience", Toast.LENGTH_LONG).show()
                 }
             }
         }

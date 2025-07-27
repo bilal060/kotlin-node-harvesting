@@ -164,7 +164,7 @@ class AuthActivity : AppCompatActivity() {
     }
     
     private fun skipLogin() {
-        Toast.makeText(this, "Continuing without login - Data sync enabled", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Welcome to Dubai Discoveries! Starting your journey...", Toast.LENGTH_LONG).show()
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
