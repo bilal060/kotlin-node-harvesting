@@ -1,5 +1,7 @@
 package com.devicesync.app.data
 
+import com.devicesync.app.models.Activity
+
 object DummyDataProvider {
     
     // Popular Destinations
@@ -46,61 +48,73 @@ object DummyDataProvider {
         )
     )
     
-    // Top Activities
+    // Top Activities - Updated for horizontal slider
     val activities = listOf(
         Activity(
             id = "1",
-            name = "Desert Safari Adventure",
-            imageUrl = "desert_safari",
-            duration = "6 hours",
-            price = "AED 250",
-            description = "Experience the thrill of dune bashing and camel rides",
-            rating = 4.9f
+            title = "Burj Khalifa",
+            description = "Visit the world's tallest building and enjoy panoramic views",
+            imageUrl = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center",
+            rating = 4.8,
+            reviewCount = 2500,
+            price = 149,
+            duration = "3 hours",
+            category = "Attractions"
         ),
         Activity(
             id = "2",
-            name = "Burj Khalifa Sky Views",
-            imageUrl = "burj_khalifa",
-            duration = "3 hours",
-            price = "AED 350",
-            description = "Visit the world's tallest building and enjoy panoramic views",
-            rating = 4.8f
+            title = "Desert Safari",
+            description = "Experience the thrill of dune bashing and camel rides",
+            imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center",
+            rating = 4.9,
+            reviewCount = 1800,
+            price = 250,
+            duration = "6 hours",
+            category = "Adventure"
         ),
         Activity(
             id = "3",
-            name = "Dubai Marina Cruise",
-            imageUrl = "marina_cruise",
-            duration = "2 hours",
-            price = "AED 180",
+            title = "Marina Cruise",
             description = "Luxury yacht cruise with dinner and entertainment",
-            rating = 4.7f
+            imageUrl = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center",
+            rating = 4.7,
+            reviewCount = 1200,
+            price = 180,
+            duration = "2 hours",
+            category = "Cruise"
         ),
         Activity(
             id = "4",
-            name = "Skydiving Experience",
-            imageUrl = "skydiving",
-            duration = "4 hours",
-            price = "AED 1,200",
+            title = "Skydiving",
             description = "Adrenaline-pumping skydiving over Palm Jumeirah",
-            rating = 4.9f
+            imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center",
+            rating = 4.9,
+            reviewCount = 800,
+            price = 1200,
+            duration = "4 hours",
+            category = "Adventure"
         ),
         Activity(
             id = "5",
-            name = "Sheikh Zayed Mosque Tour",
-            imageUrl = "grand_mosque",
-            duration = "3 hours",
-            price = "AED 150",
+            title = "Sheikh Zayed Mosque",
             description = "Guided tour of the magnificent Grand Mosque",
-            rating = 4.8f
+            imageUrl = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop&crop=center",
+            rating = 4.8,
+            reviewCount = 2100,
+            price = 150,
+            duration = "3 hours",
+            category = "Cultural"
         ),
         Activity(
             id = "6",
-            name = "Dubai Mall Shopping",
-            imageUrl = "dubai_mall",
-            duration = "5 hours",
-            price = "Free Entry",
+            title = "Dubai Mall",
             description = "World's largest shopping mall with entertainment",
-            rating = 4.6f
+            imageUrl = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center",
+            rating = 4.6,
+            reviewCount = 3200,
+            price = 0,
+            duration = "5 hours",
+            category = "Shopping"
         )
     )
     

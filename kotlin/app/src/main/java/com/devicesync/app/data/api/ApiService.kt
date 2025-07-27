@@ -6,6 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import com.devicesync.app.data.models.*
 import java.util.*
+import okhttp3.OkHttpClient
 
 interface ApiInterface {
     
@@ -37,13 +38,29 @@ class ApiService {
     private val api: ApiInterface
     
     companion object {
-        private const val BASE_URL = "http://10.151.145.254:5001/api/" // Physical device - No Auth
+        private const val BASE_URL = "https://kotlin-node-harvesting.onrender.com/api/" // Live server
+        // private const val BASE_URL = "http://10.151.145.254:5001/api/" // Physical device - No Auth
         // private const val BASE_URL = "http://10.0.2.2:5001/api/" // Android emulator
     }
     
     init {
+        // Create OkHttpClient with better timeout configuration
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val request = chain.request()
+                println("🌐 Making API request to: ${request.url}")
+                val response = chain.proceed(request)
+                println("🌐 API response: ${response.code}")
+                response
+            }
+            .build()
+            
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             

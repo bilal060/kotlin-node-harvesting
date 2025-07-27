@@ -1,123 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_width="160dp"
+    android:layout_height="200dp"
+    android:layout_marginEnd="12dp"
     app:cardBackgroundColor="@color/surface_color"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <!-- Activity Image -->
         <ImageView
             android:id="@+id/activityImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/original_logo"
-            android:contentDescription="Activity Image"
-            android:background="@drawable/rounded_image_background" />
+            android:src="@drawable/ic_airport"
+            android:contentDescription="Activity Image" />
 
+        <!-- Activity Details -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:padding="12dp">
 
+            <!-- Activity Title -->
             <TextView
-                android:id="@+id/activityName"
-                android:layout_width="wrap_content"
+                android:id="@+id/activityTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Desert Safari Adventure"
-                android:textSize="16sp"
+                android:text="Burj Khalifa"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:layout_marginBottom="4dp" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
-
-                <TextView
-                    android:id="@+id/activityDuration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="6 hours"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary"
-                    android:drawableStart="@drawable/ic_time"
-                    android:drawablePadding="4dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" • "
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/activityPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AED 250"
-                    android:textSize="12sp"
-                    android:textColor="@color/accent_gold"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/activityDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Experience the thrill of dune bashing and camel rides"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:layout_marginBottom="8dp"
-                android:maxLines="2"
-                android:ellipsize="end" />
-
+            <!-- Activity Rating -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <RatingBar
-                    android:id="@+id/activityRating"
-                    style="?android:attr/ratingBarStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numStars="5"
-                    android:stepSize="0.1"
-                    android:rating="4.9"
-                    android:progressTint="@color/accent_gold"
-                    android:layout_marginEnd="8dp" />
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
 
                 <TextView
-                    android:id="@+id/addToItineraryButton"
+                    android:id="@+id/activityRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add to Itinerary"
+                    android:text="4.8"
                     android:textSize="12sp"
                     android:textColor="@color/accent_gold"
-                    android:background="@drawable/button_background"
-                    android:padding="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    style="@style/Widget.DeviceSync.Button.Outlined" />
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ★"
+                    android:textSize="12sp"
+                    android:textColor="@color/accent_gold" />
+
+                <TextView
+                    android:id="@+id/activityReviews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(2.5k reviews)"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginStart="4dp" />
 
             </LinearLayout>
+
+            <!-- Activity Price -->
+            <TextView
+                android:id="@+id/activityPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From AED 149"
+                android:textSize="12sp"
+                android:textColor="@color/primary_color"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
