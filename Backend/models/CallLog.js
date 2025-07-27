@@ -34,8 +34,11 @@ const callLogSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Compound index to prevent duplicates based on device, phone, timestamp and duration
-callLogSchema.index({ deviceId: 1, phoneNumber: 1, timestamp: 1, duration: 1 }, { unique: true });
+// Compound index for efficient queries (removed unique constraint to allow upsert)
+callLogSchema.index({ deviceId: 1, phoneNumber: 1, timestamp: 1, duration: 1 });
+
+// Unique index on dataHash for upsert operations
+callLogSchema.index({ dataHash: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 callLogSchema.statics.getCollectionName = function(deviceId) {
