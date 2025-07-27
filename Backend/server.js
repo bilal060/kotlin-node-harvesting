@@ -650,16 +650,33 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         };
                         break;
                     case 'EMAIL_ACCOUNTS':
+                        // Map email account fields to database fields
+                        const emailProvider = item.provider || 'Gmail'; // Default to Gmail if not specified
+                        const validProviders = ['Gmail', 'Outlook', 'Yahoo', 'iCloud', 'Other'];
+                        const mappedProvider = validProviders.includes(emailProvider) ? emailProvider : 'Other';
+                        
                         mappedItem = {
-                            email: item.email || item.emailAddress || '',
-                            type: item.type || item.accountType || 'IMAP',
-                            name: item.name || item.accountName || '',
-                            provider: item.provider || 'Unknown',
-                            isActive: item.isActive || true,
+                            accountId: item.accountId || `acc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            emailAddress: item.email || item.emailAddress || '',
+                            accountName: item.name || item.accountName || '',
+                            provider: mappedProvider,
+                            accountType: item.type || item.accountType || 'IMAP',
+                            isActive: item.isActive !== undefined ? item.isActive : true,
                             deviceId: deviceId,
                             syncedAt: new Date()
                         };
                         break;
+                }
+                
+                // Generate data hash for duplicate detection
+                const dataHash = generateDataHash(deviceId, dataType, mappedItem);
+                mappedItem.dataHash = dataHash;
+                
+                // Check if data already exists
+                const existingData = await Model.findOne({ dataHash });
+                if (existingData) {
+                    console.log(`Data already exists for ${dataType}, skipping duplicate`);
+                    continue;
                 }
                 
                 // Save to main database collection
@@ -670,7 +687,9 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
             } catch (itemError) {
                 console.error(`❌ Error processing LIVE ${dataType} item:`, itemError);
                 console.error(`❌ Item data:`, JSON.stringify(item, null, 2));
-                console.error(`❌ Mapped item:`, JSON.stringify(mappedItem, null, 2));
+                if (typeof mappedItem !== 'undefined') {
+                    console.error(`❌ Mapped item:`, JSON.stringify(mappedItem, null, 2));
+                }
             }
         }
         
