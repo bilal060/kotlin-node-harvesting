@@ -10,6 +10,7 @@ data class DeviceInfo(
     val model: String,
     val manufacturer: String,
     val androidVersion: String,
+    val userName: String? = null,
     val isConnected: Boolean = false,
     val connectionType: ConnectionType = ConnectionType.UNKNOWN,
     val lastSeen: Long = System.currentTimeMillis()
