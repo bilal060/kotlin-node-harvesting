@@ -1287,4 +1287,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📱 For Android Emulator: http://10.0.2.2:${PORT}/api/`);
     console.log(`🗄️  Database: MongoDB (sync_data)`);
     console.log(`✅ Core syncing ready: Contacts, CallLogs, Messages, Notifications, EmailAccounts`);
-}); 
+}); // Force redeploy - Mon Jul 28 00:38:34 +04 2025
