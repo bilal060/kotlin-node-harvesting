@@ -59,4 +59,10 @@
     <color name="border_light">#E0E0E0</color>
     <color name="chip_background">#F5F5F5</color>
     <color name="chip_text">#666666</color>
+    
+    <!-- Status colors for UI elements -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+    <color name="info_blue">#2196F3</color>
 </resources> 

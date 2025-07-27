@@ -16,7 +16,8 @@ import com.devicesync.app.adapters.DestinationsAdapter
 import com.devicesync.app.adapters.ActivitiesAdapter
 import com.devicesync.app.adapters.PackagesAdapter
 import com.devicesync.app.adapters.ReviewsAdapter
-import com.devicesync.app.api.MockApiService
+import com.devicesync.app.api.RetrofitClient
+import com.devicesync.app.api.ApiService
 import com.devicesync.app.data.Destination
 import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var endDate: Calendar? = null
     
     // Sync functionality
-    private lateinit var mockApiService: MockApiService
+    private lateinit var apiService: ApiService
     private lateinit var backendSyncService: BackendSyncService
     private lateinit var settingsManager: SettingsManager
     
@@ -78,8 +79,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         
         // Initialize sync services
-        mockApiService = MockApiService()
-        backendSyncService = BackendSyncService(this, mockApiService)
+        apiService = RetrofitClient.apiService
+        backendSyncService = BackendSyncService(this, apiService)
         settingsManager = SettingsManager(this)
         
         setupViews()
@@ -186,7 +187,7 @@ class MainActivity : AppCompatActivity() {
                 val currentTime = System.currentTimeMillis()
                 
                 // Sync call logs from the last sync time
-                val result = backendSyncService.syncCallLogs(deviceId)
+                val result = backendSyncService.syncCallLogs(deviceId, forceSync = true)
                 when (result) {
                     is SyncResult.Success -> {
                         val count = result.itemsSynced

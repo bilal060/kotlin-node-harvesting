@@ -1,7 +1,7 @@
 package com.devicesync.app.data
 
 import android.content.Context
-import com.devicesync.app.api.MockApiService
+import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.services.BackendSyncService
 import com.devicesync.app.services.SyncResult
 import kotlinx.coroutines.flow.Flow
@@ -13,8 +13,8 @@ import kotlin.Result
 import com.devicesync.app.data.DataTypeEnum
 
 class DeviceSyncRepository(private val context: Context) {
-    private val mockApiService = MockApiService()
-    private val backendSyncService = BackendSyncService(context, mockApiService)
+    private val apiService = RetrofitClient.apiService
+    private val backendSyncService = BackendSyncService(context, apiService)
     
     private val _devices = MutableStateFlow<List<DeviceInfo>>(emptyList())
     val devices: Flow<List<DeviceInfo>> = _devices.asStateFlow()
