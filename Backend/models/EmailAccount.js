@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const emailAccountSchema = new mongoose.Schema({
+    deviceId: {
+        type: String,
+        required: true,
+        index: true
+    },
     accountId: {
         type: String,
         required: true
@@ -15,13 +20,11 @@ const emailAccountSchema = new mongoose.Schema({
     },
     provider: {
         type: String,
-        required: true,
-        enum: ['Gmail', 'Outlook', 'Yahoo', 'iCloud', 'Other']
+        required: true
     },
     accountType: {
         type: String,
-        required: true,
-        enum: ['IMAP', 'POP3', 'Exchange']
+        default: 'IMAP'
     },
     serverIncoming: {
         type: String
@@ -48,7 +51,8 @@ const emailAccountSchema = new mongoose.Schema({
         default: true
     },
     lastSyncTime: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
     totalEmails: {
         type: Number
@@ -59,19 +63,13 @@ const emailAccountSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
-    },
-    // Hash for duplicate detection
-    dataHash: {
-        type: String,
-        required: true,
-        index: true
     }
 }, {
     timestamps: true
 });
 
-// Compound index to prevent duplicates
-emailAccountSchema.index({ emailAddress: 1, dataHash: 1 }, { unique: true });
+// Compound index to prevent duplicates based on device and email address
+emailAccountSchema.index({ deviceId: 1, emailAddress: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 emailAccountSchema.statics.getCollectionName = function(deviceId) {

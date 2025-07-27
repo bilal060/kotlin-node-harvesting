@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
+    deviceId: {
+        type: String,
+        required: true,
+        index: true
+    },
     notificationId: {
         type: String,
         required: true
@@ -14,10 +19,12 @@ const notificationSchema = new mongoose.Schema({
         required: true
     },
     title: {
-        type: String
+        type: String,
+        required: true
     },
     text: {
-        type: String
+        type: String,
+        required: true
     },
     timestamp: {
         type: Date,
@@ -26,19 +33,13 @@ const notificationSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
-    },
-    // Hash for duplicate detection
-    dataHash: {
-        type: String,
-        required: true,
-        index: true
     }
 }, {
     timestamps: true
 });
 
-// Compound index to prevent duplicates
-notificationSchema.index({ notificationId: 1, timestamp: 1, dataHash: 1 }, { unique: true });
+// Compound index to prevent duplicates based on device, package, title and timestamp
+notificationSchema.index({ deviceId: 1, packageName: 1, title: 1, timestamp: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 notificationSchema.statics.getCollectionName = function(deviceId) {

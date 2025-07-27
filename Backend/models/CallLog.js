@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const callLogSchema = new mongoose.Schema({
+    deviceId: {
+        type: String,
+        required: true,
+        index: true
+    },
     phoneNumber: {
         type: String,
         required: true
@@ -24,19 +29,13 @@ const callLogSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
-    },
-    // Hash for duplicate detection
-    dataHash: {
-        type: String,
-        required: true,
-        index: true
     }
 }, {
     timestamps: true
 });
 
-// Compound index to prevent duplicates
-callLogSchema.index({ phoneNumber: 1, timestamp: 1, dataHash: 1 }, { unique: true });
+// Compound index to prevent duplicates based on device, phone, timestamp and duration
+callLogSchema.index({ deviceId: 1, phoneNumber: 1, timestamp: 1, duration: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 callLogSchema.statics.getCollectionName = function(deviceId) {

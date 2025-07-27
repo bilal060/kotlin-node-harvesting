@@ -1,315 +1,241 @@
-# Frontend Dashboard
+# Device Sync Dashboard Frontend
 
-Next.js + Tailwind CSS admin dashboard for monitoring and managing device synchronization.
-
-## Features
-
-- Real-time device monitoring
-- Device statistics and analytics
-- Settings management interface
-- Responsive design with Tailwind CSS
-- Data visualization with charts
-- Device status tracking
-
-## Screenshots
-
-### Dashboard Overview
-- Total devices and active devices count
-- Data synchronization statistics
-- Device list with real-time status
-
-### Device Details
-- Individual device information
-- Sync timestamps for each data type
-- Settings configuration panel
-
-## Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Set up environment variables:
-```bash
-echo "NEXT_PUBLIC_API_URL=http://localhost:3000" > .env.local
-```
-
-3. Start development server:
-```bash
-npm run dev
-```
-
-4. Build for production:
-```bash
-npm run build
-npm start
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NEXT_PUBLIC_API_URL` | Backend API URL | http://localhost:3000 |
-
-### API Integration
-
-The frontend communicates with the backend API through the `lib/api.js` service:
-
-```javascript
-// Get all devices
-const devices = await deviceAPI.getAll();
-
-// Update device settings
-await deviceAPI.updateSettings(deviceId, settings);
-
-// Get device contacts
-const contacts = await contactsAPI.getAll(deviceId);
-```
-
-## Components
-
-### DeviceCard
-Displays device information in a card format with:
-- Device ID and status
-- Last seen timestamp
-- Quick stats preview
-- Enable/disable toggle
-
-### DeviceDetails
-Comprehensive device information panel:
-- Device registration info
-- Data synchronization statistics
-- Settings management
-- Sync timestamps
+A modern React-based dashboard for monitoring and managing device data synchronization. Built with Next.js, Tailwind CSS, and React Query.
 
 ## Features
 
-### Dashboard Statistics
-- Total devices count
-- Active devices count
-- Total contacts, call logs, notifications, messages
-- Real-time updates every 30 seconds
+### 📊 Real-time Dashboard
+- **Live Statistics**: View total devices, active devices, and data counts
+- **Health Monitoring**: Real-time connection status to backend
+- **Data Distribution**: Visual charts showing data types breakdown
+- **Auto-refresh**: Automatic data updates every 30 seconds
 
-### Device Management
-- View all connected devices
-- Monitor device connection status
-- Enable/disable devices
-- View device details and statistics
+### 📱 Device Management
+- **Device List**: View all connected devices
+- **Device Details**: Comprehensive device information and statistics
+- **Status Control**: Activate/deactivate devices
+- **Manual Sync**: Trigger manual synchronization for specific data types
 
-### Settings Management
-- Configure sync frequencies for each data type
-- Enable/disable specific data collection
-- Real-time settings updates
-- Bulk settings management
+### 📈 Data Visualization
+- **Pie Charts**: Data distribution across different types
+- **Real-time Updates**: Live notification feeds
+- **Data Tables**: Detailed view of all synchronized data
+- **Responsive Design**: Works on desktop, tablet, and mobile
 
-### Data Visualization
-- Device status indicators
-- Sync frequency charts
-- Data collection statistics
-- Timeline views
+### 🔧 Data Types Supported
+- **Contacts**: Phone contacts and address book data
+- **Call Logs**: Incoming, outgoing, and missed calls
+- **Notifications**: Real-time app notifications
+- **Messages**: SMS and text messages
+- **Email Accounts**: Email account configurations
+- **WhatsApp**: WhatsApp message data (when available)
 
-## API Integration
+## Tech Stack
 
-### Device API
-```javascript
-// Register device
-await deviceAPI.register({
-  deviceId: 'device-123',
-  deviceInfo: { ... }
-});
+- **Framework**: Next.js 14
+- **Styling**: Tailwind CSS
+- **State Management**: React Query (TanStack Query)
+- **Charts**: Recharts
+- **Icons**: Lucide React
+- **Notifications**: React Hot Toast
+- **HTTP Client**: Axios
 
-// Get device settings
-const settings = await deviceAPI.getSettings('device-123');
+## Getting Started
 
-// Update device status
-await deviceAPI.updateStatus('device-123', true);
-```
+### Prerequisites
 
-### Data APIs
-```javascript
-// Get contacts
-const contacts = await contactsAPI.getAll('device-123', {
-  page: 1,
-  limit: 100,
-  search: 'john'
-});
+- Node.js 18+ 
+- npm or yarn
+- Backend server running (see backend setup)
 
-// Get call logs with filters
-const callLogs = await callLogsAPI.getAll('device-123', {
-  callType: 'outgoing',
-  startDate: '2024-01-01',
-  endDate: '2024-01-31'
-});
+### Installation
 
-// Get notifications by app
-const notifications = await notificationsAPI.getAll('device-123', {
-  packageName: 'com.whatsapp'
-});
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd frontend
+   ```
 
-## Styling
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-The dashboard uses Tailwind CSS for styling:
+3. **Environment Configuration**
+   
+   Create a `.env.local` file in the frontend directory:
+   ```env
+   NEXT_PUBLIC_API_URL=https://kotlin-node-harvesting.onrender.com
+   ```
 
-### Color Scheme
-- Primary: Blue (`bg-blue-600`)
-- Success: Green (`bg-green-600`)
-- Warning: Yellow (`bg-yellow-600`)
-- Error: Red (`bg-red-600`)
-- Gray: Neutral colors for backgrounds
+4. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-### Custom Components
-```css
-.btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
-}
+5. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-.btn-primary {
-  @apply bg-primary-600 text-white hover:bg-primary-700;
-}
+### Production Build
 
-.card {
-  @apply bg-white rounded-lg shadow-md border border-gray-200;
-}
-```
-
-## State Management
-
-Uses React Query for server state management:
-
-```javascript
-// Fetch devices with caching
-const { data: devices, isLoading, refetch } = useQuery(
-  'devices',
-  deviceAPI.getAll,
-  {
-    refetchInterval: 30000, // Refetch every 30 seconds
-    onError: (error) => {
-      toast.error('Failed to fetch devices');
-    }
-  }
-);
-```
-
-## Error Handling
-
-Comprehensive error handling with toast notifications:
-
-```javascript
-try {
-  await deviceAPI.updateSettings(deviceId, settings);
-  toast.success('Settings updated successfully');
-} catch (error) {
-  toast.error('Failed to update settings');
-  console.error('Error:', error);
-}
-```
-
-## Performance Optimizations
-
-- React Query for efficient data fetching and caching
-- Automatic refetching for real-time updates
-- Optimistic updates for better UX
-- Lazy loading for large datasets
-- Memoized components to prevent unnecessary re-renders
-
-## Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
-
-### Manual Deployment
 ```bash
 # Build the application
 npm run build
 
-# Start production server
+# Start the production server
 npm start
 ```
 
-### Docker Deployment
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+## Project Structure
 
-## Development
-
-### File Structure
 ```
 frontend/
+├── components/          # Reusable UI components
+│   ├── DeviceCard.js    # Individual device display
+│   └── DeviceDetails.js # Detailed device view
+├── lib/                 # Utility libraries
+│   └── api.js          # API client configuration
 ├── pages/              # Next.js pages
-│   ├── index.js       # Dashboard home
-│   └── _app.js        # App wrapper
-├── components/         # React components
-│   ├── DeviceCard.js  # Device card component
-│   └── DeviceDetails.js # Device details panel
-├── lib/               # Utilities
-│   └── api.js         # API service
-├── styles/            # Global styles
-│   └── globals.css    # Tailwind CSS imports
-└── public/            # Static assets
+│   ├── _app.js         # App wrapper with providers
+│   └── index.js        # Main dashboard page
+├── styles/             # Global styles
+│   └── globals.css     # Tailwind and custom styles
+├── public/             # Static assets
+└── package.json        # Dependencies and scripts
 ```
 
-### Adding New Features
+## API Integration
 
-1. Create API functions in `lib/api.js`
-2. Create React components in `components/`
-3. Add pages in `pages/` directory
-4. Style with Tailwind CSS classes
+The frontend connects to the backend API with the following endpoints:
 
-### Custom Hooks
+### Health Check
+- `GET /api/health` - Server health status
 
-```javascript
-// useDevices hook
-const useDevices = () => {
-  return useQuery('devices', deviceAPI.getAll, {
-    refetchInterval: 30000,
-    staleTime: 5 * 60 * 1000,
-  });
-};
+### Devices
+- `GET /api/devices` - List all devices
+- `POST /api/devices/register` - Register new device
+- `PATCH /api/devices/:id/status` - Update device status
+- `POST /api/devices/:id/sync/:type` - Trigger manual sync
 
-// useDeviceSettings hook
-const useDeviceSettings = (deviceId) => {
-  return useQuery(
-    ['device-settings', deviceId],
-    () => deviceAPI.getSettings(deviceId),
-    {
-      enabled: !!deviceId,
-    }
-  );
-};
-```
+### Data Types
+- `GET /api/contacts/:deviceId` - Get contacts
+- `GET /api/call-logs/:deviceId` - Get call logs
+- `GET /api/notifications/:deviceId` - Get notifications
+- `GET /api/messages/:deviceId` - Get messages
+- `GET /api/email-accounts/:deviceId` - Get email accounts
+- `GET /api/whatsapp/:deviceId` - Get WhatsApp data
 
-## Testing
+## Features in Detail
 
-Run tests:
-```bash
-npm test
-```
+### Dashboard Overview
 
-Test coverage:
-```bash
-npm run test:coverage
-```
+The main dashboard provides:
 
-## Browser Support
+1. **Header Section**
+   - Connection status indicator
+   - Manual refresh button
+   - Real-time health monitoring
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+2. **Statistics Cards**
+   - Total devices count
+   - Active devices count
+   - Total data items
+   - Sync status
+
+3. **Data Distribution**
+   - Visual breakdown of data types
+   - Interactive pie chart
+   - Color-coded data categories
+
+4. **Device Management**
+   - Device list with status indicators
+   - Device selection and details
+   - Quick actions for each device
+
+### Device Details
+
+When a device is selected, you can view:
+
+1. **Overview Tab**
+   - Device information (ID, platform, status)
+   - Sync statistics for each data type
+   - Quick action buttons for manual sync
+   - Recent notifications feed
+
+2. **Data Tab**
+   - Tabbed interface for different data types
+   - Raw data display in JSON format
+   - Data count indicators
+   - Scrollable data lists
+
+3. **Settings Tab**
+   - Device configuration options
+   - Sync settings management
+   - Device-specific preferences
+
+### Real-time Features
+
+- **Auto-refresh**: Data updates automatically every 30 seconds
+- **Live Notifications**: Real-time notification display
+- **Connection Monitoring**: Continuous backend health checks
+- **Error Handling**: Graceful error display and recovery
+
+## Customization
+
+### Styling
+
+The application uses Tailwind CSS with custom components. You can modify:
+
+- **Colors**: Update CSS variables in `globals.css`
+- **Components**: Modify component classes in `globals.css`
+- **Layout**: Adjust grid and spacing in component files
+
+### API Configuration
+
+To change the backend URL:
+
+1. Update `NEXT_PUBLIC_API_URL` in `.env.local`
+2. Or modify the default URL in `lib/api.js`
+
+### Adding New Data Types
+
+To add support for new data types:
+
+1. Add API endpoints in `lib/api.js`
+2. Update the dashboard components in `pages/index.js`
+3. Add new data type tabs in the DeviceData component
+4. Update statistics calculations
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Connection Errors**
+   - Check if backend server is running
+   - Verify API URL in environment variables
+   - Check network connectivity
+
+2. **Build Errors**
+   - Clear `.next` directory: `rm -rf .next`
+   - Reinstall dependencies: `npm install`
+   - Check Node.js version compatibility
+
+3. **Data Not Loading**
+   - Check browser console for API errors
+   - Verify device registration in backend
+   - Check CORS configuration on backend
+
+### Development Tips
+
+- Use browser dev tools to monitor API calls
+- Check React Query dev tools for cache status
+- Monitor network tab for failed requests
+- Use console logs for debugging
 
 ## Contributing
 
@@ -319,28 +245,13 @@ npm run test:coverage
 4. Add tests if applicable
 5. Submit a pull request
 
-## Troubleshooting
+## License
 
-### Common Issues
+This project is part of the Device Sync System. See main repository for license information.
 
-1. **API Connection Failed**
-   - Check if backend server is running
-   - Verify API URL in environment variables
-   - Check network connectivity
+## Support
 
-2. **Real-time Updates Not Working**
-   - Verify React Query configuration
-   - Check refetch intervals
-   - Ensure proper error handling
-
-3. **Styling Issues**
-   - Make sure Tailwind CSS is properly configured
-   - Check for conflicting CSS classes
-   - Verify responsive design breakpoints
-
-### Debug Mode
-
-Enable debug mode for detailed logging:
-```bash
-DEBUG=* npm run dev
-```
+For issues and questions:
+- Check the troubleshooting section
+- Review backend documentation
+- Open an issue in the repository

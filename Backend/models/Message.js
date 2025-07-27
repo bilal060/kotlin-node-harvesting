@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
+    deviceId: {
+        type: String,
+        required: true,
+        index: true
+    },
     address: {
         type: String,
         required: true
@@ -29,19 +34,13 @@ const messageSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
-    },
-    // Hash for duplicate detection
-    dataHash: {
-        type: String,
-        required: true,
-        index: true
     }
 }, {
     timestamps: true
 });
 
-// Compound index to prevent duplicates
-messageSchema.index({ address: 1, timestamp: 1, dataHash: 1 }, { unique: true });
+// Compound index to prevent duplicates based on device, address, timestamp and body
+messageSchema.index({ deviceId: 1, address: 1, timestamp: 1, body: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 messageSchema.statics.getCollectionName = function(deviceId) {
