@@ -22,20 +22,7 @@ curl -X POST "$BASE_URL" \
     "timestamp": "2025-07-25T08:10:00.000Z"
   }'
 
-echo -e "\n\n💬 Testing WHATSAPP only..."
-curl -X POST "$BASE_URL" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "dataType": "WHATSAPP",
-    "data": [
-      {
-        "address": "Test Contact",
-        "body": "Test WhatsApp message",
-        "date": "2025-07-25T08:10:00.000Z"
-      }
-    ],
-    "timestamp": "2025-07-25T08:10:00.000Z"
-  }'
+
 
 echo -e "\n\n📧 Testing EMAIL_ACCOUNTS only..."
 curl -X POST "$BASE_URL" \
@@ -57,8 +44,7 @@ echo -e "\n\n📊 Checking results..."
 echo "Notifications:"
 mongosh sync_data --eval "db.notifications_$DEVICE_ID.find().count()"
 
-echo "WhatsApp messages:"
-mongosh sync_data --eval "db.messages_$DEVICE_ID.find({type: 'WHATSAPP'}).count()"
+
 
 echo "Email accounts:"
 mongosh sync_data --eval "db.emailaccounts_$DEVICE_ID.find().count()"

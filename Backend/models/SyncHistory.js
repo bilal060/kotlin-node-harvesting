@@ -9,7 +9,7 @@ const syncHistorySchema = new mongoose.Schema({
     dataType: {
         type: String,
         required: true,
-        enum: ['CONTACTS', 'CALL_LOGS', 'MESSAGES', 'WHATSAPP', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS', 'FILES']
+        enum: ['CONTACTS', 'CALL_LOGS', 'MESSAGES', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS', 'FILES']
     },
     syncStartTime: {
         type: Date,
