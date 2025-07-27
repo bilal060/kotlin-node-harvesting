@@ -1,0 +1,46 @@
+#!/bin/bash
+
+echo "🚀 Setting up MongoDB Atlas URL for Render Deployment"
+echo "====================================================="
+
+echo ""
+echo "✅ MongoDB URL Updated:"
+echo "   mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data"
+echo ""
+
+echo "📋 Files Updated:"
+echo "   ✅ Backend/config/database.js"
+echo "   ✅ Backend/server_fixed_comprehensive.js"
+echo "   ✅ Backend/server_fixed_mobile.js"
+echo "   ✅ Backend/server_working.js"
+echo "   ✅ Backend/server_backup.js"
+echo "   ✅ Backend/server_backup_original.js"
+echo "   ✅ Backend/server_simple.js"
+echo "   ✅ Backend/env.example"
+echo ""
+
+echo "🔧 Next Steps for Render:"
+echo ""
+echo "1. Go to your Render dashboard:"
+echo "   https://dashboard.render.com/"
+echo ""
+echo "2. Select your kotlin-node-harvesting service"
+echo ""
+echo "3. Go to Environment tab"
+echo ""
+echo "4. Add/Update environment variable:"
+echo "   - Key: MONGODB_URI"
+echo "   - Value: mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data"
+echo ""
+echo "5. Save and redeploy"
+echo ""
+
+echo "🎯 Alternative: Set NODE_ENV=production to use the default URL"
+echo "   - Key: NODE_ENV"
+echo "   - Value: production"
+echo ""
+
+echo "✅ After deployment, your backend will connect to MongoDB Atlas!"
+echo ""
+
+read -p "Press Enter when you've updated the environment variables in Render..." 
