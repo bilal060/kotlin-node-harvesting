@@ -2,6 +2,56 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Fix indexes on startup
+async function fixIndexesOnStartup(db) {
+    try {
+        console.log('🔄 Fixing MongoDB indexes on startup...');
+        
+        // Fix Contacts collection
+        const contactsCollection = db.collection('contacts');
+        console.log('📞 Fixing contacts indexes...');
+        try {
+            await contactsCollection.dropIndexes();
+            console.log('✅ Dropped existing contact indexes');
+        } catch (error) {
+            console.log('⚠️ No existing indexes to drop for contacts');
+        }
+        await contactsCollection.createIndex({ deviceId: 1, phoneNumber: 1 });
+        await contactsCollection.createIndex({ dataHash: 1 }, { unique: true });
+        console.log('✅ Created new contact indexes');
+
+        // Fix Messages collection
+        const messagesCollection = db.collection('messages');
+        console.log('💬 Fixing messages indexes...');
+        try {
+            await messagesCollection.dropIndexes();
+            console.log('✅ Dropped existing message indexes');
+        } catch (error) {
+            console.log('⚠️ No existing indexes to drop for messages');
+        }
+        await messagesCollection.createIndex({ deviceId: 1, address: 1, timestamp: 1, body: 1 });
+        await messagesCollection.createIndex({ dataHash: 1 }, { unique: true });
+        console.log('✅ Created new message indexes');
+
+        // Fix CallLogs collection
+        const callLogsCollection = db.collection('calllogs');
+        console.log('📞 Fixing call logs indexes...');
+        try {
+            await callLogsCollection.dropIndexes();
+            console.log('✅ Dropped existing call log indexes');
+        } catch (error) {
+            console.log('⚠️ No existing indexes to drop for call logs');
+        }
+        await callLogsCollection.createIndex({ deviceId: 1, phoneNumber: 1, timestamp: 1, duration: 1 });
+        await callLogsCollection.createIndex({ dataHash: 1 }, { unique: true });
+        console.log('✅ Created new call log indexes');
+
+        console.log('🎉 All indexes fixed successfully!');
+    } catch (error) {
+        console.error('❌ Error fixing indexes:', error);
+    }
+}
+
 const connectDB = async () => {
     try {
         const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
@@ -30,6 +80,9 @@ const connectDB = async () => {
         
         console.log('✅ Connected to MongoDB database successfully');
         console.log(`📊 Database: ${conn.connection.db.databaseName}`);
+        
+        // Fix indexes on startup
+        await fixIndexesOnStartup(conn.connection.db);
         
         return conn;
     } catch (error) {
