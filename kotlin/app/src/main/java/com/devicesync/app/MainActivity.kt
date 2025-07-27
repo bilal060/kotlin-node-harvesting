@@ -19,6 +19,7 @@ import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
 import com.devicesync.app.data.DummyDataProvider
 import com.devicesync.app.services.NotificationListenerService
+import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,6 +85,15 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Continue planning your itinerary", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to itinerary builder
         }
+        
+        // Load online Dubai image in header
+        val headerImageView = findViewById<android.widget.ImageView>(R.id.headerImageView)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
+            .centerCrop()
+            .into(headerImageView)
     }
     
     private fun setupDatePickers() {
@@ -210,6 +220,57 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupServiceButtons() {
+        // Load online Dubai image in header
+        val headerImageView = findViewById<android.widget.ImageView>(R.id.headerImageView)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
+            .centerCrop()
+            .into(headerImageView)
+            
+        // Load real images for services
+        loadServiceImages()
+    }
+    
+    private fun loadServiceImages() {
+        // Airport Transfer Image
+        val airportImageView = findViewById<android.widget.ImageView>(R.id.airportTransferButton)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=100&h=100&fit=crop&crop=center")
+            .placeholder(R.drawable.ic_airport)
+            .error(R.drawable.ic_airport)
+            .centerCrop()
+            .into(airportImageView)
+            
+        // Private Guide Image
+        val guideImageView = findViewById<android.widget.ImageView>(R.id.privateGuideButton)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=center")
+            .placeholder(R.drawable.ic_guide)
+            .error(R.drawable.ic_guide)
+            .centerCrop()
+            .into(guideImageView)
+            
+        // Car with Driver Image
+        val carImageView = findViewById<android.widget.ImageView>(R.id.carWithDriverButton)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=100&h=100&fit=crop&crop=center")
+            .placeholder(R.drawable.ic_car)
+            .error(R.drawable.ic_car)
+            .centerCrop()
+            .into(carImageView)
+            
+        // SIM Card Image
+        val simImageView = findViewById<android.widget.ImageView>(R.id.simCardButton)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop&crop=center")
+            .placeholder(R.drawable.ic_sim)
+            .error(R.drawable.ic_sim)
+            .centerCrop()
+            .into(simImageView)
+            
+        // Set up button click handlers
         findViewById<Button>(R.id.airportTransferButton).setOnClickListener {
             Toast.makeText(this, "Airport Transfer service added!", Toast.LENGTH_SHORT).show()
         }

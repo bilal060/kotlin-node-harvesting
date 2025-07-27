@@ -21,11 +21,13 @@
             android:layout_marginBottom="24dp">
 
             <ImageView
+                android:id="@+id/headerImageView"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/original_logo"
-                android:contentDescription="UAE Travel Planner Logo"
-                android:layout_marginEnd="16dp" />
+                android:contentDescription="Dubai Discoveries Logo"
+                android:layout_marginEnd="16dp"
+                android:scaleType="centerCrop" />
 
             <TextView
                 android:layout_width="0dp"

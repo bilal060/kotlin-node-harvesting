@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.devicesync.app.R
 import com.devicesync.app.data.Activity
 
@@ -40,8 +41,14 @@ class ActivitiesAdapter(
         holder.descriptionText.text = activity.description
         holder.ratingBar.rating = activity.rating
         
-        // Set placeholder image for now
-        holder.imageView.setImageResource(R.drawable.original_logo)
+        // Load real activity images based on activity name
+        val imageUrl = getActivityImageUrl(activity.name)
+        Glide.with(holder.imageView.context)
+            .load(imageUrl)
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
+            .centerCrop()
+            .into(holder.imageView)
         
         holder.addToItineraryButton.setOnClickListener {
             onItemClick(activity)
@@ -57,5 +64,23 @@ class ActivitiesAdapter(
     fun updateActivities(newActivities: List<Activity>) {
         activities = newActivities
         notifyDataSetChanged()
+    }
+    
+    private fun getActivityImageUrl(activityName: String): String {
+        return when {
+            activityName.contains("Desert Safari", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center"
+            activityName.contains("Burj Khalifa", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"
+            activityName.contains("Marina Cruise", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center"
+            activityName.contains("Skydiving", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center"
+            activityName.contains("Sheikh Zayed", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop&crop=center"
+            activityName.contains("Dubai Mall", ignoreCase = true) -> 
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"
+            else -> "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"
+        }
     }
 } 
