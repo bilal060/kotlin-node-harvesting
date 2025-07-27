@@ -37,6 +37,14 @@ const deviceSchema = new mongoose.Schema({
     connectionType: {
         type: String,
         default: 'UNKNOWN'
+    },
+    registeredAt: {
+        type: Date,
+        default: Date.now
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true
