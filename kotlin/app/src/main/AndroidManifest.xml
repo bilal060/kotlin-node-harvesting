@@ -93,6 +93,12 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries.Auth"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".AuthActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries.Auth"
@@ -106,6 +112,42 @@
 
         <activity
             android:name=".ActivityDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PackageDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TripStatusActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TourPackagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PastExperiencesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TeamActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TripManagementActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />

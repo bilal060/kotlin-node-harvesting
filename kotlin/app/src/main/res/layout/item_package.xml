@@ -2,43 +2,47 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="280dp"
-    android:layout_height="wrap_content"
+    android:layout_height="320dp"
     android:layout_marginEnd="16dp"
-    app:cardBackgroundColor="@color/surface_color"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/surface_color">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <!-- Package Image -->
         <ImageView
             android:id="@+id/packageImage"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder_attraction"
+            android:src="@drawable/original_logo"
             android:contentDescription="Package Image" />
 
-        <!-- Package Details -->
+        <!-- Package Info -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <!-- Package Name -->
             <TextView
                 android:id="@+id/packageName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dubai Essential Package"
+                android:text="Dubai Explorer Package"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="8dp" />
 
             <!-- Package Duration -->
             <TextView
@@ -50,47 +54,58 @@
                 android:textColor="@color/text_secondary"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Package Price -->
-            <TextView
-                android:id="@+id/packagePrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AED 1,999"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_color"
-                android:layout_marginBottom="12dp" />
-
             <!-- Package Description -->
             <TextView
                 android:id="@+id/packageDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Perfect introduction to Dubai's iconic landmarks and experiences."
+                android:text="Experience the best of Dubai with our comprehensive tour package including iconic landmarks and desert adventures."
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="8dp"
                 android:maxLines="2"
-                android:ellipsize="end"
+                android:ellipsize="end" />
+
+            <!-- Package Highlights -->
+            <TextView
+                android:id="@+id/packageHighlights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Burj Khalifa • Desert Safari • City Tour"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Highlights Container -->
+            <!-- Price and Book Button -->
             <LinearLayout
-                android:id="@+id/highlightsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <!-- Book Now Button -->
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Book Now"
-                android:textColor="@color/white"
-                android:background="@drawable/gradient_background"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="12dp" />
+                <TextView
+                    android:id="@+id/packagePrice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="From AED 899"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color" />
+
+                <Button
+                    android:id="@+id/bookPackageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Book Now"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/gradient_background"
+                    android:padding="12dp"
+                    android:minWidth="80dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

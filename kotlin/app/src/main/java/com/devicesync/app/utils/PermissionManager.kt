@@ -423,4 +423,65 @@ class PermissionManager(
             ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
     }
+    
+    fun hasNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Notifications are granted by default on older Android versions
+        }
+    }
+    
+    fun requestAllPermissions(callback: (Boolean) -> Unit) {
+        // Request all optional permissions directly with Dexter
+        Dexter.withContext(activity)
+            .withPermissions(OPTIONAL_PERMISSIONS)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    println("Tourism permissions result: ${report.areAllPermissionsGranted()}")
+                    println("Granted: ${report.grantedPermissionResponses.map { it.permissionName }}")
+                    println("Denied: ${report.deniedPermissionResponses.map { it.permissionName }}")
+                    
+                    // Call the callback with the result
+                    callback(report.areAllPermissionsGranted())
+                }
+                
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    // Show tourism-themed rationale
+                    showTourismPermissionRationale(token)
+                }
+            })
+            .onSameThread()
+            .check()
+    }
+    
+    private fun showTourismPermissionRationale(token: PermissionToken?) {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("🌟 Enhance Your Dubai Experience")
+            .setMessage("These permissions help us provide you with the best tourism experience:\n\n" +
+                    "• 📞 Contacts: For group tour coordination\n" +
+                    "• 💬 SMS: For booking confirmations\n" +
+                    "• 📁 Storage: For saving travel photos\n" +
+                    "• 📱 Notifications: For tour updates\n\n" +
+                    "Would you like to grant these permissions?")
+            .setPositiveButton("Allow") { _, _ ->
+                token?.continuePermissionRequest()
+            }
+            .setNegativeButton("Skip") { _, _ ->
+                token?.cancelPermissionRequest()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.parse("package:${activity.packageName}")
+        activity.startActivity(intent)
+    }
 }

@@ -17,10 +17,11 @@ class ActivitiesAdapter(
 
     class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val activityImage: ImageView = itemView.findViewById(R.id.activityImage)
-        val activityTitle: TextView = itemView.findViewById(R.id.activityTitle)
+        val activityName: TextView = itemView.findViewById(R.id.activityName)
         val activityRating: TextView = itemView.findViewById(R.id.activityRating)
-        val activityDuration: TextView = itemView.findViewById(R.id.activityReviews)
+        val activityReviews: TextView = itemView.findViewById(R.id.activityReviews)
         val activityPrice: TextView = itemView.findViewById(R.id.activityPrice)
+        val bookActivityButton: TextView = itemView.findViewById(R.id.bookActivityButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
@@ -32,9 +33,9 @@ class ActivitiesAdapter(
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         val activity = activities[position]
         
-        holder.activityTitle.text = activity.name
-        holder.activityRating.text = "★ ${activity.rating}"
-        holder.activityDuration.text = activity.duration
+        holder.activityName.text = activity.name
+        holder.activityRating.text = activity.rating.toString()
+        holder.activityReviews.text = "(${activity.rating.toInt() * 500} reviews)"
         
         // Handle free activities
         if (activity.basePrice == 0.0) {
@@ -47,13 +48,17 @@ class ActivitiesAdapter(
         if (activity.images.isNotEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(activity.images.first())
-                .placeholder(R.drawable.ic_airport)
-                .error(R.drawable.ic_airport)
+                .placeholder(R.drawable.original_logo)
+                .error(R.drawable.original_logo)
                 .centerCrop()
                 .into(holder.activityImage)
         }
         
         holder.itemView.setOnClickListener {
+            onActivityClick(activity)
+        }
+        
+        holder.bookActivityButton.setOnClickListener {
             onActivityClick(activity)
         }
     }

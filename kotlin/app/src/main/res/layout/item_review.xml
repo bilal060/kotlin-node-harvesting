@@ -2,19 +2,22 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="280dp"
-    android:layout_height="200dp"
+    android:layout_height="wrap_content"
     android:layout_marginEnd="16dp"
-    app:cardBackgroundColor="@color/surface_color"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="6dp">
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/surface_color">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- User Info Row -->
+        <!-- Review Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,23 +25,23 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <!-- User Image -->
+            <!-- User Avatar -->
             <ImageView
-                android:id="@+id/userImage"
+                android:id="@+id/userAvatar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/placeholder_attraction"
-                android:contentDescription="User Image"
+                android:src="@drawable/original_logo"
+                android:contentDescription="User Avatar"
                 android:scaleType="centerCrop"
-                android:background="@drawable/circle_background" />
+                android:background="@drawable/circle_background"
+                android:layout_marginEnd="12dp" />
 
-            <!-- User Details -->
+            <!-- User Info -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/userName"
@@ -47,53 +50,98 @@
                     android:text="Sarah Johnson"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:layout_marginBottom="2dp" />
+                    android:textColor="@color/text_primary" />
 
                 <TextView
-                    android:id="@+id/destination"
+                    android:id="@+id/reviewDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dubai"
-                    android:textSize="14sp"
+                    android:text="2 days ago"
+                    android:textSize="12sp"
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
 
-            <!-- Date -->
-            <TextView
-                android:id="@+id/date"
+            <!-- Rating -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2 days ago"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/ratingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_gold"
+                    android:layout_marginEnd="4dp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_favorite_filled"
+                    android:contentDescription="Star Rating"
+                    android:tint="@color/accent_gold" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Rating -->
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.1"
-            android:rating="5.0"
-            android:progressTint="@color/accent_gold"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Review Comment -->
+        <!-- Review Text -->
         <TextView
-            android:id="@+id/comment"
+            android:id="@+id/reviewText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Amazing experience! The desert safari was absolutely incredible. Our guide was knowledgeable and the sunset views were breathtaking."
+            android:text="Amazing experience! The desert safari was incredible and our guide was very knowledgeable. Highly recommend this tour package!"
             android:textSize="14sp"
             android:textColor="@color/text_primary"
             android:lineSpacingExtra="2dp"
-            android:maxLines="4"
-            android:ellipsize="end" />
+            android:layout_marginBottom="12dp" />
+
+        <!-- Review Tags -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Desert Safari"
+                android:textSize="12sp"
+                android:textColor="@color/primary_color"
+                android:background="@drawable/badge_background"
+                android:padding="6dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Great Guide"
+                android:textSize="12sp"
+                android:textColor="@color/primary_color"
+                android:background="@drawable/badge_background"
+                android:padding="6dp" />
+
+        </LinearLayout>
+
+        <!-- Helpful Button -->
+        <Button
+            android:id="@+id/helpfulButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="👍 Helpful (12)"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+            android:background="@drawable/button_outline_background"
+            android:padding="8dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            style="@style/Widget.DeviceSync.Button.Outlined" />
 
     </LinearLayout>
 

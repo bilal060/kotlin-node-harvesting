@@ -64,7 +64,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     private fun getCurrentDeviceInfo(): DeviceInfo {
         val context = getApplication<Application>()
-        val deviceId = DeviceInfoUtils.getConsistentDeviceId(context)
+        val deviceId = DeviceInfoUtils.getDeviceId(context)
         
         // Save device ID to SettingsManager so NotificationListenerService can access it
         val settingsManager = com.devicesync.app.utils.SettingsManager(context)

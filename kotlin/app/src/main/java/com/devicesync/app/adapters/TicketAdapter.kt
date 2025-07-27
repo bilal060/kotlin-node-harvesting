@@ -6,20 +6,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.devicesync.app.R
-import com.devicesync.app.data.models.BookedTicket
-import com.devicesync.app.data.models.TicketStatus
+import com.devicesync.app.data.Ticket
 
 class TicketAdapter(
-    private val tickets: List<BookedTicket>,
-    private val onTicketClick: (BookedTicket) -> Unit
+    private var tickets: List<Ticket>,
+    private val onTicketClick: (Ticket) -> Unit
 ) : RecyclerView.Adapter<TicketAdapter.TicketViewHolder>() {
 
     class TicketViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val attractionNameText: TextView = itemView.findViewById(R.id.ticketAttractionName)
-        val ticketNumberText: TextView = itemView.findViewById(R.id.ticketNumber)
-        val validDateText: TextView = itemView.findViewById(R.id.ticketValidDate)
-        val priceText: TextView = itemView.findViewById(R.id.ticketPrice)
-        val statusText: TextView = itemView.findViewById(R.id.ticketStatus)
+        val ticketAttractionName: TextView = itemView.findViewById(R.id.ticketAttractionName)
+        val ticketPrice: TextView = itemView.findViewById(R.id.ticketPrice)
+        val ticketNumber: TextView = itemView.findViewById(R.id.ticketNumber)
+        val ticketValidDate: TextView = itemView.findViewById(R.id.ticketValidDate)
+        val ticketStatus: TextView = itemView.findViewById(R.id.ticketStatus)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TicketViewHolder {
@@ -31,28 +30,22 @@ class TicketAdapter(
     override fun onBindViewHolder(holder: TicketViewHolder, position: Int) {
         val ticket = tickets[position]
         
-        holder.attractionNameText.text = ticket.attractionName
-        holder.ticketNumberText.text = "Ticket: ${ticket.ticketNumber}"
-        holder.validDateText.text = "Valid: ${ticket.validDate}"
-        holder.priceText.text = ticket.price
+        holder.ticketAttractionName.text = ticket.attractionName
+        holder.ticketPrice.text = ticket.price
+        holder.ticketNumber.text = "Ticket: ${ticket.ticketNumber}"
+        holder.ticketValidDate.text = "Valid: ${ticket.validDate}"
+        holder.ticketStatus.text = ticket.status
         
-        // Set status and color
-        when (ticket.status) {
-            TicketStatus.BOOKED -> {
-                holder.statusText.text = "✓ Booked"
-                holder.statusText.setTextColor(holder.itemView.context.getColor(R.color.success_green))
+        // Set status color based on status
+        when {
+            ticket.status.contains("✓") -> {
+                holder.ticketStatus.setTextColor(holder.itemView.context.getColor(R.color.success_green))
             }
-            TicketStatus.PENDING -> {
-                holder.statusText.text = "⏳ Pending"
-                holder.statusText.setTextColor(holder.itemView.context.getColor(R.color.warning_orange))
-            }
-            TicketStatus.USED -> {
-                holder.statusText.text = "✓ Used"
-                holder.statusText.setTextColor(holder.itemView.context.getColor(R.color.success_green))
+            ticket.status.contains("⏳") -> {
+                holder.ticketStatus.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
             }
             else -> {
-                holder.statusText.text = "❌ Cancelled"
-                holder.statusText.setTextColor(holder.itemView.context.getColor(R.color.error_red))
+                holder.ticketStatus.setTextColor(holder.itemView.context.getColor(R.color.text_secondary))
             }
         }
         
@@ -62,4 +55,9 @@ class TicketAdapter(
     }
 
     override fun getItemCount(): Int = tickets.size
+
+    fun updateTickets(newTickets: List<Ticket>) {
+        tickets = newTickets
+        notifyDataSetChanged()
+    }
 } 

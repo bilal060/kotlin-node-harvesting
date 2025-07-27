@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.devicesync.app.adapters.AttractionAdapter
 import com.devicesync.app.adapters.ServiceAdapter
 import com.devicesync.app.adapters.TicketAdapter
+import com.devicesync.app.data.Ticket
 import com.devicesync.app.data.models.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -116,7 +117,9 @@ class TripManagementActivity : AppCompatActivity() {
         
         // Booked tickets
         bookedTicketsRecyclerView.layoutManager = LinearLayoutManager(this)
-        val bookedTicketAdapter = TicketAdapter(currentTrip.bookedTickets) { ticket ->
+        val bookedTicketAdapter = TicketAdapter(currentTrip.bookedTickets.map { 
+            Ticket(it.id, it.attractionName, "AED ${it.price}", it.validDate, "✓ Booked")
+        }) { ticket ->
             // Handle ticket click
             Toast.makeText(this, "Viewing ticket for ${ticket.attractionName}", Toast.LENGTH_SHORT).show()
         }
@@ -125,7 +128,7 @@ class TripManagementActivity : AppCompatActivity() {
         // Pending tickets
         pendingTicketsRecyclerView.layoutManager = LinearLayoutManager(this)
         val pendingTicketAdapter = TicketAdapter(currentTrip.pendingTickets.map { 
-            BookedTicket(it.id, it.attractionName, "PENDING", "", it.plannedDate, it.estimatedPrice, TicketStatus.PENDING)
+            Ticket(it.id, it.attractionName, "AED ${it.estimatedPrice}", it.plannedDate, "⏳ Pending")
         }) { ticket ->
             // Handle pending ticket click
             Toast.makeText(this, "Book ticket for ${ticket.attractionName}", Toast.LENGTH_SHORT).show()

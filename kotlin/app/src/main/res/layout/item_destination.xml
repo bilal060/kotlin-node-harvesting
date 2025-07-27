@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="200dp"
-    android:layout_height="220dp"
-    android:layout_marginEnd="12dp"
+    android:layout_width="280dp"
+    android:layout_height="320dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/surface_color"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +19,7 @@
         <ImageView
             android:id="@+id/destinationImage"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
             android:src="@drawable/original_logo"
             android:contentDescription="Destination Image" />
@@ -26,17 +29,17 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/destinationName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dubai"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/destinationBadge"

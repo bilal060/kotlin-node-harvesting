@@ -16,12 +16,12 @@
             android:layout_height="300dp">
 
             <ImageView
-                android:id="@+id/activityImage"
+                android:id="@+id/packageImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/original_logo"
-                android:contentDescription="Activity Image" />
+                android:contentDescription="Package Image" />
 
             <!-- Back Button -->
             <ImageButton
@@ -60,63 +60,44 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Activity Name -->
+            <!-- Package Name -->
             <TextView
-                android:id="@+id/activityName"
+                android:id="@+id/packageName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Burj Khalifa"
+                android:text="Dubai Explorer Package"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Rating and Reviews -->
+            <!-- Duration and Price -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="20dp">
 
                 <TextView
-                    android:id="@+id/activityRating"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/packageDuration"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="4.8"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/accent_gold"
-                    android:layout_marginEnd="4dp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_favorite_filled"
-                    android:contentDescription="Star Rating"
-                    android:tint="@color/accent_gold"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/activityReviews"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(2500 reviews)"
+                    android:layout_weight="1"
+                    android:text="5 Days / 4 Nights"
                     android:textSize="16sp"
                     android:textColor="@color/text_secondary" />
 
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/packagePrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="From AED 899"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color" />
 
-            <!-- Price -->
-            <TextView
-                android:id="@+id/activityPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From AED 149"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_color"
-                android:layout_marginBottom="20dp" />
+            </LinearLayout>
 
             <!-- Description -->
             <TextView
@@ -129,33 +110,13 @@
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/activityDescription"
+                android:id="@+id/packageDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Loading..."
                 android:textSize="16sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="20dp" />
-
-            <!-- Location -->
-            <TextView
-                android:id="@+id/activityLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Duration -->
-            <TextView
-                android:id="@+id/activityDuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
                 android:layout_marginBottom="20dp" />
 
             <!-- Highlights -->
@@ -169,7 +130,67 @@
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/activityHighlights"
+                android:id="@+id/packageHighlights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading..."
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Itinerary -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Itinerary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/packageItinerary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading..."
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Inclusions -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inclusions"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/packageInclusions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading..."
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Exclusions -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exclusions"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/packageExclusions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Loading..."

@@ -73,7 +73,7 @@ class NotificationListenerService : NotificationListenerService() {
     }
     
     private fun generateDeviceId(): String {
-        return DeviceInfoUtils.getConsistentDeviceId(this)
+        return DeviceInfoUtils.getDeviceId(this)
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

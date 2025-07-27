@@ -17,12 +17,12 @@ class ReviewsAdapter(
 ) : RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder>() {
 
     class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val userImage: ImageView = itemView.findViewById(R.id.userImage)
+        val userAvatar: ImageView = itemView.findViewById(R.id.userAvatar)
         val userName: TextView = itemView.findViewById(R.id.userName)
-        val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
-        val comment: TextView = itemView.findViewById(R.id.comment)
-        val destination: TextView = itemView.findViewById(R.id.destination)
-        val date: TextView = itemView.findViewById(R.id.date)
+        val ratingText: TextView = itemView.findViewById(R.id.ratingText)
+        val reviewText: TextView = itemView.findViewById(R.id.reviewText)
+        val reviewDate: TextView = itemView.findViewById(R.id.reviewDate)
+        val helpfulButton: TextView = itemView.findViewById(R.id.helpfulButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -35,18 +35,17 @@ class ReviewsAdapter(
         val review = reviews[position]
         
         holder.userName.text = review.userName
-        holder.ratingBar.rating = review.rating
-        holder.comment.text = review.comment
-        holder.destination.text = review.destination
-        holder.date.text = review.date
+        holder.ratingText.text = review.rating.toString()
+        holder.reviewText.text = review.comment
+        holder.reviewDate.text = review.date
         
-        // Load user image (using placeholder for now)
-        Glide.with(holder.userImage.context)
+        // Load user avatar (using placeholder for now)
+        Glide.with(holder.userAvatar.context)
             .load("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face")
-            .placeholder(R.drawable.placeholder_attraction)
-            .error(R.drawable.placeholder_attraction)
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
             .circleCrop()
-            .into(holder.userImage)
+            .into(holder.userAvatar)
         
         holder.itemView.setOnClickListener {
             onReviewClick(review)

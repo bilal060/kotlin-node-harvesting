@@ -19,9 +19,10 @@ class PackagesAdapter(
         val packageImage: ImageView = itemView.findViewById(R.id.packageImage)
         val packageName: TextView = itemView.findViewById(R.id.packageName)
         val packageDuration: TextView = itemView.findViewById(R.id.packageDuration)
-        val packagePrice: TextView = itemView.findViewById(R.id.packagePrice)
         val packageDescription: TextView = itemView.findViewById(R.id.packageDescription)
-        val highlightsContainer: ViewGroup = itemView.findViewById(R.id.highlightsContainer)
+        val packagePrice: TextView = itemView.findViewById(R.id.packagePrice)
+        val packageHighlights: TextView = itemView.findViewById(R.id.packageHighlights)
+        val bookPackageButton: TextView = itemView.findViewById(R.id.bookPackageButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PackageViewHolder {
@@ -35,27 +36,23 @@ class PackagesAdapter(
         
         holder.packageName.text = packageItem.name
         holder.packageDuration.text = packageItem.duration
+        holder.packageDescription.text = packageItem.description ?: "Experience the best of Dubai with our comprehensive tour package including iconic landmarks and desert adventures."
         holder.packagePrice.text = packageItem.price
-        holder.packageDescription.text = packageItem.description
+        holder.packageHighlights.text = packageItem.highlights.take(3).joinToString(" • ") { "• $it" }
         
         // Load package image
         Glide.with(holder.packageImage.context)
             .load(packageItem.imageUrl)
-            .placeholder(R.drawable.placeholder_attraction)
-            .error(R.drawable.placeholder_attraction)
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
             .centerCrop()
             .into(holder.packageImage)
         
-        // Add highlights
-        holder.highlightsContainer.removeAllViews()
-        packageItem.highlights.take(3).forEach { highlight ->
-            val highlightView = LayoutInflater.from(holder.highlightsContainer.context)
-                .inflate(R.layout.item_highlight, holder.highlightsContainer, false)
-            highlightView.findViewById<TextView>(R.id.highlightText).text = "• $highlight"
-            holder.highlightsContainer.addView(highlightView)
+        holder.itemView.setOnClickListener {
+            onPackageClick(packageItem)
         }
         
-        holder.itemView.setOnClickListener {
+        holder.bookPackageButton.setOnClickListener {
             onPackageClick(packageItem)
         }
     }

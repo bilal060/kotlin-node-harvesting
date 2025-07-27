@@ -20,6 +20,21 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="24dp">
 
+            <!-- Top-left Menu Icon -->
+            <ImageView
+                android:id="@+id/menuIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_arrow_back_white"
+                android:contentDescription="Menu"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/circle_background"
+                android:padding="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:tint="@color/white"
+                android:scaleType="centerInside" />
+
             <ImageView
                 android:id="@+id/headerImageView"
                 android:layout_width="48dp"
@@ -166,10 +181,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp">
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -186,8 +201,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="16dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
 
         </LinearLayout>
 
@@ -196,10 +211,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -216,8 +231,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="16dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
 
         </LinearLayout>
 
@@ -226,7 +241,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -235,7 +253,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="16dp" />
 
             <GridLayout
                 android:layout_width="match_parent"
@@ -243,20 +261,21 @@
                 android:columnCount="2"
                 android:rowCount="2"
                 android:alignmentMode="alignMargins"
-                android:useDefaultMargins="true">
+                android:useDefaultMargins="false">
 
                 <!-- Airport Transfer -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="180dp"
                     android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
                     app:cardBackgroundColor="@color/surface_color"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="16dp"
                         android:gravity="center">
@@ -302,11 +321,12 @@
                 <!-- Private Guide -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="180dp"
                     android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
                     app:cardBackgroundColor="@color/surface_color"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -356,11 +376,12 @@
                 <!-- Car with Driver -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="180dp"
                     android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
                     app:cardBackgroundColor="@color/surface_color"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -410,11 +431,12 @@
                 <!-- SIM Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="180dp"
                     android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
                     app:cardBackgroundColor="@color/surface_color"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -470,10 +492,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp">
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -490,8 +512,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="16dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
 
         </LinearLayout>
 
@@ -499,16 +521,19 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             app:cardBackgroundColor="@color/surface_color"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -565,6 +590,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp">
@@ -584,8 +610,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="16dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
 
         </LinearLayout>
 
@@ -594,7 +620,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -603,13 +632,353 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="16dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tipsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
+
+        </LinearLayout>
+
+        <!-- 9. Additional Services -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Additional Services"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Tour Packages Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/tourPackagesButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface_color"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_airport"
+                        android:contentDescription="Tour Packages"
+                        android:background="@drawable/circle_background"
+                        android:padding="12dp"
+                        android:tint="@color/primary_color" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tour Packages"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ready-made tour packages"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_back_white"
+                        android:contentDescription="Arrow"
+                        android:rotation="180"
+                        android:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Past Experiences Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/pastExperiencesButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface_color"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_favorite_filled"
+                        android:contentDescription="Past Experiences"
+                        android:background="@drawable/circle_background"
+                        android:padding="12dp"
+                        android:tint="@color/accent_gold" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Past Experiences"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gallery and videos of previous tours"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_back_white"
+                        android:contentDescription="Arrow"
+                        android:rotation="180"
+                        android:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Team Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/teamButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface_color"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_guide"
+                        android:contentDescription="Our Team"
+                        android:background="@drawable/circle_background"
+                        android:padding="12dp"
+                        android:tint="@color/primary_color" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Our Team"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meet our professional team"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_back_white"
+                        android:contentDescription="Arrow"
+                        android:rotation="180"
+                        android:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Trip Management Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/tripManagementButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface_color"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_time"
+                        android:contentDescription="Trip Management"
+                        android:background="@drawable/circle_background"
+                        android:padding="12dp"
+                        android:tint="@color/primary_color" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Trip Management"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Detailed trip planning and management"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_back_white"
+                        android:contentDescription="Arrow"
+                        android:rotation="180"
+                        android:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Device Discovery Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/deviceDiscoveryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/surface_color"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_sim"
+                        android:contentDescription="Device Discovery"
+                        android:background="@drawable/circle_background"
+                        android:padding="12dp"
+                        android:tint="@color/primary_color" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Device Discovery"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Device registration and discovery"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_back_white"
+                        android:contentDescription="Arrow"
+                        android:rotation="180"
+                        android:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 

