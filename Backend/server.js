@@ -489,10 +489,11 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
         
         // Process each item
         for (const item of data) {
+            let mappedItem; // Declare mappedItem at the beginning
             try {
                 console.log(`Processing LIVE ${dataType} item:`, JSON.stringify(item, null, 2));
                 // Map fields based on data type
-                let mappedItem = { ...item };
+                mappedItem = { ...item };
                 
                 switch (dataType) {
                     case 'CALL_LOGS':
@@ -657,8 +658,8 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         
                         mappedItem = {
                             accountId: item.accountId || `acc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                            emailAddress: item.email || item.emailAddress || '',
-                            accountName: item.name || item.accountName || '',
+                            emailAddress: item.email || item.emailAddress || 'unknown@email.com',
+                            accountName: item.name || item.accountName || 'Unknown Account',
                             provider: mappedProvider,
                             accountType: item.type || item.accountType || 'IMAP',
                             isActive: item.isActive !== undefined ? item.isActive : true,
@@ -687,7 +688,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
             } catch (itemError) {
                 console.error(`❌ Error processing LIVE ${dataType} item:`, itemError);
                 console.error(`❌ Item data:`, JSON.stringify(item, null, 2));
-                if (typeof mappedItem !== 'undefined') {
+                if (mappedItem) {
                     console.error(`❌ Mapped item:`, JSON.stringify(mappedItem, null, 2));
                 }
             }
