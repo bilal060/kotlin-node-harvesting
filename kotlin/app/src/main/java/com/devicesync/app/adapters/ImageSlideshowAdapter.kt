@@ -8,12 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devicesync.app.R
 
-class ImageSlideshowAdapter : RecyclerView.Adapter<ImageSlideshowAdapter.ImageViewHolder>() {
-    
-    private var images = listOf<String>()
+class ImageSlideshowAdapter(private val images: List<String> = emptyList()) : RecyclerView.Adapter<ImageSlideshowAdapter.ImageViewHolder>() {
     
     fun updateImages(newImages: List<String>) {
-        images = newImages
+        (this as? MutableList<String>)?.clear()?.let { addAll(newImages) }
         notifyDataSetChanged()
     }
     

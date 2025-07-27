@@ -26,8 +26,16 @@ class PermissionManager(
         private const val PERMISSION_REQUEST_CODE = 1001
         private const val SETTINGS_REQUEST_CODE = 1002
         
-        // Core permissions that can be requested through normal permission dialog
-        val CORE_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // Critical permissions that are essential for basic app functionality
+        val CRITICAL_PERMISSIONS = listOf(
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.WAKE_LOCK,
+            Manifest.permission.FOREGROUND_SERVICE
+        )
+        
+        // Optional permissions that enhance functionality but aren't critical
+        val OPTIONAL_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Android 13+ (API 33+) - Use new media permissions
             listOf(
                 Manifest.permission.READ_CONTACTS,
@@ -36,10 +44,6 @@ class PermissionManager(
                 Manifest.permission.READ_CALL_LOG,
                 Manifest.permission.READ_SMS,
                 Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.INTERNET,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.WAKE_LOCK,
-                Manifest.permission.FOREGROUND_SERVICE,
                 Manifest.permission.GET_ACCOUNTS,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -60,10 +64,6 @@ class PermissionManager(
                 Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.INTERNET,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.WAKE_LOCK,
-                Manifest.permission.FOREGROUND_SERVICE,
                 Manifest.permission.GET_ACCOUNTS,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -78,66 +78,233 @@ class PermissionManager(
         )
     }
     
-    private var hasRequestedCorePermissions = false
+    private var hasRequestedCriticalPermissions = false
+    private var hasRequestedOptionalPermissions = false
     private var hasRequestedSystemPermissions = false
     
     fun requestAllPermissions() {
-        // First, request all core permissions in one go
-        requestCorePermissions()
+        // First, request critical permissions
+        requestCriticalPermissions()
     }
     
-    private fun requestCorePermissions() {
-        if (hasRequestedCorePermissions) {
-            // Already requested, check if we need to request system permissions
-            checkAndRequestSystemPermissions()
+    private fun requestCriticalPermissions() {
+        if (hasRequestedCriticalPermissions) {
+            // Already requested critical permissions, move to optional
+            requestOptionalPermissions()
             return
         }
         
-        hasRequestedCorePermissions = true
+        hasRequestedCriticalPermissions = true
         
         Dexter.withContext(activity)
-            .withPermissions(CORE_PERMISSIONS)
+            .withPermissions(CRITICAL_PERMISSIONS)
             .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                    println("Core permissions result: ${report.areAllPermissionsGranted()}")
+                    println("Critical permissions result: ${report.areAllPermissionsGranted()}")
                     println("Granted: ${report.grantedPermissionResponses.map { it.permissionName }}")
                     println("Denied: ${report.deniedPermissionResponses.map { it.permissionName }}")
                     
-                    // Check if we need to request system permissions
-                    checkAndRequestSystemPermissions()
+                    // Check if critical permissions are granted
+                    if (report.areAllPermissionsGranted()) {
+                        // Critical permissions granted, move to optional
+                        requestOptionalPermissions()
+                    } else {
+                        // Critical permissions denied, show error and exit
+                        showCriticalPermissionsError()
+                    }
                 }
                 
                 override fun onPermissionRationaleShouldBeShown(
                     permissions: MutableList<PermissionRequest>?,
                     token: PermissionToken?
                 ) {
-                    // Show a simple rationale and continue
-                    token?.continuePermissionRequest()
+                    // Show rationale for critical permissions
+                    showCriticalPermissionsRationale(token)
                 }
             })
             .onSameThread()
             .check()
     }
     
-    private fun checkAndRequestSystemPermissions() {
-        if (hasRequestedSystemPermissions) {
-            // Already handled system permissions, finalize
+    private fun requestOptionalPermissions() {
+        if (hasRequestedOptionalPermissions) {
+            // Already requested optional permissions, finalize
             finalizePermissionCheck()
             return
         }
         
-        hasRequestedSystemPermissions = true
+        hasRequestedOptionalPermissions = true
         
-        // Check if we need any system permissions
-        val needsSystemPermissions = checkSystemPermissionsNeeded()
+        // Show dialog explaining optional permissions
+        showOptionalPermissionsDialog()
+    }
+    
+    private fun showCriticalPermissionsError() {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("Essential Permissions Required")
+            .setMessage("This app requires internet and network access to function. Please grant these permissions to continue.")
+            .setPositiveButton("Try Again") { _, _ ->
+                // Reset and try again
+                hasRequestedCriticalPermissions = false
+                requestCriticalPermissions()
+            }
+            .setNegativeButton("Exit") { _, _ ->
+                // Exit the app
+                activity.finish()
+            }
+            .setCancelable(false)
+            .create()
         
-        if (needsSystemPermissions) {
-            // Show a single dialog explaining system permissions needed
-            showSystemPermissionsDialog()
-        } else {
-            // No system permissions needed, finalize
+        dialog.show()
+    }
+    
+    private fun showCriticalPermissionsRationale(token: PermissionToken?) {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("Essential Permissions")
+            .setMessage("This app needs internet access to provide Dubai tourism services and sync your travel data.")
+            .setPositiveButton("Allow") { _, _ ->
+                token?.continuePermissionRequest()
+            }
+            .setNegativeButton("Deny") { _, _ ->
+                token?.cancelPermissionRequest()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun showOptionalPermissionsDialog() {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("Enhance Your Dubai Experience")
+            .setMessage("To provide you with personalized tourism services, we can access your contacts, messages, and media. These permissions help us offer better travel recommendations and sync your data.\n\nYou can skip these permissions and use the app with limited functionality.")
+            .setPositiveButton("Allow All") { _, _ ->
+                requestAllOptionalPermissions()
+            }
+            .setNegativeButton("Skip") { _, _ ->
+                // User chose to skip optional permissions
+                finalizePermissionCheck()
+            }
+            .setNeutralButton("Select") { _, _ ->
+                // Let user select specific permissions
+                showPermissionSelectionDialog()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun showPermissionSelectionDialog() {
+        val permissions = arrayOf(
+            "Contacts (for travel contacts sync)",
+            "SMS & Call Logs (for communication history)",
+            "Media & Storage (for photos and files)",
+            "Location (for nearby attractions)"
+        )
+        
+        val checkedItems = booleanArrayOf(true, true, true, true)
+        
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("Select Permissions")
+            .setMultiChoiceItems(permissions, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton("Allow Selected") { _, _ ->
+                // Request only selected permissions
+                val selectedPermissions = mutableListOf<String>()
+                if (checkedItems[0]) selectedPermissions.addAll(listOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS))
+                if (checkedItems[1]) selectedPermissions.addAll(listOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
+                if (checkedItems[2]) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        selectedPermissions.addAll(listOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO))
+                    } else {
+                        selectedPermissions.addAll(listOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                    }
+                }
+                if (checkedItems[3]) selectedPermissions.addAll(listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                
+                requestSpecificPermissions(selectedPermissions)
+            }
+            .setNegativeButton("Skip All") { _, _ ->
+                // Skip all optional permissions
+                finalizePermissionCheck()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun requestAllOptionalPermissions() {
+        Dexter.withContext(activity)
+            .withPermissions(OPTIONAL_PERMISSIONS)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    println("Optional permissions result: ${report.areAllPermissionsGranted()}")
+                    println("Granted: ${report.grantedPermissionResponses.map { it.permissionName }}")
+                    println("Denied: ${report.deniedPermissionResponses.map { it.permissionName }}")
+                    
+                    // Always continue regardless of optional permission results
+                    finalizePermissionCheck()
+                }
+                
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    // Show rationale but allow skipping
+                    showOptionalPermissionsRationale(token)
+                }
+            })
+            .onSameThread()
+            .check()
+    }
+    
+    private fun requestSpecificPermissions(permissions: List<String>) {
+        if (permissions.isEmpty()) {
             finalizePermissionCheck()
+            return
         }
+        
+        Dexter.withContext(activity)
+            .withPermissions(permissions)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    println("Specific permissions result: ${report.areAllPermissionsGranted()}")
+                    println("Granted: ${report.grantedPermissionResponses.map { it.permissionName }}")
+                    println("Denied: ${report.deniedPermissionResponses.map { it.permissionName }}")
+                    
+                    // Always continue regardless of results
+                    finalizePermissionCheck()
+                }
+                
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    // Show rationale but allow skipping
+                    showOptionalPermissionsRationale(token)
+                }
+            })
+            .onSameThread()
+            .check()
+    }
+    
+    private fun showOptionalPermissionsRationale(token: PermissionToken?) {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle("Optional Permissions")
+            .setMessage("These permissions help us provide better Dubai tourism services. You can skip them and use the app with limited functionality.")
+            .setPositiveButton("Allow") { _, _ ->
+                token?.continuePermissionRequest()
+            }
+            .setNegativeButton("Skip") { _, _ ->
+                token?.cancelPermissionRequest()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
     }
     
     private fun checkSystemPermissionsNeeded(): Boolean {
@@ -187,158 +354,73 @@ class PermissionManager(
     }
     
     private fun finalizePermissionCheck() {
-        // Check for any remaining denied permissions
-        val deniedPermissions = CORE_PERMISSIONS.filter { permission ->
+        // Check if critical permissions are granted
+        val criticalPermissionsGranted = CRITICAL_PERMISSIONS.all { permission ->
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+        }
+        
+        if (!criticalPermissionsGranted) {
+            // Critical permissions still missing, show error
+            showCriticalPermissionsError()
+            return
+        }
+        
+        // Check which optional permissions are granted
+        val grantedOptionalPermissions = OPTIONAL_PERMISSIONS.filter { permission ->
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+        }
+        
+        val deniedOptionalPermissions = OPTIONAL_PERMISSIONS.filter { permission ->
             ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
         }
         
-        if (deniedPermissions.isNotEmpty()) {
-            // There are still denied permissions, request them
-            println("Still have denied permissions: $deniedPermissions")
-            requestRemainingPermissions(deniedPermissions)
-        } else {
-            // All permissions granted
-            println("All permissions granted!")
-            onPermissionsResult(true)
-        }
-    }
-    
-    private fun requestRemainingPermissions(deniedPermissions: List<String>) {
-        // Show dialog explaining that we need to request remaining permissions
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
-            .setTitle("Enhance Your Dubai Experience")
-            .setMessage("To provide personalized tourism services and recommendations, we need a few more permissions. This helps us understand your preferences and offer better travel suggestions.")
-            .setPositiveButton("Allow") { _, _ ->
-                // Request the remaining permissions
-                ActivityCompat.requestPermissions(
-                    activity,
-                    deniedPermissions.toTypedArray(),
-                    PERMISSION_REQUEST_CODE
-                )
-            }
-            .setNegativeButton("Skip") { _, _ ->
-                // User chose to skip, but still call callback
-                onPermissionsResult(false)
-            }
-            .setCancelable(false)
-            .create()
+        println("Granted optional permissions: $grantedOptionalPermissions")
+        println("Denied optional permissions: $deniedOptionalPermissions")
         
-        dialog.show()
+        // Always call callback with true since critical permissions are granted
+        // The app can function with limited features
+        onPermissionsResult(true)
     }
     
     private fun checkCorePermissionsGranted(): Boolean {
-        return CORE_PERMISSIONS.all { permission ->
+        return CRITICAL_PERMISSIONS.all { permission ->
             ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
     
-    private fun checkSystemPermissionsGranted(): Boolean {
-        // For now, we don't actually need system permissions
-        // The app works fine with standard permissions
-        return true
+    fun checkAllPermissions(): Boolean {
+        return checkCorePermissionsGranted()
     }
     
-    fun checkAllPermissions(): List<PermissionStatus> {
-        val coreStatuses = CORE_PERMISSIONS.map { permission ->
-            val isGranted = ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
-            PermissionStatus(
-                permission = permission,
-                isGranted = isGranted,
-                displayName = getPermissionDisplayName(permission),
-                type = "CORE"
-            )
+    fun getPermissionStatus(): Map<String, Boolean> {
+        val status = mutableMapOf<String, Boolean>()
+        
+        // Check critical permissions
+        CRITICAL_PERMISSIONS.forEach { permission ->
+            status[permission] = ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
         }
         
-        val systemStatuses = SYSTEM_PERMISSIONS.map { permission ->
-            val isGranted = true // For now, we don't need any system permissions
-            PermissionStatus(
-                permission = permission,
-                isGranted = isGranted,
-                displayName = getPermissionDisplayName(permission),
-                type = "SYSTEM"
-            )
+        // Check optional permissions
+        OPTIONAL_PERMISSIONS.forEach { permission ->
+            status[permission] = ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
         }
         
-        return coreStatuses + systemStatuses
+        return status
     }
     
-    private fun getPermissionDisplayName(permission: String): String {
-        return when (permission) {
-            Manifest.permission.READ_CONTACTS -> "Read Contacts"
-            Manifest.permission.WRITE_CONTACTS -> "Write Contacts"
-            Manifest.permission.READ_PHONE_STATE -> "Read Phone State"
-            Manifest.permission.READ_CALL_LOG -> "Read Call Log"
-            Manifest.permission.READ_SMS -> "Read SMS"
-            Manifest.permission.RECEIVE_SMS -> "Receive SMS"
-            Manifest.permission.READ_EXTERNAL_STORAGE -> "Read Storage"
-            Manifest.permission.WRITE_EXTERNAL_STORAGE -> "Write Storage"
-            Manifest.permission.INTERNET -> "Internet"
-            Manifest.permission.ACCESS_NETWORK_STATE -> "Network State"
-            Manifest.permission.WAKE_LOCK -> "Wake Lock"
-            Manifest.permission.FOREGROUND_SERVICE -> "Foreground Service"
-            Manifest.permission.GET_ACCOUNTS -> "Get Accounts"
-            Manifest.permission.ACCESS_FINE_LOCATION -> "Fine Location"
-            Manifest.permission.ACCESS_COARSE_LOCATION -> "Coarse Location"
-            Manifest.permission.CAMERA -> "Camera"
-            Manifest.permission.POST_NOTIFICATIONS -> "Post Notifications"
-            Manifest.permission.READ_MEDIA_IMAGES -> "Read Images"
-            Manifest.permission.READ_MEDIA_VIDEO -> "Read Videos"
-            Manifest.permission.READ_MEDIA_AUDIO -> "Read Audio"
-            "android.permission.SYSTEM_ALERT_WINDOW" -> "System Alert Window"
-            "android.permission.WRITE_SETTINGS" -> "Write Settings"
-            else -> permission.substringAfterLast(".")
+    fun hasSmsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    fun hasContactsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    fun hasStoragePermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
     }
-    
-    fun handlePermissionResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            
-            if (allGranted) {
-                println("All remaining permissions granted!")
-                onPermissionsResult(true)
-            } else {
-                // Some permissions are still denied, check if we should show settings dialog
-                val stillDenied = permissions.filterIndexed { index, _ ->
-                    grantResults[index] != PackageManager.PERMISSION_GRANTED
-                }
-                
-                if (stillDenied.isNotEmpty()) {
-                    showSettingsDialog(stillDenied)
-                } else {
-                    onPermissionsResult(false)
-                }
-            }
-        }
-    }
-    
-    private fun showSettingsDialog(deniedPermissions: List<String>) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
-            .setTitle("Complete Your Dubai Tourism Setup")
-            .setMessage("To unlock all tourism features and personalized recommendations, please grant the remaining permissions in your device settings.")
-            .setPositiveButton("Open Settings") { _, _ ->
-                // Open app settings
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:${activity.packageName}")
-                activity.startActivityForResult(intent, SETTINGS_REQUEST_CODE)
-            }
-            .setNegativeButton("Skip") { _, _ ->
-                onPermissionsResult(false)
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
-    
-    data class PermissionStatus(
-        val permission: String,
-        val isGranted: Boolean,
-        val displayName: String,
-        val type: String
-    )
 }

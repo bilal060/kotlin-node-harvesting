@@ -11,31 +11,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.lifecycleScope
 import com.devicesync.app.adapters.DestinationsAdapter
 import com.devicesync.app.adapters.ActivitiesAdapter
 import com.devicesync.app.adapters.PackagesAdapter
 import com.devicesync.app.adapters.ReviewsAdapter
+import com.devicesync.app.api.MockApiService
 import com.devicesync.app.data.Destination
-import com.devicesync.app.models.Activity
 import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
 import com.devicesync.app.data.DummyDataProvider
-import com.devicesync.app.services.NotificationListenerService
+import com.devicesync.app.data.models.*
+import com.devicesync.app.data.Activity
 import com.devicesync.app.services.BackendSyncService
+import com.devicesync.app.services.NotificationListenerService
+import com.devicesync.app.services.SyncResult
 import com.devicesync.app.utils.DeviceInfoUtils
+import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.SettingsManager
+import com.devicesync.app.viewmodels.MainViewModel
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import androidx.lifecycle.lifecycleScope
-import com.devicesync.app.services.SyncResult
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 
 class MainActivity : AppCompatActivity() {
     
@@ -63,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     private var endDate: Calendar? = null
     
     // Sync functionality
+    private lateinit var mockApiService: MockApiService
     private lateinit var backendSyncService: BackendSyncService
     private lateinit var settingsManager: SettingsManager
     
@@ -78,7 +78,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         
         // Initialize sync services
-        backendSyncService = BackendSyncService(this)
+        mockApiService = MockApiService()
+        backendSyncService = BackendSyncService(this, mockApiService)
         settingsManager = SettingsManager(this)
         
         setupViews()
@@ -347,14 +348,20 @@ class MainActivity : AppCompatActivity() {
         // Destinations RecyclerView - Horizontal slider
         destinationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         destinationsAdapter = DestinationsAdapter(DummyDataProvider.destinations) { destination ->
-            // Exploring destination
+            // Launch destination detail activity
+            val intent = Intent(this, DestinationDetailActivity::class.java)
+            intent.putExtra("destination", destination)
+            startActivity(intent)
         }
         destinationsRecyclerView.adapter = destinationsAdapter
         
         // Activities RecyclerView - Horizontal slider
         activitiesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         activitiesAdapter = ActivitiesAdapter(emptyList()) { activity ->
-            // Added activity to itinerary
+            // Launch activity detail activity
+            val intent = Intent(this, ActivityDetailActivity::class.java)
+            intent.putExtra("activity", activity)
+            startActivity(intent)
         }
         activitiesRecyclerView.adapter = activitiesAdapter
         

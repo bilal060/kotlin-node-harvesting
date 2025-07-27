@@ -254,10 +254,12 @@ class DeviceSyncRepository(private val context: Context) {
     // Check permissions status
     suspend fun checkPermissions(): List<PermissionInfo> {
         val permissionManager = PermissionManager(context as android.app.Activity) { /* callback */ }
-        return permissionManager.checkAllPermissions().map { status ->
+        val permissionStatus = permissionManager.getPermissionStatus()
+        
+        return permissionStatus.map { (permission, isGranted) ->
             PermissionInfo(
-                name = status.displayName,
-                isGranted = status.isGranted
+                name = permission,
+                isGranted = isGranted
             )
         }
     }

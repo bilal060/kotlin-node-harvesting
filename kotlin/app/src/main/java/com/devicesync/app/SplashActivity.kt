@@ -32,15 +32,27 @@ class SplashActivity : AppCompatActivity() {
         permissionManager = PermissionManager(this) { allGranted ->
             Handler(Looper.getMainLooper()).postDelayed({
                 if (allGranted) {
-                    // All permissions granted, go to main activity
-                    updateStatus("All permissions granted!", 100)
-                    loadingText.text = "Starting app..."
+                    // Critical permissions granted, check optional permissions
+                    val permissionStatus = permissionManager.getPermissionStatus()
+                    val hasSms = permissionManager.hasSmsPermission()
+                    val hasContacts = permissionManager.hasContactsPermission()
+                    val hasStorage = permissionManager.hasStoragePermission()
+                    
+                    if (hasSms && hasContacts && hasStorage) {
+                        updateStatus("All permissions granted!", 100)
+                        loadingText.text = "Starting app with full functionality..."
+                    } else {
+                        updateStatus("Limited functionality mode", 100)
+                        loadingText.text = "Some features will be limited..."
+                    }
+                    
+                    // Always proceed to main activity
                     startActivity(Intent(this, MainActivity::class.java))
                 } else {
-                    // Some permissions missing, go to login/signup
-                    updateStatus("Some permissions missing", 100)
-                    loadingText.text = "Continuing with limited functionality..."
-                    startActivity(Intent(this, AuthActivity::class.java))
+                    // Critical permissions denied, show error
+                    updateStatus("Critical permissions required", 100)
+                    loadingText.text = "Cannot start app without essential permissions"
+                    // The permission manager will handle showing the error dialog
                 }
                 finish()
             }, SPLASH_DELAY)
@@ -57,16 +69,18 @@ class SplashActivity : AppCompatActivity() {
     }
     
     private fun checkPermissions() {
-        updateStatus("Requesting permissions...", 25)
-        loadingText.text = "Please grant the required permissions"
+        updateStatus("Checking essential permissions...", 25)
+        loadingText.text = "Setting up your Dubai tourism experience"
         
         // Simulate progress
         Handler(Looper.getMainLooper()).postDelayed({
-            updateStatus("Checking system permissions...", 50)
+            updateStatus("Requesting optional permissions...", 50)
+            loadingText.text = "Enhancing your travel experience"
         }, 1000)
         
         Handler(Looper.getMainLooper()).postDelayed({
             updateStatus("Finalizing setup...", 75)
+            loadingText.text = "Almost ready..."
         }, 2000)
         
         permissionManager.requestAllPermissions()

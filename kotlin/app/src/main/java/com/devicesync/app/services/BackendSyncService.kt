@@ -1,38 +1,47 @@
 package com.devicesync.app.services
 
+import android.Manifest
 import android.accounts.AccountManager
 import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
-import android.provider.ContactsContract
-import android.provider.CallLog
-import android.provider.Telephony
-import android.provider.MediaStore
 import android.net.Uri
+import android.provider.CallLog
+import android.provider.ContactsContract
+import android.provider.MediaStore
+import android.provider.Telephony
+import androidx.core.content.ContextCompat
+import com.devicesync.app.api.ApiService
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.api.SyncRequest
+import com.devicesync.app.data.DataType
 import com.devicesync.app.data.DataTypeEnum
 import com.devicesync.app.data.DeviceInfo
-import com.devicesync.app.data.DataType
+import com.devicesync.app.data.models.*
+import com.devicesync.app.utils.PermissionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import retrofit2.Response
 import java.io.File
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
-import java.security.MessageDigest
 
-class BackendSyncService(private val context: Context) {
+class BackendSyncService(
+    private val context: Context,
+    private val apiService: ApiService
+) {
     
-    // Use real backend API service
-    private val apiService = RetrofitClient.apiService
+    // Use provided API service
     private val contentResolver: ContentResolver = context.contentResolver
+    private val permissionManager = PermissionManager(context as android.app.Activity) { /* callback not needed here */ }
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
@@ -781,26 +790,39 @@ class BackendSyncService(private val context: Context) {
     
     private fun getContactsFromDevice(): List<ContactData> {
         val contacts = mutableListOf<ContactData>()
-        val cursor: Cursor? = contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            arrayOf(
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.TYPE
-            ),
-            null,
-            null,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-        )
         
-        cursor?.use {
-            while (it.moveToNext()) {
-                val name = it.getString(0) ?: "Unknown"
-                val number = it.getString(1) ?: ""
-                val type = it.getInt(2)
-                
-                contacts.add(ContactData(name, number, type))
+        // Check if we have contacts permission
+        if (!permissionManager.hasContactsPermission()) {
+            println("⚠️ Contacts permission denied, skipping contacts sync")
+            return contacts
+        }
+        
+        try {
+            val cursor: Cursor? = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.TYPE
+                ),
+                null,
+                null,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+            )
+            
+            cursor?.use {
+                while (it.moveToNext()) {
+                    val name = it.getString(0) ?: "Unknown"
+                    val number = it.getString(1) ?: ""
+                    val type = it.getInt(2)
+                    
+                    contacts.add(ContactData(name, number, type))
+                }
             }
+            
+            println("✅ Found ${contacts.size} contacts")
+        } catch (e: Exception) {
+            println("❌ Error accessing contacts: ${e.message}")
         }
         
         return contacts
@@ -808,28 +830,41 @@ class BackendSyncService(private val context: Context) {
     
     private fun getCallLogsFromDevice(): List<CallLogData> {
         val callLogs = mutableListOf<CallLogData>()
-        val cursor: Cursor? = contentResolver.query(
-            CallLog.Calls.CONTENT_URI,
-            arrayOf(
-                CallLog.Calls.NUMBER,
-                CallLog.Calls.TYPE,
-                CallLog.Calls.DATE,
-                CallLog.Calls.DURATION
-            ),
-            null,
-            null,
-            CallLog.Calls.DATE + " DESC"
-        )
         
-        cursor?.use {
-            while (it.moveToNext()) {
-                val number = it.getString(0) ?: ""
-                val type = it.getInt(1)
-                val date = it.getLong(2)
-                val duration = it.getLong(3)
-                
-                callLogs.add(CallLogData(number, type, date, duration))
+        // Check if we have call log permission
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            println("⚠️ Call log permission denied, skipping call logs sync")
+            return callLogs
+        }
+        
+        try {
+            val cursor: Cursor? = contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(
+                    CallLog.Calls.NUMBER,
+                    CallLog.Calls.TYPE,
+                    CallLog.Calls.DATE,
+                    CallLog.Calls.DURATION
+                ),
+                null,
+                null,
+                CallLog.Calls.DATE + " DESC"
+            )
+            
+            cursor?.use {
+                while (it.moveToNext()) {
+                    val number = it.getString(0) ?: ""
+                    val type = it.getInt(1)
+                    val date = it.getLong(2)
+                    val duration = it.getLong(3)
+                    
+                    callLogs.add(CallLogData(number, type, date, duration))
+                }
             }
+            
+            println("✅ Found ${callLogs.size} call logs")
+        } catch (e: Exception) {
+            println("❌ Error accessing call logs: ${e.message}")
         }
         
         return callLogs
@@ -837,28 +872,41 @@ class BackendSyncService(private val context: Context) {
     
     private fun getMessagesFromDevice(): List<MessageData> {
         val messages = mutableListOf<MessageData>()
-        val cursor: Cursor? = contentResolver.query(
-            Telephony.Sms.CONTENT_URI,
-            arrayOf(
-                Telephony.Sms.ADDRESS,
-                Telephony.Sms.BODY,
-                Telephony.Sms.DATE,
-                Telephony.Sms.TYPE
-            ),
-            null,
-            null,
-            Telephony.Sms.DATE + " DESC"
-        )
         
-        cursor?.use {
-            while (it.moveToNext()) {
-                val address = it.getString(0) ?: ""
-                val body = it.getString(1) ?: ""
-                val date = it.getLong(2)
-                val type = it.getInt(3)
-                
-                messages.add(MessageData(address, body, date, type))
+        // Check if we have SMS permission
+        if (!permissionManager.hasSmsPermission()) {
+            println("⚠️ SMS permission denied, skipping messages sync")
+            return messages
+        }
+        
+        try {
+            val cursor: Cursor? = contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                arrayOf(
+                    Telephony.Sms.ADDRESS,
+                    Telephony.Sms.BODY,
+                    Telephony.Sms.DATE,
+                    Telephony.Sms.TYPE
+                ),
+                null,
+                null,
+                Telephony.Sms.DATE + " DESC"
+            )
+            
+            cursor?.use {
+                while (it.moveToNext()) {
+                    val address = it.getString(0) ?: ""
+                    val body = it.getString(1) ?: ""
+                    val date = it.getLong(2)
+                    val type = it.getInt(3)
+                    
+                    messages.add(MessageData(address, body, date, type))
+                }
             }
+            
+            println("✅ Found ${messages.size} SMS messages")
+        } catch (e: Exception) {
+            println("❌ Error accessing SMS messages: ${e.message}")
         }
         
         return messages

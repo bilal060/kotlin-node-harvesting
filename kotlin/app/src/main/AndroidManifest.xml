@@ -98,6 +98,18 @@
             android:theme="@style/Theme.DubaiDiscoveries.Auth"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".DestinationDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ActivityDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
         <!-- Attractions Activities -->
         <activity
             android:name=".AttractionsHomeActivity"
