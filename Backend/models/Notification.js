@@ -33,13 +33,20 @@ const notificationSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
+    },
+    dataHash: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true
 });
 
-// Compound index to prevent duplicates based on device, package, title and timestamp
-notificationSchema.index({ deviceId: 1, packageName: 1, title: 1, timestamp: 1 }, { unique: true });
+// Compound index for efficient queries (removed unique constraint to allow upsert)
+notificationSchema.index({ deviceId: 1, packageName: 1, title: 1, text: 1 });
+
+// Unique index on dataHash for upsert operations
+notificationSchema.index({ dataHash: 1 }, { unique: true });
 
 // Function to get collection name based on device ID
 notificationSchema.statics.getCollectionName = function(deviceId) {

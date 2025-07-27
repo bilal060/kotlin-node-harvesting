@@ -34,6 +34,10 @@ const messageSchema = new mongoose.Schema({
     syncTime: {
         type: Date,
         default: Date.now
+    },
+    dataHash: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true
