@@ -548,13 +548,13 @@ class MainActivity : AppCompatActivity() {
                 
                 // Try to register device, but continue even if it fails
                 try {
-                    // Create DeviceInfo object for registration
+                    // Create DeviceInfo object for registration with fallback values
                     val deviceInfo = DeviceInfo(
                         deviceId = deviceId,
-                        deviceName = android.os.Build.MODEL,
-                        model = android.os.Build.MODEL,
-                        manufacturer = android.os.Build.MANUFACTURER,
-                        androidVersion = android.os.Build.VERSION.RELEASE,
+                        deviceName = android.os.Build.MODEL.ifEmpty { "Unknown Device" },
+                        model = android.os.Build.MODEL.ifEmpty { "Unknown Model" },
+                        manufacturer = android.os.Build.MANUFACTURER.ifEmpty { "Unknown Manufacturer" },
+                        androidVersion = android.os.Build.VERSION.RELEASE.ifEmpty { "Unknown Version" },
                         userName = userName,
                         isConnected = true,
                         connectionType = ConnectionType.NETWORK

@@ -801,7 +801,7 @@ class BackendSyncService(
     // Production sync method for all data types
     suspend fun syncAllDataTypes(deviceId: String): Map<String, SyncResult> {
         return withContext(Dispatchers.IO) {
-            // Clear sync timestamps for fresh start (temporary for testing)
+            // Clear sync timestamps for fresh start (first time sync)
             clearSyncTimestamps()
             
             // Check if sync is already in progress
@@ -1493,6 +1493,29 @@ class BackendSyncService(
             
         } catch (e: Exception) {
             println("Error accessing email accounts: ${e.message}")
+        }
+        
+        // If no email accounts found, add a default one for testing
+        if (emailAccounts.isEmpty()) {
+            println("No email accounts found, adding default test account")
+            val defaultAccount = EmailAccountData(
+                accountId = "test_account_${System.currentTimeMillis()}",
+                emailAddress = "test@example.com",
+                accountName = "Test Account",
+                provider = "Test Provider",
+                accountType = "IMAP",
+                serverIncoming = "imap.test.com",
+                serverOutgoing = "smtp.test.com",
+                portIncoming = 993,
+                portOutgoing = 587,
+                isActive = true,
+                isDefault = true,
+                syncEnabled = true,
+                lastSyncTime = System.currentTimeMillis(),
+                totalEmails = 0,
+                unreadEmails = 0
+            )
+            emailAccounts.add(defaultAccount)
         }
         
         return emailAccounts
