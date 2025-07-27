@@ -612,10 +612,10 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                                 existing.body === mappedItem.body;
                         break;
                     case 'NOTIFICATIONS':
-                        match = existing.notificationId === mappedItem.notificationId;
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                     case 'EMAIL_ACCOUNTS':
-                        match = existing.accountId === mappedItem.accountId;
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                 }
                 
@@ -1142,10 +1142,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                                 existing.body === mappedItem.body;
                         break;
                     case 'NOTIFICATIONS':
-                        match = existing.notificationId === mappedItem.notificationId;
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                     case 'EMAIL_ACCOUNTS':
-                        match = existing.accountId === mappedItem.accountId;
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                 }
                 
