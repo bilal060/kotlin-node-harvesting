@@ -31,10 +31,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="UAE Travel Planner"
+                android:text="Dubai Discoveries"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/accent_gold"
                 android:fontFamily="sans-serif-medium" />
 
         </LinearLayout>
@@ -58,7 +58,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Plan Your UAE Trip"
+                    android:text="Plan Your Dubai Adventure"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"

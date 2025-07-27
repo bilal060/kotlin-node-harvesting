@@ -10,11 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devicesync.app.adapters.DestinationsAdapter
+import com.devicesync.app.adapters.ActivitiesAdapter
 import com.devicesync.app.data.Destination
 import com.devicesync.app.data.Activity
 import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
+import com.devicesync.app.data.DummyDataProvider
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tipsRecyclerView: RecyclerView
     
     private lateinit var destinationsAdapter: DestinationsAdapter
+    private lateinit var activitiesAdapter: ActivitiesAdapter
     
     private var startDate: Calendar? = null
     private var endDate: Calendar? = null
@@ -138,7 +141,10 @@ class MainActivity : AppCompatActivity() {
         
         // Activities RecyclerView
         activitiesRecyclerView.layoutManager = LinearLayoutManager(this)
-        // TODO: Add ActivitiesAdapter
+        activitiesAdapter = ActivitiesAdapter(emptyList()) { activity ->
+            Toast.makeText(this, "Added ${activity.name} to itinerary", Toast.LENGTH_SHORT).show()
+        }
+        activitiesRecyclerView.adapter = activitiesAdapter
         
         // Packages RecyclerView
         packagesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -154,15 +160,11 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun loadSampleData() {
-        // Sample destinations
-        val destinations = listOf(
-            Destination("1", "Dubai", "", "Experience the magic of Dubai", "Most Booked", 4.8f),
-            Destination("2", "Abu Dhabi", "", "Discover the capital's wonders", "Trending", 4.7f),
-            Destination("3", "Sharjah", "", "Cultural heritage and museums", null, 4.5f),
-            Destination("4", "Fujairah", "", "Beaches and mountains", null, 4.6f)
-        )
+        // Load destinations from dummy data
+        destinationsAdapter.updateDestinations(DummyDataProvider.destinations)
         
-        destinationsAdapter.updateDestinations(destinations)
+        // Load activities from dummy data
+        activitiesAdapter.updateActivities(DummyDataProvider.activities)
     }
     
     private fun setupServiceButtons() {

@@ -1,84 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Base application theme -->
-    <style name="Theme.DeviceSync" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme for Dubai Discoveries -->
+    <style name="Theme.DubaiDiscoveries" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color -->
-        <item name="colorPrimary">@color/primary_color</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorPrimary">@color/accent_gold</item>
+        <item name="colorPrimaryVariant">@color/deep_gold</item>
         <item name="colorOnPrimary">@color/white</item>
         
         <!-- Secondary brand color -->
-        <item name="colorSecondary">@color/accent_color</item>
-        <item name="colorSecondaryVariant">@color/accent_dark</item>
+        <item name="colorSecondary">@color/primary_color</item>
+        <item name="colorSecondaryVariant">@color/secondary_color</item>
         <item name="colorOnSecondary">@color/white</item>
         
-        <!-- Status bar and navigation bar -->
-        <item name="android:statusBarColor">@color/primary_dark</item>
-        <item name="android:navigationBarColor">@color/primary_dark</item>
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/secondary_color</item>
         <item name="android:windowLightStatusBar">false</item>
         
         <!-- Background colors -->
-        <item name="android:colorBackground">@color/background_color</item>
+        <item name="android:colorBackground">@color/background_ivory</item>
         <item name="colorSurface">@color/surface_color</item>
-        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_dark</item>
         
         <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_dark</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
         
-        <!-- Card and elevation -->
-        <item name="cardBackgroundColor">@color/surface_color</item>
-        <item name="cardElevation">4dp</item>
-        <item name="cardCornerRadius">12dp</item>
+        <!-- Shape styles -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.DubaiDiscoveries.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.DubaiDiscoveries.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.DubaiDiscoveries.LargeComponent</item>
         
-        <!-- Button styles -->
-        <item name="materialButtonStyle">@style/Widget.DeviceSync.Button</item>
-        <item name="textInputStyle">@style/Widget.DeviceSync.TextInputLayout</item>
+        <!-- Typography -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.DubaiDiscoveries.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.DubaiDiscoveries.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.DubaiDiscoveries.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.DubaiDiscoveries.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.DubaiDiscoveries.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.DubaiDiscoveries.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.DubaiDiscoveries.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.DubaiDiscoveries.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.DubaiDiscoveries.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.DubaiDiscoveries.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.DubaiDiscoveries.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.DubaiDiscoveries.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.DubaiDiscoveries.Overline</item>
     </style>
 
-    <!-- Button style -->
-    <style name="Widget.DeviceSync.Button" parent="Widget.MaterialComponents.Button">
+    <!-- Shape Appearances -->
+    <style name="ShapeAppearance.DubaiDiscoveries.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearance.DubaiDiscoveries.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.DubaiDiscoveries.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <!-- Typography Styles -->
+    <style name="TextAppearance.DubaiDiscoveries.Headline1" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/accent_gold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Headline2" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/accent_gold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Headline3" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Headline4" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Headline5" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Headline6" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Subtitle1" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Subtitle2" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Body1" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Body2" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/primary_color</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.DubaiDiscoveries.Overline" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- Widget Styles -->
+    <style name="Widget.DeviceSync.Button" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/accent_gold</item>
+        <item name="cornerRadius">16dp</item>
         <item name="android:padding">16dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Outlined button style -->
-    <style name="Widget.DeviceSync.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/primary_color</item>
-        <item name="strokeColor">@color/primary_color</item>
-        <item name="cornerRadius">8dp</item>
+    <style name="Widget.DeviceSync.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/accent_gold</item>
+        <item name="strokeColor">@color/accent_gold</item>
+        <item name="cornerRadius">16dp</item>
         <item name="android:padding">16dp</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Text input layout style -->
-    <style name="Widget.DeviceSync.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/primary_color</item>
-        <item name="hintTextColor">@color/primary_color</item>
-        <item name="cornerRadius">8dp</item>
+    <style name="Widget.DeviceSync.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/accent_gold</item>
+        <item name="hintTextColor">@color/accent_gold</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 
-    <!-- Card style -->
     <style name="Widget.DeviceSync.Card" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/surface_color</item>
         <item name="cardElevation">4dp</item>
-        <item name="cardCornerRadius">12dp</item>
+        <item name="cardCornerRadius">16dp</item>
         <item name="contentPadding">16dp</item>
     </style>
 
     <!-- Splash screen theme -->
-    <style name="Theme.DeviceSync.Splash" parent="Theme.DeviceSync">
+    <style name="Theme.DubaiDiscoveries.Splash" parent="Theme.DubaiDiscoveries">
         <item name="android:windowBackground">@color/primary_color</item>
         <item name="android:statusBarColor">@color/primary_color</item>
-        <item name="android:navigationBarColor">@color/primary_color</item>
     </style>
 
     <!-- Auth screen theme -->
-    <style name="Theme.DeviceSync.Auth" parent="Theme.DeviceSync">
+    <style name="Theme.DubaiDiscoveries.Auth" parent="Theme.DubaiDiscoveries">
         <item name="android:windowBackground">@color/primary_color</item>
     </style>
 </resources> 

@@ -67,7 +67,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DeviceSync"
+        android:theme="@style/Theme.DubaiDiscoveries"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
@@ -76,7 +76,7 @@
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.DeviceSync.Splash"
+            android:theme="@style/Theme.DubaiDiscoveries.Splash"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -95,7 +95,7 @@
         <activity
             android:name=".AuthActivity"
             android:exported="false"
-            android:theme="@style/Theme.DeviceSync.Auth"
+            android:theme="@style/Theme.DubaiDiscoveries.Auth"
             android:screenOrientation="portrait" />
 
         <!-- Attractions Activities -->

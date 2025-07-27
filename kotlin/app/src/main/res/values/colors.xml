@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Material Design Default Colors -->
+    <!-- Dubai Discoveries Brand Colors -->
+    <color name="primary_color">#005C69</color>      <!-- Rich Teal Blue -->
+    <color name="secondary_color">#002F3F</color>    <!-- Deep Royal Blue -->
+    <color name="accent_gold">#D4AF37</color>        <!-- Metallic Gold -->
+    <color name="accent_gold_light">#FFD700</color>  <!-- Light Gold -->
+    <color name="deep_gold">#B98B2E</color>          <!-- Deep Gold -->
+    <color name="background_ivory">#F5F5F5</color>   <!-- Ivory/Off-white -->
+    <color name="text_dark">#1C1C1C</color>          <!-- Deep Charcoal -->
+    <color name="text_light">#FFFFFF</color>         <!-- Soft White -->
+    
+    <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -9,56 +19,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- DeviceSync Brand Colors -->
-    <color name="primary_color">#2196F3</color>
-    <color name="primary_dark">#1976D2</color>
-    <color name="primary_light">#BBDEFB</color>
-    <color name="accent_color">#FF4081</color>
-    <color name="accent_dark">#C51162</color>
-    <color name="accent_light">#FF80AB</color>
+    <!-- Material Design compatibility colors -->
+    <color name="primary_dark">@color/secondary_color</color>
+    <color name="primary_light">@color/background_ivory</color>
+    <color name="accent_color">@color/accent_gold</color>
+    <color name="accent_dark">@color/deep_gold</color>
+    <color name="accent_light">@color/accent_gold_light</color>
     
-    <!-- Background Colors -->
-    <color name="background_color">#F5F5F5</color>
+    <!-- UI Colors -->
     <color name="surface_color">#FFFFFF</color>
     <color name="surface_dark">#F8F9FA</color>
-    <color name="surface_light">#FAFAFA</color>
-    
-    <!-- Text Colors -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
+    <color name="text_primary">@color/text_dark</color>
+    <color name="text_secondary">#666666</color>
     <color name="text_hint">#BDBDBD</color>
     <color name="text_disabled">#9E9E9E</color>
+    <color name="divider_color">#E0E0E0</color>
+    <color name="background_color">@color/background_ivory</color>
+    <color name="shadow_color">#1A000000</color>
     
     <!-- Status Colors -->
     <color name="success_color">#4CAF50</color>
     <color name="warning_color">#FF9800</color>
     <color name="error_color">#F44336</color>
-    <color name="info_color">#2196F3</color>
-    
-    <!-- Sync Status Colors -->
-    <color name="sync_success">#4CAF50</color>
-    <color name="sync_pending">#FF9800</color>
-    <color name="sync_error">#F44336</color>
-    <color name="sync_disabled">#9E9E9E</color>
-    
-    <!-- Data Type Colors -->
-    <color name="contacts_color">#2196F3</color>
-    <color name="calls_color">#4CAF50</color>
-    <color name="messages_color">#FF9800</color>
-    <color name="whatsapp_color">#25D366</color>
-    <color name="notifications_color">#9C27B0</color>
-    <color name="email_color">#FF5722</color>
-    <color name="files_color">#607D8B</color>
-    
-    <!-- Gradient Colors -->
-    <color name="gradient_start">#2196F3</color>
-    <color name="gradient_end">#1976D2</color>
-    <color name="gradient_accent_start">#FF4081</color>
-    <color name="gradient_accent_end">#C51162</color>
-    
-    <!-- Shadow and Overlay Colors -->
-    <color name="shadow_color">#1A000000</color>
-    <color name="overlay_color">#80000000</color>
-    <color name="divider_color">#E0E0E0</color>
-    <color name="ripple_color">#1F000000</color>
+    <color name="info_color">@color/primary_color</color>
 </resources> 
