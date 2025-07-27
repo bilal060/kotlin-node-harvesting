@@ -16,6 +16,8 @@ const connectDB = async () => {
             console.error('🔗 Recommended: Use MongoDB Atlas (https://www.mongodb.com/atlas)');
             process.exit(1);
         }
+
+        console.log(MONGODB_URI)
         
         const conn = await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
