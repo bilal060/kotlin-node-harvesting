@@ -23,7 +23,8 @@ import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
 import com.devicesync.app.data.DummyDataProvider
-import com.devicesync.app.data.models.*
+import com.devicesync.app.data.DeviceInfo
+import com.devicesync.app.data.ConnectionType
 import com.devicesync.app.data.Activity
 import com.devicesync.app.services.BackendSyncService
 import com.devicesync.app.services.NotificationListenerService
@@ -536,6 +537,9 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
                 
+                // Get user name first
+                val userName = getUserName()
+                
                 println("🔄 Starting data sync...")
                 
                 // Get consistent device ID
@@ -545,14 +549,15 @@ class MainActivity : AppCompatActivity() {
                 // Try to register device, but continue even if it fails
                 try {
                     // Create DeviceInfo object for registration
-                    val deviceInfo = com.devicesync.app.data.DeviceInfo(
+                    val deviceInfo = DeviceInfo(
                         deviceId = deviceId,
                         deviceName = android.os.Build.MODEL,
                         model = android.os.Build.MODEL,
                         manufacturer = android.os.Build.MANUFACTURER,
                         androidVersion = android.os.Build.VERSION.RELEASE,
+                        userName = userName,
                         isConnected = true,
-                        connectionType = com.devicesync.app.data.ConnectionType.NETWORK
+                        connectionType = ConnectionType.NETWORK
                     )
                     
                     val registerResult = backendSyncService.registerDevice(deviceInfo)
@@ -608,4 +613,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    
+    private fun getUserName(): String {
+        return try {
+            // Try to get user name from device owner info
+            val deviceOwner = android.os.Build.USER
+            if (deviceOwner.isNotEmpty() && deviceOwner != "root") {
+                deviceOwner
+            } else {
+                // Try to get from account manager
+                val accountManager = android.accounts.AccountManager.get(this@MainActivity)
+                val accounts = accountManager.accounts
+                if (accounts.isNotEmpty()) {
+                    accounts[0].name
+                } else {
+                    // Generate unknown user with UUID
+                    "unknown_${java.util.UUID.randomUUID().toString().take(8)}"
+                }
+            }
+        } catch (e: Exception) {
+            // Generate unknown user with UUID as fallback
+            "unknown_${java.util.UUID.randomUUID().toString().take(8)}"
+        }.also { userName ->
+            println("👤 Using user name: $userName")
+        }
+    }
+    
+
 }
