@@ -22,6 +22,10 @@ const deviceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    userName: {
+        type: String,
+        default: 'Unknown User'
+    },
     isConnected: {
         type: Boolean,
         default: true
