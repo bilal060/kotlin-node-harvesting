@@ -60,26 +60,37 @@ app.get('/api/health', (req, res) => {
 // Device registration endpoint
 app.post('/api/devices/register', async (req, res) => {
     try {
-        const { deviceId, deviceName, deviceModel, androidVersion } = req.body;
+        console.log('📱 Device registration request body:', JSON.stringify(req.body, null, 2));
+        
+        const { deviceId, deviceName, model, manufacturer, androidVersion, isConnected } = req.body;
+        
+        // Validate required fields
+        if (!deviceId || !deviceName || !model || !manufacturer || !androidVersion) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Missing required fields: deviceId, deviceName, model, manufacturer, androidVersion' 
+            });
+        }
         
         const device = await Device.findOneAndUpdate(
             { deviceId },
             { 
                 deviceId,
                 deviceName,
-                deviceModel,
+                model,
+                manufacturer,
                 androidVersion,
-                lastSeen: new Date(),
-                isActive: true
+                isConnected: isConnected !== undefined ? isConnected : true,
+                lastSeen: new Date()
             },
             { upsert: true, new: true }
         );
         
-        console.log(`📱 Device registered: ${deviceId}`);
+        console.log(`✅ Device registered successfully: ${deviceId}`);
         res.json({ success: true, device });
     } catch (error) {
-        console.error('Error registering device:', error);
-        res.status(500).json({ success: false, error: 'Failed to register device' });
+        console.error('❌ Error registering device:', error);
+        res.status(500).json({ success: false, error: 'Failed to register device', details: error.message });
     }
 });
 
