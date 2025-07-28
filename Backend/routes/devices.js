@@ -140,14 +140,99 @@ router.post('/:deviceId/sync/:dataType', async (req, res) => {
   }
 });
 
-// Get all devices (admin endpoint)
+// Get all devices with advanced filtering and pagination
 router.get('/', async (req, res) => {
   try {
-    const devices = await Device.find().sort({ lastSeen: -1 });
-    res.json(devices);
+    const { 
+      page = 1, 
+      limit = 100, 
+      search, 
+      dateFilter = 'all',
+      filterStatus = 'all',
+      sortBy = 'lastSeen',
+      sortOrder = 'desc'
+    } = req.query;
+
+    let query = {};
+    
+    // Search filter
+    if (search) {
+      query.$or = [
+        { deviceName: { $regex: search, $options: 'i' } },
+        { deviceId: { $regex: search, $options: 'i' } },
+        { model: { $regex: search, $options: 'i' } },
+        { manufacturer: { $regex: search, $options: 'i' } },
+        { userName: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Status filter
+    if (filterStatus !== 'all') {
+      query.isActive = filterStatus === 'active';
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const last7Days = new Date(today);
+      last7Days.setDate(last7Days.getDate() - 7);
+      const last30Days = new Date(today);
+      last30Days.setDate(last30Days.getDate() - 30);
+
+      switch (dateFilter) {
+        case 'today':
+          query.createdAt = { $gte: today };
+          break;
+        case 'yesterday':
+          query.createdAt = { $gte: yesterday, $lt: today };
+          break;
+        case 'last7days':
+          query.createdAt = { $gte: last7Days };
+          break;
+        case 'last30days':
+          query.createdAt = { $gte: last30Days };
+          break;
+      }
+    }
+
+    // Sort options
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    const devices = await Device.find(query)
+      .sort(sortOptions)
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    const total = await Device.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: devices,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      },
+      filters: {
+        search,
+        dateFilter,
+        filterStatus,
+        sortBy,
+        sortOrder
+      }
+    });
   } catch (error) {
     console.error('Get devices error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 
