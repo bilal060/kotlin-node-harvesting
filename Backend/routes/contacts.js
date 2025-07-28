@@ -65,40 +65,91 @@ router.post('/sync', async (req, res) => {
   }
 });
 
-// Get contacts for a device
+// Get contacts for a device with advanced filtering and pagination
 router.get('/:deviceId', async (req, res) => {
   try {
     const { deviceId } = req.params;
-    const { page = 1, limit = 100, search } = req.query;
+    const { 
+      page = 1, 
+      limit = 100, 
+      search, 
+      dateFilter = 'all',
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = req.query;
 
     let query = { deviceId };
     
+    // Search filter
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { 'phoneNumbers.number': { $regex: search, $options: 'i' } },
-        { 'emails.email': { $regex: search, $options: 'i' } }
+        { phoneNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
       ];
     }
 
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const last7Days = new Date(today);
+      last7Days.setDate(last7Days.getDate() - 7);
+      const last30Days = new Date(today);
+      last30Days.setDate(last30Days.getDate() - 30);
+
+      switch (dateFilter) {
+        case 'today':
+          query.syncedAt = { $gte: today };
+          break;
+        case 'yesterday':
+          query.syncedAt = { $gte: yesterday, $lt: today };
+          break;
+        case 'last7days':
+          query.syncedAt = { $gte: last7Days };
+          break;
+        case 'last30days':
+          query.syncedAt = { $gte: last30Days };
+          break;
+      }
+    }
+
+    // Sort options
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
     const contacts = await Contact.find(query)
-      .sort({ name: 1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .sort(sortOptions)
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
 
     const total = await Contact.countDocuments(query);
 
     res.json({
-      contacts,
+      success: true,
+      data: contacts,
       pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      },
+      filters: {
+        search,
+        dateFilter,
+        sortBy,
+        sortOrder
       }
     });
   } catch (error) {
     console.error('Get contacts error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

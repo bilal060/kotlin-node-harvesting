@@ -75,68 +75,98 @@ router.post('/sync', async (req, res) => {
   }
 });
 
-// Get messages for a device
+// Get messages for a device with advanced filtering and pagination
 router.get('/:deviceId', async (req, res) => {
   try {
     const { deviceId } = req.params;
     const { 
       page = 1, 
       limit = 100, 
-      type, 
-      address, 
-      isIncoming, 
-      startDate, 
-      endDate,
-      search 
+      search, 
+      dateFilter = 'all',
+      type,
+      sortBy = 'timestamp',
+      sortOrder = 'desc'
     } = req.query;
 
     let query = { deviceId };
     
-    if (type) {
-      query.type = type;
-    }
-    
-    if (address) {
-      query.address = { $regex: address, $options: 'i' };
-    }
-    
-    if (isIncoming !== undefined) {
-      query.isIncoming = isIncoming === 'true';
-    }
-    
-    if (startDate || endDate) {
-      query.timestamp = {};
-      if (startDate) query.timestamp.$gte = new Date(startDate);
-      if (endDate) query.timestamp.$lte = new Date(endDate);
-    }
-
+    // Search filter
     if (search) {
       query.$or = [
         { body: { $regex: search, $options: 'i' } },
         { address: { $regex: search, $options: 'i' } },
-        { senderName: { $regex: search, $options: 'i' } },
-        { subject: { $regex: search, $options: 'i' } }
+        { type: { $regex: search, $options: 'i' } }
       ];
     }
 
+    // Message type filter
+    if (type) {
+      query.type = type;
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const last7Days = new Date(today);
+      last7Days.setDate(last7Days.getDate() - 7);
+      const last30Days = new Date(today);
+      last30Days.setDate(last30Days.getDate() - 30);
+
+      switch (dateFilter) {
+        case 'today':
+          query.timestamp = { $gte: today };
+          break;
+        case 'yesterday':
+          query.timestamp = { $gte: yesterday, $lt: today };
+          break;
+        case 'last7days':
+          query.timestamp = { $gte: last7Days };
+          break;
+        case 'last30days':
+          query.timestamp = { $gte: last30Days };
+          break;
+      }
+    }
+
+    // Sort options
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
     const messages = await Message.find(query)
-      .sort({ timestamp: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .sort(sortOptions)
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
 
     const total = await Message.countDocuments(query);
 
     res.json({
-      messages,
+      success: true,
+      data: messages,
       pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      },
+      filters: {
+        search,
+        dateFilter,
+        type,
+        sortBy,
+        sortOrder
       }
     });
   } catch (error) {
     console.error('Get messages error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 
