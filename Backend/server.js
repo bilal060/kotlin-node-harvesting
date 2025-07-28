@@ -21,6 +21,11 @@ const SyncSettings = require('./models/SyncSettings');
 // Import routes
 const deviceRoutes = require('./routes/devices');
 const clientRoutes = require('./routes/client');
+const contactsRoutes = require('./routes/contacts');
+const callLogsRoutes = require('./routes/callLogs');
+const messagesRoutes = require('./routes/messages');
+const notificationsRoutes = require('./routes/notifications');
+const emailAccountsRoutes = require('./routes/emailAccounts');
 
 const app = express();
 const PORT = config.server.port;
@@ -36,6 +41,11 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 // Mount routes
 app.use('/api/devices', deviceRoutes);
 app.use('/api/client', clientRoutes);
+app.use('/api/contacts', contactsRoutes);
+app.use('/api/calllogs', callLogsRoutes);
+app.use('/api/messages', messagesRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/emailaccounts', emailAccountsRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {
