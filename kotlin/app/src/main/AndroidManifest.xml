@@ -129,25 +129,25 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".TourPackagesActivity"
+            android:name=".TripTemplatesActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".PastExperiencesActivity"
+            android:name=".ReviewsActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".TeamActivity"
+            android:name=".LiveChatActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".TripManagementActivity"
+            android:name=".AudioToursActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />

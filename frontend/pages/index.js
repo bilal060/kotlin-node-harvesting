@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { deviceAPI, healthAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI, whatsappAPI } from '../lib/api'
+import { deviceAPI, healthAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI, whatsappAPI, adminAPI, dataAPI, syncAPI } from '../lib/api'
 import DeviceCard from '../components/DeviceCard'
 import DeviceDetails from '../components/DeviceDetails'
-import { Smartphone, Users, Phone, Bell, MessageSquare, Mail, Activity, Wifi, WifiOff, RefreshCw, TrendingUp, Database, Zap } from 'lucide-react'
+import { Smartphone, Users, Phone, Bell, MessageSquare, Mail, Activity, Wifi, WifiOff, RefreshCw, TrendingUp, Database, Zap, Settings, Shield, FileText, Image } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
 
@@ -71,70 +71,92 @@ export default function Home() {
     }
   )
 
-  // Notifications data
+  // Notifications data - Updated to use new API
   const { data: notificationsData } = useQuery(
-    ['notifications', selectedDevice?._id],
-    () => selectedDevice ? notificationsAPI.getAll(selectedDevice._id) : null,
+    ['notifications', selectedDevice?.deviceId],
+    () => selectedDevice ? notificationsAPI.getAll(selectedDevice.deviceId) : null,
     {
       enabled: !!selectedDevice,
       refetchInterval: 15000
     }
   )
 
-  // Email accounts data
+  // Email accounts data - Updated to use new API
   const { data: emailData } = useQuery(
-    ['emails', selectedDevice?._id],
-    () => selectedDevice ? emailAccountsAPI.getAll(selectedDevice._id) : null,
+    ['emails', selectedDevice?.deviceId],
+    () => selectedDevice ? emailAccountsAPI.getAll(selectedDevice.deviceId) : null,
     {
       enabled: !!selectedDevice,
       refetchInterval: 30000
     }
   )
 
-  // Contacts data
+  // Contacts data - Updated to use new API
   const { data: contactsData } = useQuery(
-    ['contacts', selectedDevice?._id],
-    () => selectedDevice ? contactsAPI.getAll(selectedDevice._id) : null,
+    ['contacts', selectedDevice?.deviceId],
+    () => selectedDevice ? contactsAPI.getAll(selectedDevice.deviceId) : null,
     {
       enabled: !!selectedDevice,
       refetchInterval: 60000
     }
   )
 
-  // Call logs data
+  // Call logs data - Updated to use new API
   const { data: callLogsData } = useQuery(
-    ['callLogs', selectedDevice?._id],
-    () => selectedDevice ? callLogsAPI.getAll(selectedDevice._id) : null,
+    ['callLogs', selectedDevice?.deviceId],
+    () => selectedDevice ? callLogsAPI.getAll(selectedDevice.deviceId) : null,
     {
       enabled: !!selectedDevice,
       refetchInterval: 60000
     }
   )
 
-  // Messages data
+  // Messages data - Updated to use new API
   const { data: messagesData } = useQuery(
-    ['messages', selectedDevice?._id],
-    () => selectedDevice ? messagesAPI.getAll(selectedDevice._id) : null,
+    ['messages', selectedDevice?.deviceId],
+    () => selectedDevice ? messagesAPI.getAll(selectedDevice.deviceId) : null,
+    {
+      enabled: !!selectedDevice,
+      refetchInterval: 30000
+    }
+  )
+
+  // WhatsApp data - Updated to use new API
+  const { data: whatsappData } = useQuery(
+    ['whatsapp', selectedDevice?.deviceId],
+    () => selectedDevice ? whatsappAPI.getAll(selectedDevice.deviceId) : null,
+    {
+      enabled: !!selectedDevice,
+      refetchInterval: 30000
+    }
+  )
+
+  // Sync settings data - New query for sync settings
+  const { data: syncSettingsData } = useQuery(
+    ['syncSettings', selectedDevice?.deviceId],
+    () => selectedDevice ? syncAPI.getSyncStats(selectedDevice.deviceId) : null,
     {
       enabled: !!selectedDevice,
       refetchInterval: 60000
     }
   )
 
-  // WhatsApp data
-  const { data: whatsappData } = useQuery(
-    ['whatsapp', selectedDevice?._id],
-    () => selectedDevice ? whatsappAPI.getAll(selectedDevice._id) : null,
+  // Global data stats - New query for global stats
+  const { data: globalStatsData } = useQuery(
+    'globalStats',
+    adminAPI.getGlobalStats,
     {
-      enabled: !!selectedDevice,
-      refetchInterval: 60000
+      refetchInterval: 60000,
+      onError: (error) => {
+        console.error('Failed to fetch global stats:', error)
+      }
     }
   )
 
   const handleDeviceStatusChange = async (deviceId, isActive) => {
     try {
       await deviceAPI.updateStatus(deviceId, isActive)
-      toast.success(`Device ${isActive ? 'activated' : 'deactivated'} successfully`)
+      toast.success(`Device ${isActive ? 'activated' : 'deactivated'}`)
       refetch()
     } catch (error) {
       toast.error('Failed to update device status')
@@ -156,11 +178,44 @@ export default function Home() {
   const handleManualSync = async (deviceId, dataType) => {
     try {
       await deviceAPI.updateSync(deviceId, dataType)
-      toast.success(`${dataType} sync triggered successfully`)
+      toast.success(`${dataType} sync triggered`)
       refetch()
     } catch (error) {
       toast.error(`Failed to trigger ${dataType} sync`)
       console.error('Error triggering sync:', error)
+    }
+  }
+
+  // New function to fix database indexes
+  const handleFixIndexes = async () => {
+    try {
+      await adminAPI.fixIndexes()
+      toast.success('Database indexes fixed successfully')
+    } catch (error) {
+      toast.error('Failed to fix database indexes')
+      console.error('Error fixing indexes:', error)
+    }
+  }
+
+  // New function to upload last 5 images
+  const handleUploadLast5Images = async (deviceId) => {
+    try {
+      await deviceAPI.uploadLast5Images(deviceId, {})
+      toast.success('Last 5 images upload triggered')
+    } catch (error) {
+      toast.error('Failed to upload last 5 images')
+      console.error('Error uploading images:', error)
+    }
+  }
+
+  // New function to test sync
+  const handleTestSync = async (deviceId) => {
+    try {
+      await deviceAPI.testSync(deviceId, {})
+      toast.success('Test sync triggered')
+    } catch (error) {
+      toast.error('Failed to trigger test sync')
+      console.error('Error triggering test sync:', error)
     }
   }
 
@@ -296,6 +351,71 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Admin Controls */}
+        <div className="bg-white rounded-lg shadow-sm p-6 border mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-gray-600" />
+              Admin Controls
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button
+              onClick={handleFixIndexes}
+              className="flex items-center justify-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Database className="h-4 w-4" />
+              <span>Fix Database Indexes</span>
+            </button>
+            <button
+              onClick={() => handleUploadLast5Images(selectedDevice?.deviceId)}
+              disabled={!selectedDevice}
+              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <Image className="h-4 w-4" />
+              <span>Upload Last 5 Images</span>
+            </button>
+            <button
+              onClick={() => handleTestSync(selectedDevice?.deviceId)}
+              disabled={!selectedDevice}
+              className="flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Test Sync</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Global Stats */}
+        {globalStatsData && (
+          <div className="bg-white rounded-lg shadow-sm p-6 border mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-gray-600" />
+                Global Statistics
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Total Records</p>
+                <p className="text-2xl font-semibold text-gray-900">{globalStatsData.data?.totalRecords || 0}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Last 24h</p>
+                <p className="text-2xl font-semibold text-gray-900">{globalStatsData.data?.last24h || 0}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Active Syncs</p>
+                <p className="text-2xl font-semibold text-gray-900">{globalStatsData.data?.activeSyncs || 0}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Storage Used</p>
+                <p className="text-2xl font-semibold text-gray-900">{globalStatsData.data?.storageUsed || '0 MB'}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Data Type Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -446,6 +566,7 @@ export default function Home() {
                       messagesData={messagesData}
                       whatsappData={whatsappData}
                       onManualSync={handleManualSync}
+                      syncSettingsData={syncSettingsData}
                     />
                   )}
                   
@@ -485,7 +606,7 @@ export default function Home() {
 }
 
 // Device Overview Component
-function DeviceOverview({ device, notificationsData, emailData, contactsData, callLogsData, messagesData, whatsappData, onManualSync }) {
+function DeviceOverview({ device, notificationsData, emailData, contactsData, callLogsData, messagesData, whatsappData, onManualSync, syncSettingsData }) {
   const recentNotifications = notificationsData?.data?.slice(-5) || []
   
   return (
@@ -549,6 +670,31 @@ function DeviceOverview({ device, notificationsData, emailData, contactsData, ca
         </div>
       </div>
 
+      {/* Sync Settings */}
+      {syncSettingsData && (
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="font-medium text-gray-900 mb-2">Sync Settings</h4>
+          <div className="space-y-2 text-sm">
+            {Object.entries(syncSettingsData.data || {}).map(([dataType, settings]) => (
+              <div key={dataType} className="flex justify-between items-center">
+                <span className="text-gray-600 capitalize">{dataType.replace('_', ' ')}:</span>
+                <div className="text-right">
+                  <div className="font-medium">
+                    {settings.status === 'SUCCESS' ? '✅' : settings.status === 'FAILED' ? '❌' : '⏳'} {settings.status}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Last: {settings.lastSyncTime ? new Date(settings.lastSyncTime).toLocaleString() : 'Never'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Items: {settings.itemCount || 0}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="bg-blue-50 rounded-lg p-4">
         <h4 className="font-medium text-gray-900 mb-3">Quick Actions</h4>
@@ -556,7 +702,7 @@ function DeviceOverview({ device, notificationsData, emailData, contactsData, ca
           {['CONTACTS', 'CALL_LOGS', 'NOTIFICATIONS', 'MESSAGES', 'EMAIL_ACCOUNTS', 'WHATSAPP'].map((dataType) => (
             <button
               key={dataType}
-              onClick={() => onManualSync(device._id, dataType)}
+              onClick={() => onManualSync(device.deviceId, dataType)}
               className="bg-white text-blue-600 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-50 border border-blue-200"
             >
               Sync {dataType.replace('_', ' ')}

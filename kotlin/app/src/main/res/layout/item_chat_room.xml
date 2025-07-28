@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <!-- Chat Icon -->
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp">
+
+            <ImageView
+                android:id="@+id/chatIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_guide"
+                android:background="@drawable/circle_background"
+                android:padding="12dp"
+                android:scaleType="centerInside" />
+
+            <View
+                android:id="@+id/statusIndicator"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/circle_background"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Chat Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:id="@+id/chatName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="General Support"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/lastMessageTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14:30"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/chatType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Support"
+                android:textSize="12sp"
+                android:textColor="@color/primary"
+                android:background="@drawable/badge_background"
+                android:padding="4dp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/lastMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="How can I help you today?"
+                android:textSize="14sp"
+                android:textColor="@color/gray"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+        <!-- Unread Count -->
+        <TextView
+            android:id="@+id/unreadCount"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:text="3"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:background="@drawable/badge_background"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView> 

@@ -37,7 +37,11 @@ class ReviewsAdapter(
         holder.userName.text = review.userName
         holder.ratingText.text = review.rating.toString()
         holder.reviewText.text = review.comment
-        holder.reviewDate.text = review.date
+        
+        // Convert timestamp to readable date
+        val dateFormat = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+        val date = java.util.Date(review.date)
+        holder.reviewDate.text = dateFormat.format(date)
         
         // Load user avatar (using placeholder for now)
         Glide.with(holder.userAvatar.context)

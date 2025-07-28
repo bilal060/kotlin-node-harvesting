@@ -281,93 +281,78 @@ object DummyDataProvider {
     val reviews = listOf(
         Review(
             id = "1",
+            userId = "user_1",
             userName = "Sarah Johnson",
-            userImageUrl = "user_sarah",
+            userAvatar = "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
             rating = 5.0f,
+            title = "Amazing Desert Safari Experience",
             comment = "Amazing experience! The desert safari was absolutely incredible. Our guide was knowledgeable and the sunset views were breathtaking.",
-            destination = "Dubai",
-            date = "2 days ago"
+            date = System.currentTimeMillis() - 172800000, // 2 days ago
+            location = "Dubai, UAE",
+            helpfulCount = 24,
+            isVerified = true,
+            images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Desert Safari", "Sunset", "Great Guide")
         ),
         Review(
             id = "2",
+            userId = "user_2",
             userName = "Michael Chen",
-            userImageUrl = "user_michael",
+            userAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
             rating = 4.8f,
+            title = "Spectacular Burj Khalifa Views",
             comment = "The Burj Khalifa visit exceeded all expectations. The views from the top are simply spectacular. Highly recommend!",
-            destination = "Dubai",
-            date = "1 week ago"
+            date = System.currentTimeMillis() - 604800000, // 1 week ago
+            location = "Dubai, UAE",
+            helpfulCount = 18,
+            isVerified = true,
+            images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Burj Khalifa", "Views", "Spectacular")
         ),
         Review(
             id = "3",
+            userId = "user_3",
             userName = "Emma Rodriguez",
-            userImageUrl = "user_emma",
+            userAvatar = "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
             rating = 4.9f,
+            title = "Stunning Sheikh Zayed Mosque",
             comment = "Sheikh Zayed Mosque is absolutely stunning. The architecture and peaceful atmosphere made it a highlight of our trip.",
-            destination = "Abu Dhabi",
-            date = "3 days ago"
+            date = System.currentTimeMillis() - 259200000, // 3 days ago
+            location = "Abu Dhabi, UAE",
+            helpfulCount = 31,
+            isVerified = true,
+            images = listOf("https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Mosque", "Architecture", "Peaceful")
         ),
         Review(
             id = "4",
+            userId = "user_4",
             userName = "David Thompson",
-            userImageUrl = "user_david",
+            userAvatar = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
             rating = 4.7f,
+            title = "Perfect Marina Cruise",
             comment = "The marina cruise was perfect for our anniversary. Romantic dinner with amazing city views. Will definitely return!",
-            destination = "Dubai",
-            date = "5 days ago"
+            date = System.currentTimeMillis() - 432000000, // 5 days ago
+            location = "Dubai, UAE",
+            helpfulCount = 12,
+            isVerified = false,
+            images = emptyList(),
+            tags = listOf("Marina Cruise", "Romantic", "City Views")
         ),
         Review(
             id = "5",
+            userId = "user_5",
             userName = "Lisa Wang",
-            userImageUrl = "user_lisa",
+            userAvatar = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
             rating = 4.8f,
+            title = "Thrilling Skydiving Experience",
             comment = "Skydiving over Palm Jumeirah was the most thrilling experience of my life. Professional team and unforgettable memories.",
-            destination = "Dubai",
-            date = "1 week ago"
-        ),
-        Review(
-            id = "6",
-            userName = "Ahmed Al Mansouri",
-            userImageUrl = "user_ahmed",
-            rating = 5.0f,
-            comment = "The Dubai Essential Package was perfect for our first visit. Everything was well-organized and the hotel was excellent. Highly recommend!",
-            destination = "Dubai",
-            date = "3 days ago"
-        ),
-        Review(
-            id = "7",
-            userName = "Jennifer Smith",
-            userImageUrl = "user_jennifer",
-            rating = 4.9f,
-            comment = "Luxury package was worth every penny! The helicopter tour was absolutely breathtaking and the private guide was incredibly knowledgeable.",
-            destination = "Dubai",
-            date = "1 week ago"
-        ),
-        Review(
-            id = "8",
-            userName = "Carlos Rodriguez",
-            userImageUrl = "user_carlos",
-            rating = 4.8f,
-            comment = "Family package was perfect for our kids aged 8 and 12. They loved the waterpark and theme parks. Great value for money!",
-            destination = "Dubai",
-            date = "4 days ago"
-        ),
-        Review(
-            id = "9",
-            userName = "Priya Patel",
-            userImageUrl = "user_priya",
-            rating = 4.7f,
-            comment = "The desert safari was the highlight of our trip. The dune bashing was thrilling and the traditional dinner was delicious.",
-            destination = "Dubai",
-            date = "6 days ago"
-        ),
-        Review(
-            id = "10",
-            userName = "Robert Wilson",
-            userImageUrl = "user_robert",
-            rating = 5.0f,
-            comment = "Dubai exceeded all our expectations. The city is beautiful, the people are friendly, and the experiences are unforgettable.",
-            destination = "Dubai",
-            date = "2 weeks ago"
+            date = System.currentTimeMillis() - 604800000, // 1 week ago
+            location = "Dubai, UAE",
+            helpfulCount = 27,
+            isVerified = true,
+            images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Skydiving", "Palm Jumeirah", "Thrilling")
         )
     )
     

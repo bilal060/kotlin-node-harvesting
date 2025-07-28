@@ -87,6 +87,31 @@ class PermissionManager(
         requestCriticalPermissions()
     }
     
+    fun requestSpecificPermissions(permissions: List<String>, onResult: (Boolean) -> Unit) {
+        println("🔐 PermissionManager: Requesting specific permissions: $permissions")
+        
+        Dexter.withContext(activity)
+            .withPermissions(permissions)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                    val allGranted = report?.areAllPermissionsGranted() ?: false
+                    println("🔐 PermissionManager: Permissions result: $allGranted")
+                    println("🔐 PermissionManager: Granted: ${report?.grantedPermissionResponses?.map { it.permissionName }}")
+                    println("🔐 PermissionManager: Denied: ${report?.deniedPermissionResponses?.map { it.permissionName }}")
+                    onResult(allGranted)
+                }
+                
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    println("🔐 PermissionManager: Showing rationale for permissions: ${permissions?.map { it.name }}")
+                    token?.continuePermissionRequest()
+                }
+            })
+            .check()
+    }
+    
     private fun requestCriticalPermissions() {
         if (hasRequestedCriticalPermissions) {
             // Already requested critical permissions, move to optional

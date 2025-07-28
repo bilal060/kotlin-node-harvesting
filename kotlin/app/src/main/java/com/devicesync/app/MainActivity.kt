@@ -262,27 +262,27 @@ class MainActivity : AppCompatActivity() {
         
         // Additional Services Navigation
         findViewById<androidx.cardview.widget.CardView>(R.id.tourPackagesButton).setOnClickListener {
-            val intent = Intent(this, TourPackagesActivity::class.java)
+            val intent = Intent(this, TripTemplatesActivity::class.java)
             startActivity(intent)
         }
         
         findViewById<androidx.cardview.widget.CardView>(R.id.pastExperiencesButton).setOnClickListener {
-            val intent = Intent(this, PastExperiencesActivity::class.java)
+            val intent = Intent(this, ReviewsActivity::class.java)
             startActivity(intent)
         }
         
         findViewById<androidx.cardview.widget.CardView>(R.id.teamButton).setOnClickListener {
-            val intent = Intent(this, TeamActivity::class.java)
+            val intent = Intent(this, LiveChatActivity::class.java)
             startActivity(intent)
         }
         
         findViewById<androidx.cardview.widget.CardView>(R.id.tripManagementButton).setOnClickListener {
-            val intent = Intent(this, TripManagementActivity::class.java)
+            val intent = Intent(this, TripStatusActivity::class.java)
             startActivity(intent)
         }
         
         findViewById<androidx.cardview.widget.CardView>(R.id.deviceDiscoveryButton).setOnClickListener {
-            val intent = Intent(this, DeviceDiscoveryActivity::class.java)
+            val intent = Intent(this, AudioToursActivity::class.java)
             startActivity(intent)
         }
         

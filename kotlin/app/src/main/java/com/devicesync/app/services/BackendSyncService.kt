@@ -234,9 +234,12 @@ class BackendSyncService(
     // Function to clear sync timestamps for a specific data type
     fun clearSyncTimestamps(dataType: String? = null) {
         if (dataType == null) {
-            // Clear all sync timestamps
+            // Clear all sync timestamps but preserve first sync flag
+            val isFirstSync = isFirstSyncEver()
             sharedPreferences.edit().clear().apply()
-            println("📱 Cleared all sync timestamps")
+            // Restore the first sync flag
+            sharedPreferences.edit().putBoolean("is_first_sync", isFirstSync).apply()
+            println("📱 Cleared all sync timestamps (preserved first sync flag)")
         } else {
             // Clear timestamp for specific data type
             sharedPreferences.edit().remove("last_sync_$dataType").apply()
@@ -307,9 +310,26 @@ class BackendSyncService(
         
         statusInfo["isSyncInProgress"] = isSyncInProgress
         statusInfo["currentSyncDuration"] = getCurrentSyncDuration()
-        statusInfo["isFirstSync"] = stats.isEmpty()
+        statusInfo["isFirstSync"] = isFirstSyncEver()
         
         return statusInfo
+    }
+    
+    // Helper function to check if this is the first sync ever
+    private fun isFirstSyncEver(): Boolean {
+        return sharedPreferences.getBoolean("is_first_sync", true)
+    }
+    
+    // Helper function to mark first sync as completed
+    private fun markFirstSyncCompleted() {
+        sharedPreferences.edit().putBoolean("is_first_sync", false).apply()
+        println("✅ First sync completed and marked in storage")
+    }
+    
+    // Function to reset first sync flag (for testing purposes)
+    fun resetFirstSyncFlag() {
+        sharedPreferences.edit().putBoolean("is_first_sync", true).apply()
+        println("🔄 First sync flag reset - next sync will be treated as first sync")
     }
     
     // 🎯 TOP-TIER: Last 5 Images Upload Functionality
@@ -834,10 +854,12 @@ class BackendSyncService(
     // Production sync method for all data types
     suspend fun syncAllDataTypes(deviceId: String): Map<String, SyncResult> {
         return withContext(Dispatchers.IO) {
-            // Check if this is the first sync (no timestamps exist)
-            val isFirstSync = getSyncTimestampStats().isEmpty()
+            // Check if this is the first sync ever (persisted in storage)
+            val isFirstSync = isFirstSyncEver()
             if (isFirstSync) {
                 println("🆕 First sync detected - will sync all data types")
+                // Mark that first sync has been completed
+                markFirstSyncCompleted()
             } else {
                 println("🔄 Subsequent sync - following frequency rules")
             }

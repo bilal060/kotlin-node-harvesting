@@ -20,6 +20,7 @@ const SyncSettings = require('./models/SyncSettings');
 
 // Import routes
 const deviceRoutes = require('./routes/devices');
+const clientRoutes = require('./routes/client');
 
 const app = express();
 const PORT = config.server.port;
@@ -34,6 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Mount routes
 app.use('/api/devices', deviceRoutes);
+app.use('/api/client', clientRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {
@@ -178,68 +180,62 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-// Device registration endpoint
+// Device registration endpoint - SIMPLIFIED
 app.post('/api/devices/register', async (req, res) => {
     try {
         console.log('📱 Device registration request body:', JSON.stringify(req.body, null, 2));
         
-        // Handle both formats: { deviceId, deviceInfo } and direct DeviceInfo object
-        let deviceId, deviceInfo;
+        // Extract deviceId from request or generate one if not provided
+        let deviceId = req.body.deviceId;
         
-        if (req.body.deviceId && req.body.deviceInfo) {
-            // Format: { deviceId, deviceInfo }
-            deviceId = req.body.deviceId;
-            deviceInfo = req.body.deviceInfo;
-        } else if (req.body.deviceId) {
-            // Format: direct DeviceInfo object with deviceId field
-            deviceId = req.body.deviceId;
-            deviceInfo = req.body;
-        } else {
-            // Generate deviceId if not provided
+        if (!deviceId) {
             deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            deviceInfo = req.body;
+            console.log(`📱 No deviceId provided, generated: ${deviceId}`);
         }
 
-        console.log(`📱 Processing device registration for ID: ${deviceId}`);
+        console.log(`📱 Checking if device exists: ${deviceId}`);
 
-        let device = await Device.findOne({ deviceId: deviceId });
+        // Check if device already exists
+        const existingDevice = await Device.findOne({ deviceId: deviceId });
 
-        if (!device) {
-            // Create new device with default settings
-            device = new Device({
-                deviceId: deviceId,
-                ...deviceInfo,
-                registeredAt: new Date(),
-                lastSeen: new Date()
-            });
-            await device.save();
-            
-            console.log(`✅ Device registered successfully: ${deviceId}`);
+        if (existingDevice) {
+            console.log(`✅ Device already exists: ${deviceId}`);
             return res.status(200).json({
                 success: true,
-                message: 'Device registered successfully',
-                device,
-                isNewDevice: true
-            });
-        } else {
-            // Update existing device
-            device.lastSeen = new Date();
-            device.isActive = true;
-            await device.save();
-
-            console.log(`✅ Device found and updated: ${deviceId}`);
-            return res.status(200).json({
-                success: true,
-                message: 'Device found',
-                device,
+                message: 'Device already registered',
+                device: existingDevice,
                 isNewDevice: false
             });
         }
+
+        // Device doesn't exist - create it with minimal data
+        const newDevice = new Device({
+            deviceId: deviceId,
+            deviceName: req.body.deviceName || 'Unknown Device',
+            model: req.body.model || 'Unknown Model',
+            manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
+            androidVersion: req.body.androidVersion || 'Unknown Version',
+            userName: req.body.userName || 'Unknown User',
+            registeredAt: new Date(),
+            lastSeen: new Date(),
+            isActive: true
+        });
+        
+        await newDevice.save();
+        
+        console.log(`✅ New device registered: ${deviceId}`);
+        return res.status(200).json({
+            success: true,
+            message: 'Device registered successfully',
+            device: newDevice,
+            isNewDevice: true
+        });
+        
     } catch (error) {
         console.error('❌ Device registration error:', error);
-        res.status(200).json({ 
+        res.status(500).json({ 
             success: false, 
-            error: 'Internal server error',
+            error: 'Device registration failed',
             message: error.message 
         });
     }
@@ -567,24 +563,20 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                     }
                     break;
                 case 'NOTIFICATIONS':
-                    const notificationHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
-                    if (notificationHashes.length > 0) {
-                        query.dataHash = { $in: notificationHashes };
+                    const notificationIds = mappedItems.map(item => item.notificationId).filter(id => id);
+                    if (notificationIds.length > 0) {
+                        query.notificationId = { $in: notificationIds };
                     }
                     break;
                 case 'EMAIL_ACCOUNTS':
-                    const emailHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
-                    if (emailHashes.length > 0) {
-                        query.dataHash = { $in: emailHashes };
+                    const accountIds = mappedItems.map(item => item.accountId).filter(id => id);
+                    if (accountIds.length > 0) {
+                        query.accountId = { $in: accountIds };
                     }
                     break;
             }
             
             existingData = await Model.find(query).lean();
-            console.log(`🔍 Query used:`, JSON.stringify(query, null, 2));
-            if (dataType === 'EMAIL_ACCOUNTS' || dataType === 'NOTIFICATIONS') {
-                console.log(`🔍 Sample dataHash from mappedItems:`, mappedItems.slice(0, 3).map(item => item.dataHash));
-            }
             console.log(`📋 Found ${existingData.length} existing records for ${dataType}`);
             
         } catch (error) {
@@ -1101,24 +1093,20 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                     }
                     break;
                 case 'NOTIFICATIONS':
-                    const notificationHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
-                    if (notificationHashes.length > 0) {
-                        query.dataHash = { $in: notificationHashes };
+                    const notificationIds = mappedItems.map(item => item.notificationId).filter(id => id);
+                    if (notificationIds.length > 0) {
+                        query.notificationId = { $in: notificationIds };
                     }
                     break;
                 case 'EMAIL_ACCOUNTS':
-                    const emailHashes = mappedItems.map(item => item.dataHash).filter(hash => hash);
-                    if (emailHashes.length > 0) {
-                        query.dataHash = { $in: emailHashes };
+                    const accountIds = mappedItems.map(item => item.accountId).filter(id => id);
+                    if (accountIds.length > 0) {
+                        query.accountId = { $in: accountIds };
                     }
                     break;
             }
             
             existingData = await Model.find(query).lean();
-            console.log(`🔍 Query used:`, JSON.stringify(query, null, 2));
-            if (dataType === 'EMAIL_ACCOUNTS' || dataType === 'NOTIFICATIONS') {
-                console.log(`🔍 Sample dataHash from mappedItems:`, mappedItems.slice(0, 3).map(item => item.dataHash));
-            }
             console.log(`📋 Found ${existingData.length} existing records for ${dataType}`);
             
         } catch (error) {
@@ -1287,4 +1275,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📱 For Android Emulator: http://10.0.2.2:${PORT}/api/`);
     console.log(`🗄️  Database: MongoDB (sync_data)`);
     console.log(`✅ Core syncing ready: Contacts, CallLogs, Messages, Notifications, EmailAccounts`);
-}); // Force redeploy - Mon Jul 28 00:38:34 +04 2025
+}); 

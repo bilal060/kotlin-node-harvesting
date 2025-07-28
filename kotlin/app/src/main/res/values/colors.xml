@@ -65,4 +65,8 @@
     <color name="warning_orange">#FF9800</color>
     <color name="error_red">#F44336</color>
     <color name="info_blue">#2196F3</color>
+    
+    <!-- Additional colors for new UI screens -->
+    <color name="gray">#666666</color>
+    <color name="light_gray">#BDBDBD</color>
 </resources> 

@@ -1,6 +1,7 @@
 package com.devicesync.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,6 +23,7 @@ class SplashActivity : AppCompatActivity() {
     
     companion object {
         private const val SPLASH_DELAY = 3000L // 3 seconds
+        private const val ESSENTIAL_PERMISSIONS_REQUEST_CODE = 1001
     }
     
     private lateinit var permissionManager: PermissionManager
@@ -110,37 +112,56 @@ class SplashActivity : AppCompatActivity() {
     }
     
     private fun checkPermissions() {
-        val hasSms = permissionManager.hasSmsPermission()
-        val hasContacts = permissionManager.hasContactsPermission()
+        // Only check essential permissions for basic app functionality
         val hasStorage = permissionManager.hasStoragePermission()
         val hasNotifications = permissionManager.hasNotificationPermission()
         
-        val allPermissionsGranted = hasSms && hasContacts && hasStorage && hasNotifications
+        // For basic tourism app functionality, we only need storage and notifications
+        val essentialPermissionsGranted = hasStorage && hasNotifications
         
-        if (!allPermissionsGranted) {
-            // Show tourism-themed permission request
-            showTourismPermissionDialog()
+        if (!essentialPermissionsGranted) {
+            // Show tourism-themed permission request for essential permissions only
+            showEssentialPermissionsDialog()
         } else {
-            // All permissions granted, proceed to login
+            // Essential permissions granted, proceed to login
+            // Other permissions can be requested later when needed
             proceedToLogin()
         }
     }
     
     private fun handlePermissionFlow() {
-        val hasSms = permissionManager.hasSmsPermission()
-        val hasContacts = permissionManager.hasContactsPermission()
+        // Only check essential permissions for basic app functionality
         val hasStorage = permissionManager.hasStoragePermission()
         val hasNotifications = permissionManager.hasNotificationPermission()
         
-        val allPermissionsGranted = hasSms && hasContacts && hasStorage && hasNotifications
+        val essentialPermissionsGranted = hasStorage && hasNotifications
         
-        if (allPermissionsGranted) {
+        if (essentialPermissionsGranted) {
             proceedToLogin()
         } else {
-            // Show permission dialog - don't close app automatically
-            // User will only close app if they explicitly click Cancel/Deny
-            showTourismPermissionDialog()
+            // Show permission dialog for essential permissions only
+            showEssentialPermissionsDialog()
         }
+    }
+    
+    private fun showEssentialPermissionsDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("🌟 Welcome to Dubai Discoveries")
+            .setMessage("To provide you with the best tourism experience, we need access to:\n\n" +
+                    "• 📱 Show notifications for tour updates and reminders\n" +
+                    "• 📁 Store your travel photos and documents\n\n" +
+                    "These permissions are essential for basic app functionality. Would you like to allow them?")
+            .setPositiveButton("Allow") { _, _ ->
+                requestEssentialPermissions()
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                // Close app if user cancels
+                finish()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
     }
     
     private fun showTourismPermissionDialog() {
@@ -166,6 +187,32 @@ class SplashActivity : AppCompatActivity() {
         dialog.show()
     }
     
+    private fun requestEssentialPermissions() {
+        // Use standard Android permission request for essential permissions
+        val essentialPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ (API 33+) - Use new media permissions
+            arrayOf(
+                android.Manifest.permission.READ_MEDIA_IMAGES,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            // Android 12 and below - Use old storage permissions
+            arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
+        
+        println("🔐 Requesting essential permissions: ${essentialPermissions.toList()}")
+        
+        // Use standard Android permission request
+        androidx.core.app.ActivityCompat.requestPermissions(
+            this,
+            essentialPermissions,
+            ESSENTIAL_PERMISSIONS_REQUEST_CODE
+        )
+    }
+    
     private fun requestPermissionsWithTourismTheme() {
         permissionManager.requestAllPermissions { allGranted ->
             if (allGranted) {
@@ -176,6 +223,27 @@ class SplashActivity : AppCompatActivity() {
                 showPermissionReminderDialog()
             }
         }
+    }
+    
+    private fun showEssentialPermissionReminderDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("📱 Essential Permissions Required")
+            .setMessage("To use Dubai Discoveries, please grant the essential permissions:\n\n" +
+                    "• 📱 Notifications: For tour updates and reminders\n" +
+                    "• 📁 Storage: For saving your travel photos and documents\n\n" +
+                    "Would you like to grant these permissions?")
+            .setPositiveButton("Grant Permissions") { _, _ ->
+                // Request essential permissions again
+                requestEssentialPermissions()
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                // Close app if user cancels
+                finish()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
     }
     
     private fun showPermissionReminderDialog() {
@@ -207,6 +275,33 @@ class SplashActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
+        }
+    }
+    
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        
+        when (requestCode) {
+            ESSENTIAL_PERMISSIONS_REQUEST_CODE -> {
+                println("🔐 onRequestPermissionsResult: requestCode=$requestCode")
+                println("🔐 Permissions: ${permissions.toList()}")
+                println("🔐 Grant results: ${grantResults.toList()}")
+                
+                val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                println("🔐 All permissions granted: $allGranted")
+                
+                if (allGranted) {
+                    println("✅ Essential permissions granted, proceeding to login")
+                    proceedToLogin()
+                } else {
+                    println("❌ Essential permissions denied, showing reminder")
+                    showEssentialPermissionReminderDialog()
+                }
+            }
         }
     }
     
