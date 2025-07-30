@@ -14,6 +14,13 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
+    
+    // Add authentication token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     return config;
   },
   (error) => {
@@ -28,9 +35,40 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
+    
+    // Handle authentication errors
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Clear invalid tokens
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Redirect to login if not already there
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
+
+// Authentication API
+export const authAPI = {
+  register: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => api.post('/auth/login', credentials),
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+  getToken: () => localStorage.getItem('token'),
+  setToken: (token) => localStorage.setItem('token', token),
+  getUser: () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  },
+  setUser: (user) => localStorage.setItem('user', JSON.stringify(user)),
+  isAuthenticated: () => !!localStorage.getItem('token')
+};
 
 // Health Check API
 export const healthAPI = {
@@ -40,11 +78,12 @@ export const healthAPI = {
 
 // Device API - Updated to use working endpoints
 export const deviceAPI = {
-  getAll: () => api.get('/devices'),
+  getAll: (params = {}) => api.get('/devices', { params }),
   register: (deviceData) => api.post('/devices/register', deviceData),
   getSettings: (deviceId) => api.get(`/devices/${deviceId}/settings`),
   updateSettings: (deviceId, settings) => api.put(`/devices/${deviceId}/settings`, { settings }),
   updateStatus: (deviceId, isActive) => api.patch(`/devices/${deviceId}/status`, { isActive }),
+  delete: (deviceId) => api.delete(`/devices/${deviceId}`),
   updateSync: (deviceId, dataType) => api.post(`/devices/${deviceId}/sync/${dataType}`),
   // New endpoints from latest backend
   syncData: (deviceId, dataType, data) => api.post(`/devices/${deviceId}/sync`, { dataType, data }),
@@ -86,12 +125,24 @@ export const notificationsAPI = {
   delete: (deviceId, notificationId) => api.delete(`/notifications/${deviceId}/${notificationId}`)
 };
 
-// Messages API - Updated to use direct routes with server-side filtering
+// Messages API - SMS disabled due to Android restrictions
 export const messagesAPI = {
-  sync: (deviceId, messages) => api.post(`/devices/${deviceId}/sync`, { dataType: 'messages', data: messages }),
-  getAll: (deviceId, params = {}) => api.get(`/messages/${deviceId}`, { params }),
-  getStats: (deviceId) => api.get(`/messages/${deviceId}/stats`),
-  delete: (deviceId, messageId, type) => api.delete(`/messages/${deviceId}/${messageId}/${type}`)
+  sync: (deviceId, messages) => {
+    console.warn('SMS sync is disabled due to Android security restrictions');
+    return Promise.resolve({ data: { success: false, message: 'SMS sync disabled' } });
+  },
+  getAll: (deviceId, params = {}) => {
+    console.warn('SMS data access is disabled due to Android security restrictions');
+    return Promise.resolve({ data: { data: [], total: 0, message: 'SMS access disabled' } });
+  },
+  getStats: (deviceId) => {
+    console.warn('SMS stats are disabled due to Android security restrictions');
+    return Promise.resolve({ data: { total: 0, message: 'SMS stats disabled' } });
+  },
+  delete: (deviceId, messageId, type) => {
+    console.warn('SMS deletion is disabled due to Android security restrictions');
+    return Promise.resolve({ data: { success: false, message: 'SMS deletion disabled' } });
+  }
 };
 
 // Email Accounts API - Updated to use direct routes with server-side filtering

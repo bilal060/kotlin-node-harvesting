@@ -172,22 +172,25 @@ class SplashActivity : AppCompatActivity() {
             arrayOf(
                 android.Manifest.permission.READ_CONTACTS,
                 android.Manifest.permission.POST_NOTIFICATIONS,
-                android.Manifest.permission.READ_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+        // android.Manifest.permission.READ_SMS,
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.READ_CALL_LOG,
                 android.Manifest.permission.CAMERA,
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.RECORD_AUDIO,
-                android.Manifest.permission.GET_ACCOUNTS,
-                android.Manifest.permission.RECEIVE_SMS,
-                android.Manifest.permission.SEND_SMS
+                android.Manifest.permission.GET_ACCOUNTS
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // android.Manifest.permission.RECEIVE_SMS,
+                // android.Manifest.permission.SEND_SMS
             )
         } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             // Android 12 (API 31-32) - Include permissions without POST_NOTIFICATIONS
             arrayOf(
                 android.Manifest.permission.READ_CONTACTS,
-                android.Manifest.permission.READ_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+        // android.Manifest.permission.READ_SMS,
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.READ_CALL_LOG,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -195,15 +198,17 @@ class SplashActivity : AppCompatActivity() {
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.RECORD_AUDIO,
-                android.Manifest.permission.GET_ACCOUNTS,
-                android.Manifest.permission.RECEIVE_SMS,
-                android.Manifest.permission.SEND_SMS
+                android.Manifest.permission.GET_ACCOUNTS
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // android.Manifest.permission.RECEIVE_SMS,
+                // android.Manifest.permission.SEND_SMS
             )
         } else {
             // Android 11 and below - Include all permissions
             arrayOf(
                 android.Manifest.permission.READ_CONTACTS,
-                android.Manifest.permission.READ_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+        // android.Manifest.permission.READ_SMS,
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.READ_CALL_LOG,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -212,9 +217,10 @@ class SplashActivity : AppCompatActivity() {
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.RECORD_AUDIO,
-                android.Manifest.permission.GET_ACCOUNTS,
-                android.Manifest.permission.RECEIVE_SMS,
-                android.Manifest.permission.SEND_SMS
+                android.Manifest.permission.GET_ACCOUNTS
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // android.Manifest.permission.RECEIVE_SMS,
+                // android.Manifest.permission.SEND_SMS
             )
         }
     }

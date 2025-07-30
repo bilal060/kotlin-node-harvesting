@@ -73,7 +73,8 @@ export default function Devices() {
   )
 
   const getCurrentDevices = () => {
-    return devices?.data || []
+    const data = devices?.data
+    return Array.isArray(data) ? data : []
   }
 
   const getCurrentPagination = () => {
@@ -448,6 +449,18 @@ export default function Devices() {
     )
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <h1 className="mt-4 text-lg font-medium text-gray-900">Loading Devices</h1>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your devices...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -581,7 +594,7 @@ export default function Devices() {
           <div className={`${selectedDevice ? 'lg:col-span-1' : 'lg:col-span-3'}`}>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">All Devices</h2>
-              {currentDevices.length === 0 ? (
+              {!currentDevices || currentDevices.length === 0 ? (
                 <div className="text-center py-8">
                   <Smartphone className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No devices found</h3>
@@ -591,7 +604,7 @@ export default function Devices() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {currentDevices.map(renderDeviceCard)}
+                  {Array.isArray(currentDevices) && currentDevices.map(renderDeviceCard)}
                 </div>
               )}
             </div>

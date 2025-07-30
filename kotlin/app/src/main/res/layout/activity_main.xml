@@ -226,14 +226,14 @@
                         android:columnCount="2"
                         android:rowCount="2"
                         android:alignmentMode="alignMargins"
-                        android:useDefaultMargins="true">
+                        android:useDefaultMargins="false">
 
                         <!-- Airport Transfer -->
                         <androidx.cardview.widget.CardView
                             android:layout_width="0dp"
                             android:layout_height="160dp"
                             android:layout_columnWeight="1"
-                            
+                            android:layout_margin="8dp"
                             app:cardBackgroundColor="@color/surface_color"
                             app:cardCornerRadius="16dp"
                             >
@@ -293,7 +293,7 @@
                             android:layout_width="0dp"
                             android:layout_height="160dp"
                             android:layout_columnWeight="1"
-                            
+                            android:layout_margin="8dp"
                             app:cardBackgroundColor="@color/surface_color"
                             app:cardCornerRadius="16dp"
                             >
@@ -353,7 +353,7 @@
                             android:layout_width="0dp"
                             android:layout_height="160dp"
                             android:layout_columnWeight="1"
-                            
+                            android:layout_margin="8dp"
                             app:cardBackgroundColor="@color/surface_color"
                             app:cardCornerRadius="16dp"
                             >
@@ -413,7 +413,7 @@
                             android:layout_width="0dp"
                             android:layout_height="160dp"
                             android:layout_columnWeight="1"
-                            
+                            android:layout_margin="8dp"
                             app:cardBackgroundColor="@color/surface_color"
                             app:cardCornerRadius="16dp"
                             >
@@ -456,6 +456,66 @@
 
                                 <Button
                                     android:id="@+id/simCardButton"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Add Service"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/white"
+                                    android:background="@drawable/gradient_background"
+                                    android:padding="8dp" />
+
+                            </LinearLayout>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- Hotel Transfer -->
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardBackgroundColor="@color/surface_color"
+                            app:cardCornerRadius="16dp"
+                            >
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:padding="16dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:src="@drawable/ic_home"
+                                    android:contentDescription="Hotel Transfer"
+                                    android:layout_marginBottom="12dp" />
+
+                                <com.devicesync.app.views.TranslatedTextView
+                                    android:id="@+id/hotelTransferTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Hotel Transfer"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_primary"
+                                    android:layout_marginBottom="4dp"
+                                    android:gravity="center" />
+
+                                <com.devicesync.app.views.TranslatedTextView
+                                    android:id="@+id/hotelTransferPrice"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="From AED 100"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/primary_color"
+                                    android:layout_marginBottom="8dp"
+                                    android:gravity="center" />
+
+                                <Button
+                                    android:id="@+id/hotelTransferButton"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Add Service"
@@ -622,7 +682,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:cardBackgroundColor="@color/surface_color"
-                        app:cardCornerRadius="12dp"
+                        app:cardCornerRadius="16dp"
                         
                         android:clickable="true"
                         android:focusable="true">
@@ -686,16 +746,20 @@
                         android:columnCount="2"
                         android:rowCount="4"
                         android:alignmentMode="alignMargins"
-                        android:useDefaultMargins="true">
+                        android:useDefaultMargins="false">
 
                         <!-- Past Experiences -->
                         <androidx.cardview.widget.CardView
                             android:id="@+id/pastExperiencesButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -735,10 +799,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/tripManagementButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -778,10 +846,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/servicesButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -821,10 +893,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/tourPackagesButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -864,10 +940,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/chatNowButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -907,10 +987,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/audioGuideButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -950,10 +1034,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/reviewsButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">
@@ -993,10 +1081,14 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/teamButton"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="160dp"
                             android:layout_columnWeight="1"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
                             app:cardBackgroundColor="@color/surface_color"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="16dp"
                             
                             android:clickable="true"
                             android:focusable="true">

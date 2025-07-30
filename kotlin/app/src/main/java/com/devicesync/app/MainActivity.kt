@@ -441,8 +441,8 @@ class MainActivity : AppCompatActivity() {
         findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.tripManagementTitle)?.setTranslatedText("trip_management")
         findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.servicesTitle)?.setTranslatedText("services")
         findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.tourPackagesTitle)?.setTranslatedText("tour_packages")
-        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.chatNowTitle)?.setTranslatedText("chat_now")
-        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.audioGuideTitle)?.setTranslatedText("audio_guide")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.chatNowTitle)?.text = "Chat Now"
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.audioGuideTitle)?.text = "Audio Guide"
         findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.reviewsTitle)?.setTranslatedText("reviews")
         findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.teamTitle)?.setTranslatedText("team")
     }

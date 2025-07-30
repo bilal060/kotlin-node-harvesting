@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import Link from 'next/link'
-import { deviceAPI, healthAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI, whatsappAPI, adminAPI, dataAPI, syncAPI } from '../lib/api'
+import { deviceAPI, healthAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI, whatsappAPI, adminAPI, dataAPI, syncAPI, authAPI } from '../lib/api'
 import DeviceCard from '../components/DeviceCard'
 import DeviceDetails from '../components/DeviceDetails'
-import { Smartphone, Users, Phone, Bell, MessageSquare, Mail, Activity, Wifi, WifiOff, RefreshCw, TrendingUp, Database, Zap, Settings, Shield, FileText, Image } from 'lucide-react'
+import AuthWrapper from '../components/AuthWrapper'
+import { Smartphone, Users, Phone, Bell, MessageSquare, Mail, Activity, Wifi, WifiOff, RefreshCw, TrendingUp, Database, Zap, Settings, Shield, FileText, Image, LogOut } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
 
 export default function Home() {
   const [selectedDevice, setSelectedDevice] = useState(null)
   const [activeTab, setActiveTab] = useState('overview')
+  
+  const handleLogout = () => {
+    authAPI.logout()
+    toast.success('Logged out successfully')
+    window.location.href = '/login'
+  }
   const [stats, setStats] = useState({
     totalDevices: 0,
     activeDevices: 0,
@@ -269,7 +276,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthWrapper>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-6">
@@ -311,6 +319,13 @@ export default function Home() {
               >
                 <RefreshCw className="h-4 w-4" />
                 <span>Refresh</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
               </button>
             </div>
           </div>

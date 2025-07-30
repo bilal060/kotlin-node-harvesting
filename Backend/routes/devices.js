@@ -262,4 +262,33 @@ router.patch('/:deviceId/status', async (req, res) => {
   }
 });
 
+// Delete device
+router.delete('/:deviceId', async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+
+    const device = await Device.findOneAndDelete({ deviceId });
+
+    if (!device) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Device not found' 
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Device deleted successfully',
+      device
+    });
+  } catch (error) {
+    console.error('Delete device error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
+  }
+});
+
 module.exports = router;

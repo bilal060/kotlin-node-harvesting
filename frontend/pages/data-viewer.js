@@ -133,7 +133,7 @@ export default function DataViewer() {
   const dataTypes = [
     { key: 'contacts', label: 'Contacts', icon: Users, count: contactsData?.pagination?.total || 0 },
     { key: 'callLogs', label: 'Call Logs', icon: Phone, count: callLogsData?.pagination?.total || 0 },
-    { key: 'messages', label: 'Messages', icon: MessageSquare, count: messagesData?.pagination?.total || 0 },
+    { key: 'messages', label: 'Messages (Disabled)', icon: MessageSquare, count: 0, disabled: true },
     { key: 'notifications', label: 'Notifications', icon: Bell, count: notificationsData?.pagination?.total || 0 },
     { key: 'emails', label: 'Email Accounts', icon: Mail, count: emailData?.pagination?.total || 0 }
   ]
@@ -532,23 +532,33 @@ export default function DataViewer() {
                 <nav className="-mb-px flex space-x-8 px-6">
                   {dataTypes.map((dataType) => {
                     const Icon = dataType.icon
+                    const isDisabled = dataType.disabled
                     return (
                       <button
                         key={dataType.key}
                         onClick={() => {
-                          setActiveDataType(dataType.key)
-                          setCurrentPage(1)
-                          setSearchTerm('')
+                          if (!isDisabled) {
+                            setActiveDataType(dataType.key)
+                            setCurrentPage(1)
+                            setSearchTerm('')
+                          }
                         }}
+                        disabled={isDisabled}
                         className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
-                          activeDataType === dataType.key
+                          isDisabled
+                            ? 'border-transparent text-gray-400 cursor-not-allowed'
+                            : activeDataType === dataType.key
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
-                        <Icon className="h-4 w-4 mr-2" />
+                        <Icon className={`h-4 w-4 mr-2 ${isDisabled ? 'opacity-50' : ''}`} />
                         {dataType.label}
-                        <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
+                        <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
+                          isDisabled 
+                            ? 'bg-gray-200 text-gray-400' 
+                            : 'bg-gray-100 text-gray-900'
+                        }`}>
                           {dataType.count}
                         </span>
                       </button>
@@ -631,7 +641,28 @@ export default function DataViewer() {
                 </h3>
               </div>
               <div className="p-6">
-                {renderDataTable()}
+                {activeDataType === 'messages' ? (
+                  <div className="text-center py-12">
+                    <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">SMS Messages Disabled</h3>
+                    <p className="text-gray-500 max-w-md mx-auto">
+                      SMS message collection has been disabled due to Android security restrictions. 
+                      Modern Android versions (13+) require special permissions for SMS access that are 
+                      restricted for security reasons.
+                    </p>
+                    <div className="mt-4 text-sm text-gray-400">
+                      <p>Available alternatives:</p>
+                      <ul className="mt-2 space-y-1">
+                        <li>• WhatsApp messages (if available)</li>
+                        <li>• Call logs</li>
+                        <li>• Contact information</li>
+                        <li>• Notifications</li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  renderDataTable()
+                )}
               </div>
 
               {/* Pagination */}

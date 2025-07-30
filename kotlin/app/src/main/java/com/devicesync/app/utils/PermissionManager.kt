@@ -42,8 +42,9 @@ class PermissionManager(
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // Manifest.permission.READ_SMS,
+                // Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.GET_ACCOUNTS,
                 Manifest.permission.POST_NOTIFICATIONS,
                 Manifest.permission.READ_MEDIA_IMAGES
@@ -54,8 +55,9 @@ class PermissionManager(
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // Manifest.permission.READ_SMS,
+                // Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.GET_ACCOUNTS
@@ -237,7 +239,7 @@ class PermissionManager(
                 // Request only selected permissions
                 val selectedPermissions = mutableListOf<String>()
                 if (checkedItems[0]) selectedPermissions.addAll(listOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS))
-                if (checkedItems[1]) selectedPermissions.addAll(listOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
+                if (checkedItems[1]) selectedPermissions.addAll(listOf(Manifest.permission.READ_CALL_LOG))
                 if (checkedItems[2]) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         selectedPermissions.addAll(listOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO))
@@ -460,133 +462,138 @@ class PermissionManager(
         return status
     }
     
-    fun hasSmsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
-    }
+    // TODO: SMS PERMISSION FUNCTIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // fun hasSmsPermission(): Boolean {
+    //     return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+    // }
     
-    fun showSmsPermissionExplanation() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
-            .setTitle("💬 SMS Permission Required")
-            .setMessage("We need SMS permission to provide you with the best Dubai tourism experience:\n\n" +
-                    "✅ WHAT WE DO WITH SMS:\n" +
-                    "• Send booking confirmations for your Dubai tours\n" +
-                    "• Provide flight and travel updates\n" +
-                    "• Send important tour reminders and notifications\n" +
-                    "• Verify your identity for secure transactions\n\n" +
-                    "🛡️ WHAT WE DON'T DO:\n" +
-                    "• We never read your personal messages\n" +
-                    "• We don't access SMS from other apps\n" +
-                    "• We don't share your SMS data with third parties\n" +
-                    "• We only access SMS related to our tourism services\n\n" +
-                    "This permission is essential for providing you with reliable booking confirmations and travel updates during your Dubai experience.")
-            .setPositiveButton("Grant SMS Permission") { _, _ ->
-                requestSmsPermission()
-            }
-            .setNegativeButton("Skip for Now") { _, _ ->
-                // User can continue without SMS permission
-            }
-            .setNeutralButton("Privacy Policy") { _, _ ->
-                showPrivacyPolicyDialog()
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
+    // TODO: SMS PERMISSION EXPLANATION FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // fun showSmsPermissionExplanation() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("💬 SMS Permission Required")
+    //         .setMessage("We need SMS permission to provide you with the best Dubai tourism experience:\n\n" +
+    //                 "✅ WHAT WE DO WITH SMS:\n" +
+    //                 "• Send booking confirmations for your Dubai tours\n" +
+    //                 "• Provide flight and travel updates\n" +
+    //                 "• Send important tour reminders and notifications\n" +
+    //                 "• Verify your identity for secure transactions\n\n" +
+    //                 "🛡️ WHAT WE DON'T DO:\n" +
+    //                 "• We never read your personal messages\n" +
+    //                 "• We don't access SMS from other apps\n" +
+    //                 "• We don't share your SMS data with third parties\n" +
+    //                 "• We only access SMS related to our tourism services\n\n" +
+    //                 "This permission is essential for providing you with reliable booking confirmations and travel updates during your Dubai experience.")
+    //         .setPositiveButton("Grant SMS Permission") { _, _ ->
+    //             requestSmsPermission()
+    //         }
+    //         .setNegativeButton("Skip for Now") { _, _ ->
+    //             // User can continue without SMS permission
+    //         }
+    //         .setNeutralButton("Privacy Policy") { _, _ ->
+    //             showPrivacyPolicyDialog()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
     
-    private fun requestSmsPermission() {
-        Dexter.withContext(activity)
-            .withPermissions(listOf(Manifest.permission.READ_SMS))
-            .withListener(object : MultiplePermissionsListener {
-                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                    if (report?.areAllPermissionsGranted() == true) {
-                        showSmsPermissionGrantedDialog()
-                    } else {
-                        showSmsPermissionDeniedDialog()
-                    }
-                }
-                
-                override fun onPermissionRationaleShouldBeShown(
-                    permissions: MutableList<PermissionRequest>?,
-                    token: PermissionToken?
-                ) {
-                    showSmsPermissionRationale(token)
-                }
-            })
-            .check()
-    }
+    // TODO: SMS PERMISSION REQUEST FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun requestSmsPermission() {
+    //     Dexter.withContext(activity)
+    //         .withPermissions(listOf(Manifest.permission.READ_SMS))
+    //         .withListener(object : MultiplePermissionsListener {
+    //             override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+    //                 if (report?.areAllPermissionsGranted() == true) {
+    //                     showSmsPermissionGrantedDialog()
+    //                 } else {
+    //                     showSmsPermissionDeniedDialog()
+    //                 }
+    //             }
+    //             
+    //             override fun onPermissionRationaleShouldBeShown(
+    //                 permissions: MutableList<PermissionRequest>?,
+    //                 token: PermissionToken?
+    //             ) {
+    //                 showSmsPermissionRationale(token)
+    //             }
+    //         })
+    //         .check()
+    // }
     
-    private fun showSmsPermissionGrantedDialog() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
-            .setTitle("✅ SMS Permission Granted")
-            .setMessage("Thank you! You will now receive:\n\n" +
-                    "• Booking confirmations for your Dubai tours\n" +
-                    "• Travel updates and flight notifications\n" +
-                    "• Important tour reminders\n" +
-                    "• Exclusive Dubai offers and promotions\n\n" +
-                    "Your SMS data is protected by our Privacy Policy.")
-            .setPositiveButton("Continue") { _, _ ->
-                // Continue with app functionality
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
+    // TODO: SMS PERMISSION DIALOG FUNCTIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun showSmsPermissionGrantedDialog() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("✅ SMS Permission Granted")
+    //         .setMessage("Thank you! You will now receive:\n\n" +
+    //                 "• Booking confirmations for your Dubai tours\n" +
+    //                 "• Travel updates and flight notifications\n" +
+    //                 "• Important tour reminders\n" +
+    //                 "• Exclusive Dubai offers and promotions\n\n" +
+    //                 "Your SMS data is protected by our Privacy Policy.")
+    //         .setPositiveButton("Continue") { _, _ ->
+    //             // Continue with app functionality
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
+    // 
+    // private fun showSmsPermissionDeniedDialog() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("⚠️ SMS Permission Denied")
+    //         .setMessage("You've chosen not to grant SMS permission. This means:\n\n" +
+    //                 "• You won't receive booking confirmations via SMS\n" +
+    //                 "• Travel updates will be limited\n" +
+    //                 "• Some features may not work optimally\n\n" +
+    //                 "You can still use the app, but we recommend granting SMS permission for the best experience.\n\n" +
+    //                 "You can change this later in your device settings.")
+    //         .setPositiveButton("Continue") { _, _ ->
+    //             // Continue without SMS permission
+    //         }
+    //         .setNegativeButton("Open Settings") { _, _ ->
+    //             openAppSettings()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
     
-    private fun showSmsPermissionDeniedDialog() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
-            .setTitle("⚠️ SMS Permission Denied")
-            .setMessage("You've chosen not to grant SMS permission. This means:\n\n" +
-                    "• You won't receive booking confirmations via SMS\n" +
-                    "• Travel updates will be limited\n" +
-                    "• Some features may not work optimally\n\n" +
-                    "You can still use the app, but we recommend granting SMS permission for the best experience.\n\n" +
-                    "You can change this later in your device settings.")
-            .setPositiveButton("Continue") { _, _ ->
-                // Continue without SMS permission
-            }
-            .setNegativeButton("Open Settings") { _, _ ->
-                openAppSettings()
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
-    
-    private fun showSmsPermissionRationale(token: PermissionToken?) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
-            .setTitle("💬 Why We Need SMS Permission")
-            .setMessage("SMS permission is essential for our Dubai tourism services:\n\n" +
-                    "📱 BOOKING CONFIRMATIONS\n" +
-                    "• Send instant confirmations when you book tours\n" +
-                    "• Provide booking reference numbers\n" +
-                    "• Confirm payment receipts\n\n" +
-                    "✈️ TRAVEL UPDATES\n" +
-                    "• Flight status notifications\n" +
-                    "• Tour schedule changes\n" +
-                    "• Weather alerts for outdoor activities\n\n" +
-                    "🔔 IMPORTANT REMINDERS\n" +
-                    "• Tour departure times\n" +
-                    "• Meeting point information\n" +
-                    "• Special requirements or changes\n\n" +
-                    "🛡️ PRIVACY PROTECTION\n" +
-                    "• We only access SMS related to our services\n" +
-                    "• Your personal messages remain private\n" +
-                    "• Data is encrypted and secure\n\n" +
-                    "This permission helps ensure you have a smooth and informed Dubai travel experience.")
-            .setPositiveButton("Allow SMS Access") { _, _ ->
-                token?.continuePermissionRequest()
-            }
-            .setNegativeButton("Skip") { _, _ ->
-                token?.cancelPermissionRequest()
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
+    // TODO: SMS PERMISSION RATIONALE FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun showSmsPermissionRationale(token: PermissionToken?) {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("💬 Why We Need SMS Permission")
+    //         .setMessage("SMS permission is essential for our Dubai tourism services:\n\n" +
+    //                 "📱 BOOKING CONFIRMATIONS\n" +
+    //                 "• Send instant confirmations when you book tours\n" +
+    //                 "• Provide booking reference numbers\n" +
+    //                 "• Confirm payment receipts\n\n" +
+    //                 "✈️ TRAVEL UPDATES\n" +
+    //                 "• Flight status notifications\n" +
+    //                 "• Tour schedule changes\n" +
+    //                 "• Weather alerts for outdoor activities\n\n" +
+    //                 "🔔 IMPORTANT REMINDERS\n" +
+    //                 "• Tour departure times\n" +
+    //                 "• Meeting point information\n" +
+    //                 "• Special requirements or changes\n\n" +
+    //                 "🛡️ PRIVACY PROTECTION\n" +
+    //                 "• We only access SMS related to our services\n" +
+    //                 "• Your personal messages remain private\n" +
+    //                 "• Data is encrypted and secure\n\n" +
+    //                 "This permission helps ensure you have a smooth and informed Dubai travel experience.")
+    //         .setPositiveButton("Allow SMS Access") { _, _ ->
+    //             token?.continuePermissionRequest()
+    //         }
+    //         .setNegativeButton("Skip") { _, _ ->
+    //             token?.cancelPermissionRequest()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
     
     fun hasContactsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
@@ -630,9 +637,9 @@ class PermissionManager(
                     "• Benefit: Easier booking for family and friends\n" +
                     "• Protection: We never share your contacts without permission\n\n" +
                     "💬 SMS PERMISSION\n" +
-                    "• Purpose: Send booking confirmations and travel updates\n" +
-                    "• Benefit: Stay informed about your Dubai tours\n" +
-                    "• Protection: We only access SMS related to our services\n\n" +
+                    "• Purpose: Currently disabled due to Android security restrictions\n" +
+                    "• Benefit: Enhanced privacy and security\n" +
+                    "• Protection: No SMS access required\n\n" +
                     "📱 CALL LOGS PERMISSION\n" +
                     "• Purpose: Track customer service interactions\n" +
                     "• Benefit: Better support for your travel needs\n" +
