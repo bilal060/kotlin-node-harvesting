@@ -5,6 +5,7 @@ import java.util.Date
 // Device Information
 data class DeviceInfo(
     val deviceId: String,
+    val androidId: String,
     val details: String,
     val platform: String = "android"
 )
@@ -40,7 +41,7 @@ data class PermissionInfo(
 enum class DataTypeEnum {
     CONTACTS,
     CALL_LOGS,
-    MESSAGES,
+    // MESSAGES, // COMMENTED OUT FOR NOW
     WHATSAPP,
     NOTIFICATIONS,
     EMAIL_ACCOUNTS,

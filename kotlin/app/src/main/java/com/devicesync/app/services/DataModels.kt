@@ -66,4 +66,5 @@ data class EmailAccountData(
 sealed class SyncResult {
     data class Success(val itemsSynced: Int) : SyncResult()
     data class Error(val message: String) : SyncResult()
+    data class PermissionDenied(val reason: String) : SyncResult()
 } 

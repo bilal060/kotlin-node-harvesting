@@ -78,7 +78,7 @@ class TripTemplatesActivity : AppCompatActivity() {
             ${if (template.isCustomizable) "⚙️ Customizable" else ""}
         """.trimIndent()
         
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Trip Template Details")
             .setMessage(message)
             .setPositiveButton("Book This Trip") { _, _ ->
@@ -89,7 +89,7 @@ class TripTemplatesActivity : AppCompatActivity() {
     }
     
     private fun showBookingDialog(template: TripTemplate) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Book Trip")
             .setMessage("Would you like to book '${template.name}' for ${template.currency} ${template.price}?")
             .setPositiveButton("Book Now") { _, _ ->

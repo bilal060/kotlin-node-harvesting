@@ -17,7 +17,6 @@ import com.devicesync.app.data.Review
 class ReviewsActivity : AppCompatActivity() {
     
     private lateinit var reviewsRecyclerView: RecyclerView
-    private lateinit var addReviewButton: Button
     private lateinit var reviewsAdapter: ReviewsAdapter
     private var reviews = mutableListOf<Review>()
     
@@ -31,12 +30,12 @@ class ReviewsActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
-        reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
-        addReviewButton = findViewById(R.id.addReviewButton)
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         
-        addReviewButton.setOnClickListener {
-            showAddReviewDialog()
-        }
+        reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
     }
     
     private fun loadReviews() {
@@ -62,7 +61,7 @@ class ReviewsActivity : AppCompatActivity() {
         val ratingBar = dialogView.findViewById<RatingBar>(R.id.ratingBar)
         val locationEditText = dialogView.findViewById<EditText>(R.id.locationEditText)
         
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Add Your Review")
             .setView(dialogView)
             .setPositiveButton("Post Review") { _, _ ->
@@ -117,10 +116,15 @@ class ReviewsActivity : AppCompatActivity() {
             ${if (review.isVerified) "✓ Verified Review" else ""}
         """.trimIndent()
         
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Review Details")
             .setMessage(message)
             .setPositiveButton("Close", null)
             .show()
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

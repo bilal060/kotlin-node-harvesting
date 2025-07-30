@@ -34,15 +34,12 @@ class LiveChatActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        
         chatRoomsRecyclerView = findViewById(R.id.chatRoomsRecyclerView)
-        
-        findViewById<Button>(R.id.backButton).setOnClickListener {
-            finish()
-        }
-        
-        findViewById<Button>(R.id.newChatButton).setOnClickListener {
-            showNewChatDialog()
-        }
     }
     
     private fun setupLiveChatService() {
@@ -67,7 +64,7 @@ class LiveChatActivity : AppCompatActivity() {
     private fun showNewChatDialog() {
         val options = arrayOf("General Support", "Tour Guide", "Booking Help", "Emergency")
         
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Start New Chat")
             .setItems(options) { _, which ->
                 val chatType = when (which) {
@@ -91,7 +88,22 @@ class LiveChatActivity : AppCompatActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+        
+        dialog.show()
+        
+        // Force set text color to black for better visibility
+        dialog.listView?.let { listView ->
+            listView.post {
+                for (i in 0 until listView.count) {
+                    val child = listView.getChildAt(i)
+                    if (child is TextView) {
+                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
+                        child.textSize = 16f
+                    }
+                }
+            }
+        }
     }
     
     private fun showChatRoom(chatRoom: ChatRoom) {
@@ -113,7 +125,7 @@ class LiveChatActivity : AppCompatActivity() {
         val inputView = layoutInflater.inflate(R.layout.dialog_chat_input, null)
         val messageInput = inputView.findViewById<EditText>(R.id.messageInput)
         
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Live Chat")
             .setMessage(messageBuilder.toString())
             .setView(inputView)
@@ -139,5 +151,10 @@ class LiveChatActivity : AppCompatActivity() {
                 Toast.makeText(this@LiveChatActivity, "Failed to send message", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

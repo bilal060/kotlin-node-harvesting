@@ -106,7 +106,7 @@ class PastExperiencesActivity : AppCompatActivity() {
             )
         )
         
-        experiencesAdapter = PastExperienceAdapter(experiences) { experience ->
+        experiencesAdapter = PastExperienceAdapter(experiences) { _ ->
             // Handle experience click - show detailed view
             Toast.makeText(this, "Experience details coming soon!", Toast.LENGTH_SHORT).show()
         }

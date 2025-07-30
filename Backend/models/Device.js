@@ -6,6 +6,11 @@ const deviceSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    androidId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     deviceName: {
         type: String,
         required: true

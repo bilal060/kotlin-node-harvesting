@@ -77,7 +77,7 @@ class DeviceSyncRepository(private val context: Context) {
         return listOf(
             PermissionInfo("android.permission.READ_CONTACTS", true),
             PermissionInfo("android.permission.READ_CALL_LOG", true),
-            PermissionInfo("android.permission.READ_SMS", false),
+            // PermissionInfo("android.permission.READ_SMS", false), // COMMENTED OUT FOR NOW
             PermissionInfo("android.permission.POST_NOTIFICATIONS", false),
             PermissionInfo("android.permission.READ_EXTERNAL_STORAGE", true)
         )
@@ -92,7 +92,7 @@ class DeviceSyncRepository(private val context: Context) {
                 val dataTypes = listOf(
                     DataTypeEnum.CONTACTS,
                     DataTypeEnum.CALL_LOGS,
-                    DataTypeEnum.MESSAGES,
+                    // DataTypeEnum.MESSAGES, // COMMENTED OUT FOR NOW
                     DataTypeEnum.NOTIFICATIONS,
                     DataTypeEnum.WHATSAPP,
                     DataTypeEnum.EMAIL_ACCOUNTS
@@ -102,7 +102,7 @@ class DeviceSyncRepository(private val context: Context) {
                     val result =                     when (dataType) {
                         DataTypeEnum.CONTACTS -> backendSyncService.syncContacts(deviceId)
                         DataTypeEnum.CALL_LOGS -> backendSyncService.syncCallLogs(deviceId)
-                        DataTypeEnum.MESSAGES -> backendSyncService.syncMessages(deviceId)
+                        // DataTypeEnum.MESSAGES -> backendSyncService.syncMessages(deviceId) // COMMENTED OUT FOR NOW
                         DataTypeEnum.NOTIFICATIONS -> backendSyncService.syncNotifications(deviceId)
                         DataTypeEnum.WHATSAPP -> backendSyncService.syncWhatsApp(deviceId)
                         DataTypeEnum.EMAIL_ACCOUNTS -> backendSyncService.syncEmailAccounts(deviceId)
@@ -112,6 +112,7 @@ class DeviceSyncRepository(private val context: Context) {
                     when (result) {
                         is SyncResult.Success -> results[dataType.name] = result.itemsSynced
                         is SyncResult.Error -> results[dataType.name] = -1
+                        is SyncResult.PermissionDenied -> results[dataType.name] = -2
                     }
                 }
                 

@@ -18,8 +18,9 @@ class DestinationsAdapter(
     class DestinationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.destinationImage)
         val nameText: TextView = itemView.findViewById(R.id.destinationName)
+        val locationText: TextView = itemView.findViewById(R.id.destinationLocation)
+        val priceText: TextView = itemView.findViewById(R.id.destinationPrice)
         val badgeText: TextView = itemView.findViewById(R.id.destinationBadge)
-        val exploreButton: TextView = itemView.findViewById(R.id.exploreButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DestinationViewHolder {
@@ -32,6 +33,9 @@ class DestinationsAdapter(
         val destination = destinations[position]
         
         holder.nameText.text = destination.name
+        holder.locationText.text = destination.location
+        holder.priceText.text = "From AED ${destination.basePrice.toInt()}"
+        
         holder.badgeText.text = destination.badge ?: ""
         holder.badgeText.visibility = if (destination.badge != null) View.VISIBLE else View.GONE
         
@@ -44,7 +48,8 @@ class DestinationsAdapter(
             .centerCrop()
             .into(holder.imageView)
         
-        holder.exploreButton.setOnClickListener {
+        // Make the whole card clickable
+        holder.itemView.setOnClickListener {
             onItemClick(destination)
         }
     }
@@ -58,6 +63,11 @@ class DestinationsAdapter(
     
     private fun getDestinationImageUrl(destinationName: String): String {
         return when (destinationName.lowercase()) {
+            "burj khalifa" -> "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"
+            "sheikh zayed mosque" -> "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop"
+            "palm jumeirah" -> "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop"
+            "dubai frame" -> "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop"
+            "dubai mall" -> "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop"
             "dubai" -> "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"
             "abu dhabi" -> "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop&crop=center"
             "sharjah" -> "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center"

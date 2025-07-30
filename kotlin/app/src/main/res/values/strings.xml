@@ -1,10 +1,293 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App Name -->
     <string name="app_name">Dubai Discoveries</string>
+    
+    <!-- Navigation Drawer -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    
+    <!-- Navigation -->
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="filter">Filter</string>
+    <string name="search">Search</string>
+    <string name="close">Close</string>
+    
+    <!-- Main Sections -->
+    <string name="attractions">Attractions</string>
+    <string name="services">Services</string>
+    <string name="packages">Tour Packages</string>
+    <string name="packages_subtitle">Choose from our carefully curated Dubai tour packages</string>
+    <string name="audio_tours">Audio Tours</string>
+    <string name="live_chat">Live Chat</string>
+    <string name="trip_management">Trip Management</string>
+    <string name="past_experiences">Past Experiences</string>
+    <string name="team">Our Team</string>
+    <string name="reviews">Reviews</string>
+    
+    <!-- Audio Tours -->
+    <string name="audio_tour_title">Dubai Downtown Audio Tour</string>
+    <string name="audio_tour_description">Explore Dubai\'s modern heart with guided audio commentary covering iconic landmarks, hidden gems, and fascinating stories.</string>
+    <string name="audio_tour_duration">45 min</string>
+    <string name="audio_tour_stops">8 stops</string>
+    <string name="audio_tour_price">$4.99</string>
+    <string name="audio_tour_free">🎁 FREE</string>
+    <string name="play_audio">▶️ Play</string>
+    <string name="pause_audio">⏸️ Pause</string>
+    <string name="stop_audio">⏹️ Stop</string>
+    <string name="download_audio">📥 Download</string>
+    
+    <!-- Booking Form -->
+    <string name="start_planning">Start Planning Your Perfect Day</string>
+    <string name="booking_form_title">Plan Your Dubai Adventure</string>
+    <string name="select_date">Select Date</string>
+    <string name="select_time">Select Time</string>
+    <string name="number_of_people">Number of People</string>
+    <string name="special_requests">Special Requests</string>
+    <string name="contact_name">Contact Name</string>
+    <string name="contact_email">Contact Email</string>
+    <string name="contact_phone">Contact Phone</string>
+    <string name="book_now">Book Now</string>
+    <string name="booking_success">Booking submitted successfully!</string>
+    <string name="booking_error">Failed to submit booking. Please try again.</string>
+    
+    <!-- Package Details -->
+    <string name="package_includes">Package Includes</string>
+    <string name="package_excludes">Package Excludes</string>
+    <string name="package_duration">Duration</string>
+    <string name="package_group_size">Group Size</string>
+    <string name="package_languages">Languages</string>
+    <string name="package_pickup">Pickup Location</string>
+    <string name="package_dropoff">Drop-off Location</string>
+    <string name="package_cancellation">Cancellation Policy</string>
+    <string name="from_price">From</string>
+    <string name="package_highlights">Highlights</string>
+    <string name="dubai_explorer_package">Dubai Explorer Package</string>
+    <string name="dubai_explorer_description">Experience the best of Dubai with our comprehensive tour package including iconic landmarks and desert adventures.</string>
+    <string name="dubai_explorer_highlights">• Burj Khalifa • Desert Safari • City Tour</string>
+    <string name="luxury_dubai_package">Luxury Dubai Package</string>
+    <string name="luxury_dubai_description">Indulge in luxury with premium accommodations, private tours, and exclusive experiences in Dubai.</string>
+    <string name="luxury_dubai_highlights">• 5-Star Hotel • Private Guide • VIP Access</string>
+    <string name="family_dubai_package">Family Dubai Package</string>
+    <string name="family_dubai_description">Perfect for families with kid-friendly activities, theme parks, and comfortable accommodations.</string>
+    <string name="family_dubai_highlights">• Theme Parks • Family Activities • Safe Environment</string>
+    <string name="adventure_dubai_package">Adventure Dubai Package</string>
+    <string name="adventure_dubai_description">Thrilling adventures including desert safaris, water sports, and extreme activities.</string>
+    <string name="adventure_dubai_highlights">• Desert Safari • Water Sports • Extreme Activities</string>
+    
+    <!-- Attractions -->
+    <string name="burj_khalifa_title">Burj Khalifa</string>
+    <string name="burj_khalifa_description">The world\'s tallest building, offering breathtaking views of Dubai from the 148th floor observation deck.</string>
+    <string name="palm_jumeirah_title">Palm Jumeirah</string>
+    <string name="palm_jumeirah_description">An artificial archipelago in the shape of a palm tree, featuring luxury hotels and stunning beaches.</string>
+    <string name="dubai_mall_title">The Dubai Mall</string>
+    <string name="dubai_mall_description">One of the world\'s largest shopping malls with over 1,200 stores and the famous Dubai Aquarium.</string>
+    <string name="dubai_fountain_title">Dubai Fountain</string>
+    <string name="dubai_fountain_description">The world\'s largest choreographed fountain system, featuring water, music, and light shows.</string>
+    <string name="dubai_frame_title">Dubai Frame</string>
+    <string name="dubai_frame_description">A 150-meter-high picture frame offering panoramic views of both old and new Dubai.</string>
+    
+    <!-- Services -->
+    <string name="transportation_service">Transportation</string>
+    <string name="transportation_description">Luxury vehicles with professional drivers for comfortable travel around Dubai.</string>
+    <string name="guide_service">Professional Guide</string>
+    <string name="guide_description">Experienced local guides providing insights and stories about Dubai\'s attractions.</string>
+    <string name="photography_service">Photography</string>
+    <string name="photography_description">Professional photography services to capture your memorable moments in Dubai.</string>
+    <string name="catering_service">Catering</string>
+    
+    <!-- Main Screen -->
+    <string name="welcome_title">Welcome to Dubai</string>
+    <string name="popular_destinations">Popular Destinations</string>
+    <string name="things_to_do">Things to Do</string>
+    <string name="additional_services">Additional Services</string>
+    <string name="travel_tips">Travel Tips</string>
+    
+    <!-- Audio Tours -->
+    <string name="search_tours">Search tours...</string>
+    <string name="select_language">Select Language</string>
+    
+    <!-- Booking Form -->
+    <string name="contact_info">Contact Information</string>
+    <string name="submit_booking">Submit Booking</string>
+    
+    <!-- Common -->
+    <string name="view_details">View Details</string>
+    <string name="duration">Duration</string>
+    <string name="free">Free</string>
+    <string name="rating">Rating</string>
+    <string name="reviews_count">reviews</string>
+    
+    <!-- Services -->
+    <string name="transport_service">Transport Service</string>
+    <string name="hotel_service">Hotel Service</string>
+    <string name="restaurant_service">Restaurant Service</string>
+    <string name="calendar_service">Calendar Service</string>
+    
+    <!-- Travel Tips -->
+    <string name="travel_tips_title">UAE Travel Tips</string>
+    <string name="travel_tips_subtitle">Essential tips for your Dubai adventure</string>
+    <string name="view_all_tips">View All Tips</string>
+    <string name="essential_tips">Essential travel tips for your Dubai adventure</string>
+    <string name="tips_description">Weather, culture, transport, safety, and more helpful advice</string>
+    
+    <!-- Language Selection -->
+    <string name="choose_language">Choose Language</string>
+    <string name="select_preferred_language">Select your preferred language to get started</string>
+    <string name="btn_continue">Continue</string>
+    <string name="expert_guides">Expert Guides</string>
+    <string name="smart_planning">Smart Planning</string>
+    <string name="local_experiences">Local Experiences</string>
+    
+    <!-- Tips Categories -->
+    <string name="weather">Weather</string>
+    <string name="culture">Culture</string>
+    <string name="transport">Transport</string>
+    <string name="safety">Safety</string>
+    <string name="food">Food</string>
+    <string name="shopping">Shopping</string>
+    <string name="money">Money</string>
+    <string name="etiquette">Etiquette</string>
+    <string name="health">Health</string>
+    <string name="emergency">Emergency</string>
+    <string name="catering_description">Premium catering services with local and international cuisine options.</string>
+    
+    <!-- Reviews -->
+    <string name="review_title">Customer Reviews</string>
+    <string name="add_review">Add Review</string>
+    <string name="review_rating">Rating</string>
+    <string name="review_comment">Comment</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="review_success">Review submitted successfully!</string>
+    
+    <!-- Trip Management -->
+    <string name="trip_status">Trip Status</string>
+    <string name="trip_confirmed">Confirmed</string>
+    <string name="trip_pending">Pending</string>
+    <string name="trip_cancelled">Cancelled</string>
+    <string name="trip_completed">Completed</string>
+    <string name="trip_modify">Modify Trip</string>
+    <string name="trip_cancel">Cancel Trip</string>
+    
+    <!-- Data Harvesting -->
     <string name="harvesting_active">Data harvesting is active</string>
     <string name="harvesting_stopped">Data harvesting stopped</string>
     <string name="permissions_required">All permissions required for data harvesting</string>
     <string name="connection_failed">Failed to connect to server</string>
     <string name="device_registered">Device registered successfully</string>
     <string name="sync_completed">Data sync completed</string>
+    
+    <!-- Common -->
+    <string name="loading">Loading...</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="no_data_available">No data available</string>
+    <string name="retry">Retry</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    
+    <!-- Languages -->
+    <string name="language_english">English</string>
+    <string name="language_mongolian">Монгол</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_chinese">中文</string>
+    
+    <!-- Date and Time -->
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="morning">Morning</string>
+    <string name="afternoon">Afternoon</string>
+    <string name="evening">Evening</string>
+    <string name="night">Night</string>
+    
+    <!-- Main Screen Layout -->
+    <string name="plan_dubai_adventure">Plan Your Dubai Adventure</string>
+    <string name="start_planning_description">Start planning your itinerary in seconds.</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="start_planning_button">Start Planning</string>
+    <string name="travel_services">Travel Services</string>
+    <string name="airport_transfer">Airport Transfer</string>
+    <string name="from_aed_50">From AED 50</string>
+    <string name="add_service">Add Service</string>
+    <string name="private_guide">Private Guide</string>
+    <string name="from_aed_200">From AED 200</string>
+    <string name="car_with_driver">Car with Driver</string>
+    <string name="from_aed_150">From AED 150</string>
+    <string name="sim_card">SIM Card</string>
+    <string name="from_aed_25">From AED 25</string>
+    <string name="ready_made_packages">Ready-Made Packages</string>
+    <string name="build_own_itinerary">Build Your Own Itinerary</string>
+    <string name="sample_date_range">Aug 10 – Aug 14</string>
+    <string name="days_planned">2 of 5 days planned</string>
+    <string name="continue_planning">Continue Planning</string>
+    <string name="what_travelers_say">What Travelers Say</string>
+    <string name="uae_travel_tips">UAE Travel Tips</string>
+    <string name="essential_travel_tips">Essential travel tips for your Dubai adventure</string>
+    <string name="tips_description_text">Weather, culture, transport, safety, and more helpful advice</string>
+    <string name="view_all_tips_button">View All Tips</string>
+    <string name="tour_packages">Tour Packages</string>
+    <string name="ready_made_tour_packages">Ready-made tour packages</string>
+    <string name="past_experiences_title">Past Experiences</string>
+    <string name="gallery_videos_previous_tours">Gallery and videos of previous tours</string>
+    <string name="our_team">Our Team</string>
+    <string name="meet_professional_team">Meet our professional team</string>
+    <string name="live_chat_description">Get instant support and answers</string>
+    <string name="calendar">Calendar</string>
+    <string name="schedule_manage_trips">Schedule and manage your trips</string>
+    <string name="trip_management_title">Trip Management</string>
+    <string name="detailed_trip_planning">Detailed trip planning and management</string>
+    <string name="device_discovery">Device Discovery</string>
+    <string name="device_registration_discovery">Device registration and discovery</string>
+    
+    <!-- Travel Tips -->
+    <string name="search_travel_tips">Search travel tips...</string>
+    <string name="no_tips_found">No tips found</string>
+    <string name="try_adjusting_search">Try adjusting your search terms</string>
+    
+    <!-- Booking Form -->
+    <string name="select_date_with_icon">📅 Select Date</string>
+    <string name="select_time_with_icon">🕐 Select Time</string>
+    <string name="minus_sign">-</string>
+    <string name="plus_sign">+</string>
+    <string name="default_people_count">2</string>
+    
+    <!-- Main Screen Additional -->
+    <string name="dubai_discoveries">Dubai Discoveries</string>
+    
+    <!-- Package Items -->
+    <string name="dubai_essential_package">Dubai Essential Package</string>
+    <string name="package_duration_sample">3 Days / 2 Nights</string>
+    <string name="package_description_sample">Perfect introduction to Dubai\'s iconic landmarks and experiences.</string>
+    <string name="package_highlights_sample">• Burj Khalifa • Desert Safari • Dubai Mall</string>
+    <string name="package_price_sample">AED 1,999</string>
+    
+    <!-- Activity Items -->
+    <string name="burj_khalifa">Burj Khalifa</string>
+    <string name="activity_rating_sample">4.8</string>
+    <string name="activity_reviews_sample">(2500 reviews)</string>
+    <string name="activity_price_sample">From AED 149</string>
+    
+    <!-- Review Items -->
+    <string name="review_user_sample">Sarah Johnson</string>
+    <string name="review_date_sample">2 days ago</string>
+    <string name="review_rating_sample">5.0</string>
+    <string name="review_text_sample">Amazing experience! The desert safari was incredible and our guide was very knowledgeable. Highly recommend this tour package!</string>
+    <string name="review_tag_desert_safari">Desert Safari</string>
+    <string name="review_tag_great_guide">Great Guide</string>
+    <string name="review_helpful_sample">👍 Helpful (12)</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_packages">Packages</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_services">Services</string>
+    <string name="nav_chat">Chat</string>
 </resources>

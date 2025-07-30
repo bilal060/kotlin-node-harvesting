@@ -4,56 +4,70 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/background_ivory">
 
-    <!-- Header -->
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_color"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Audio Tours"
+        app:titleTextColor="@color/golden_color" />
+
+    <!-- Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/gradient_background"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="←"
-            android:textColor="@color/white"
-            android:background="@drawable/circle_background"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="0dp"
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@color/white"
+            android:elevation="2dp">
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:hint="@string/search"
+                android:background="@drawable/search_background"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="14sp"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="8dp" />
+
+            <Button
+                android:id="@+id/languageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="🌐"
+                android:textSize="16sp"
+                android:background="@drawable/button_background"
+                android:layout_marginStart="8dp"
+                android:padding="8dp" />
+
+        </LinearLayout>
+
+        <!-- Audio Tours List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/audioToursRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Audio Tours"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginStart="16dp" />
-
-        <Button
-            android:id="@+id/filterButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Filter"
-            android:textColor="@color/white"
-            android:background="@drawable/button_background"
-            android:padding="12dp"
-            android:textSize="14sp" />
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
 
     </LinearLayout>
-
-    <!-- Audio Tours List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/audioToursRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false" />
 
 </LinearLayout> 

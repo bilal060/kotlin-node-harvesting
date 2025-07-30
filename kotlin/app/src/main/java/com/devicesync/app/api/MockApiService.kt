@@ -25,6 +25,7 @@ class MockApiService : ApiService {
         val mockDevices = listOf(
             DeviceInfo(
                 deviceId = "device_1",
+                androidId = "mock_android_id_1",
                 deviceName = "Test Device",
                 model = "Pixel 6",
                 manufacturer = "Google",
@@ -44,6 +45,7 @@ class MockApiService : ApiService {
         delay(300)
         val device = DeviceInfo(
             deviceId = deviceId,
+            androidId = "mock_android_id_$deviceId",
             deviceName = "Test Device",
             model = "Pixel 6",
             manufacturer = "Google",
@@ -90,10 +92,10 @@ class MockApiService : ApiService {
                 CallLogData("+1234567890", 1, System.currentTimeMillis(), 120),
                 CallLogData("+0987654321", 2, System.currentTimeMillis() - 3600000, 300)
             )
-            DataTypeEnum.MESSAGES -> listOf(
-                MessageData("+1234567890", "Hello there!", System.currentTimeMillis(), 1),
-                MessageData("+0987654321", "How are you?", System.currentTimeMillis() - 1800000, 2)
-            )
+            // DataTypeEnum.MESSAGES -> listOf( // COMMENTED OUT FOR NOW
+            //     MessageData("+1234567890", "Hello there!", System.currentTimeMillis(), 1),
+            //     MessageData("+0987654321", "How are you?", System.currentTimeMillis() - 1800000, 2)
+            // )
             else -> emptyList()
         }
         return retrofit2.Response.success(

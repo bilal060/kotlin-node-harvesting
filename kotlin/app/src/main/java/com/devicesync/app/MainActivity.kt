@@ -1,6 +1,7 @@
 package com.devicesync.app
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -14,10 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
+import com.google.android.material.navigation.NavigationView
 import com.devicesync.app.adapters.DestinationsAdapter
 import com.devicesync.app.adapters.ActivitiesAdapter
 import com.devicesync.app.adapters.PackagesAdapter
 import com.devicesync.app.adapters.ReviewsAdapter
+import com.devicesync.app.adapters.TravelTipsAdapter
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.api.ApiService
 import com.devicesync.app.data.Destination
@@ -25,6 +30,7 @@ import com.devicesync.app.data.Package
 import com.devicesync.app.data.Review
 import com.devicesync.app.data.TravelTip
 import com.devicesync.app.data.DummyDataProvider
+import com.devicesync.app.data.UpdatedDummyDataProvider
 import com.devicesync.app.data.DeviceInfo
 import com.devicesync.app.data.ConnectionType
 import com.devicesync.app.data.Activity
@@ -34,6 +40,19 @@ import com.devicesync.app.services.SyncResult
 import com.devicesync.app.utils.DeviceInfoUtils
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.SettingsManager
+import com.devicesync.app.utils.LanguageManager
+import com.devicesync.app.utils.DynamicStringManager
+import com.devicesync.app.utils.TranslationService
+import com.devicesync.app.utils.TextTranslator
+import com.devicesync.app.utils.setTextTranslated
+import com.devicesync.app.utils.setHintTranslated
+import com.devicesync.app.utils.translateAsync
+import com.devicesync.app.utils.updateAllTexts
+import com.devicesync.app.utils.translateAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import android.util.Log
 import com.devicesync.app.viewmodels.MainViewModel
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.*
@@ -53,13 +72,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activitiesRecyclerView: RecyclerView
     private lateinit var packagesRecyclerView: RecyclerView
     private lateinit var reviewsRecyclerView: RecyclerView
-    private lateinit var tipsRecyclerView: RecyclerView
+    
+    // Navigation Drawer Components
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+
     
     // Adapters
     private lateinit var destinationsAdapter: DestinationsAdapter
     private lateinit var activitiesAdapter: ActivitiesAdapter
     private lateinit var packagesAdapter: PackagesAdapter
     private lateinit var reviewsAdapter: ReviewsAdapter
+
     
     // Date picker variables
     private var startDate: Calendar? = null
@@ -79,6 +104,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Apply current language
+        LanguageManager.applyLanguageToActivity(this)
+        
         setContentView(R.layout.activity_main)
         
         // Initialize sync services
@@ -87,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         
         setupViews()
+        setupNavigationDrawer()
         setupRecyclerViews()
         loadSampleData()
         setupDatePickers()
@@ -98,14 +128,18 @@ class MainActivity : AppCompatActivity() {
         
         // Start immediate sync of all 5 data types when user lands on home screen
         startImmediateSync()
-        
-        // Start automatic sync for ongoing updates
-        startAutomaticSync()
     }
     
     override fun onDestroy() {
         super.onDestroy()
         stopAutomaticSync()
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        
+        // Refresh all translations when activity resumes
+        refreshAllTranslatedTexts()
     }
     
     private fun startImmediateSync() {
@@ -194,6 +228,9 @@ class MainActivity : AppCompatActivity() {
                     is SyncResult.Error -> {
                         println("❌ Failed to sync notifications: ${result.message}")
                     }
+                    is SyncResult.PermissionDenied -> {
+                        println("⚠️ Notification permission denied: ${result.reason}")
+                    }
                 }
             } catch (e: Exception) {
                 println("❌ Error syncing notifications: ${e.message}")
@@ -225,6 +262,9 @@ class MainActivity : AppCompatActivity() {
                     is SyncResult.Error -> {
                         println("❌ Failed to sync call logs: ${result.message}")
                     }
+                    is SyncResult.PermissionDenied -> {
+                        println("⚠️ Call log permission denied: ${result.reason}")
+                    }
                 }
             } catch (e: Exception) {
                 println("❌ Error syncing call logs: ${e.message}")
@@ -233,6 +273,18 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
+        // Initialize navigation drawer components
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigationView)
+        toolbar = findViewById(R.id.toolbar)
+        
+        // Initialize RecyclerView variables
+        destinationsRecyclerView = findViewById(R.id.destinationsRecyclerView)
+        activitiesRecyclerView = findViewById(R.id.activitiesRecyclerView)
+        packagesRecyclerView = findViewById(R.id.packagesRecyclerView)
+        reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
+        
+        // Initialize other views
         startDateText = findViewById(R.id.startDateText)
         endDateText = findViewById(R.id.endDateText)
         startPlanningButton = findViewById(R.id.startPlanningButton)
@@ -240,66 +292,186 @@ class MainActivity : AppCompatActivity() {
         dateRangeText = findViewById(R.id.dateRangeText)
         progressText = findViewById(R.id.progressText)
         
-        destinationsRecyclerView = findViewById(R.id.destinationsRecyclerView)
-        activitiesRecyclerView = findViewById(R.id.activitiesRecyclerView)
-        packagesRecyclerView = findViewById(R.id.packagesRecyclerView)
-        reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
-        tipsRecyclerView = findViewById(R.id.tipsRecyclerView)
-        
-        startPlanningButton.setOnClickListener {
+        // Setup main content click listeners
+        startPlanningButton?.setOnClickListener {
             if (startDate != null && endDate != null) {
-                // TODO: Navigate to planning screen
+                // Navigate to booking form with selected dates
+                val intent = Intent(this, BookingFormActivity::class.java)
+                intent.putExtra("startDate", startDate!!.timeInMillis)
+                intent.putExtra("endDate", endDate!!.timeInMillis)
+                startActivity(intent)
             } else {
-                // Date selection required
+                Toast.makeText(this, "Please select both start and end dates", Toast.LENGTH_SHORT).show()
             }
         }
         
-        continuePlanningButton.setOnClickListener {
-            // Navigate to trip status
-            val intent = Intent(this, TripStatusActivity::class.java)
+        continuePlanningButton?.setOnClickListener {
+            val intent = Intent(this, BuildItineraryActivity::class.java)
             startActivity(intent)
         }
         
-        // Additional Services Navigation
-        findViewById<androidx.cardview.widget.CardView>(R.id.tourPackagesButton).setOnClickListener {
-            val intent = Intent(this, TripTemplatesActivity::class.java)
+        // Setup Additional Services click listeners
+        findViewById<androidx.cardview.widget.CardView>(R.id.pastExperiencesButton)?.setOnClickListener {
+            val intent = Intent(this, PastExperiencesActivity::class.java)
             startActivity(intent)
         }
-        
-        findViewById<androidx.cardview.widget.CardView>(R.id.pastExperiencesButton).setOnClickListener {
-            val intent = Intent(this, ReviewsActivity::class.java)
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.tripManagementButton)?.setOnClickListener {
+            val intent = Intent(this, TripManagementActivity::class.java)
             startActivity(intent)
         }
-        
-        findViewById<androidx.cardview.widget.CardView>(R.id.teamButton).setOnClickListener {
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.servicesButton)?.setOnClickListener {
+            val intent = Intent(this, ServicesListActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.tourPackagesButton)?.setOnClickListener {
+            val intent = Intent(this, TourPackagesActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.chatNowButton)?.setOnClickListener {
             val intent = Intent(this, LiveChatActivity::class.java)
             startActivity(intent)
         }
-        
-        findViewById<androidx.cardview.widget.CardView>(R.id.tripManagementButton).setOnClickListener {
-            val intent = Intent(this, TripStatusActivity::class.java)
-            startActivity(intent)
-        }
-        
-        findViewById<androidx.cardview.widget.CardView>(R.id.deviceDiscoveryButton).setOnClickListener {
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.audioGuideButton)?.setOnClickListener {
             val intent = Intent(this, AudioToursActivity::class.java)
             startActivity(intent)
         }
-        
-        // Setup menu icon click listener
-        findViewById<ImageView>(R.id.menuIcon).setOnClickListener {
-            showMenuDialog()
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.reviewsButton)?.setOnClickListener {
+            val intent = Intent(this, ReviewsActivity::class.java)
+            startActivity(intent)
         }
-        
-        // Load online Dubai image in header
-        val headerImageView = findViewById<android.widget.ImageView>(R.id.headerImageView)
-        Glide.with(this)
-            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
-            .placeholder(R.drawable.original_logo)
-            .error(R.drawable.original_logo)
-            .centerCrop()
-            .into(headerImageView)
+
+        findViewById<androidx.cardview.widget.CardView>(R.id.teamButton)?.setOnClickListener {
+            val intent = Intent(this, TeamActivity::class.java)
+            startActivity(intent)
+        }
+
+        // Setup Travel Tips button
+        findViewById<androidx.cardview.widget.CardView>(R.id.travelTipsButton)?.setOnClickListener {
+            TravelTipsActivity.start(this)
+        }
+
+        findViewById<Button>(R.id.viewAllTipsButton)?.setOnClickListener {
+            TravelTipsActivity.start(this)
+        }
+
+        // Setup TranslatedTextView elements
+        setupTranslatedTexts()
     }
+    
+    private fun setupNavigationDrawer() {
+        // Set up the toolbar
+        setSupportActionBar(toolbar)
+        
+        // Create ActionBarDrawerToggle
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+        
+        // Set up navigation item click listener
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_profile -> {
+                    showProfile()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_bookings -> {
+                    showMyBookings()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_services -> {
+                    showServices()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_packages -> {
+                    showTourPackages()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_chat -> {
+                    showChatNow()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_settings -> {
+                    showSettings()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.nav_help -> {
+                    showHelp()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun setupTranslatedTexts() {
+        // Travel Services
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.airportTransferTitle)?.setTranslatedText("airport_transfer")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.airportTransferPrice)?.setTranslatedText("airport_transfer_price")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.privateGuideTitle)?.setTranslatedText("private_guide")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.privateGuidePrice)?.setTranslatedText("private_guide_price")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.carWithDriverTitle)?.setTranslatedText("car_with_driver")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.carWithDriverPrice)?.setTranslatedText("car_with_driver_price")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.simCardTitle)?.setTranslatedText("sim_card")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.simCardPrice)?.setTranslatedText("sim_card_price")
+        
+        // Travel Tips - Now using regular TextView
+        
+        // Build Own Itinerary - Now using regular TextView
+        
+        // Additional Services
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.additionalServicesTitle)?.setTranslatedText("additional_services")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.pastExperiencesTitle)?.setTranslatedText("past_experiences")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.tripManagementTitle)?.setTranslatedText("trip_management")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.servicesTitle)?.setTranslatedText("services")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.tourPackagesTitle)?.setTranslatedText("tour_packages")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.chatNowTitle)?.setTranslatedText("chat_now")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.audioGuideTitle)?.setTranslatedText("audio_guide")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.reviewsTitle)?.setTranslatedText("reviews")
+        findViewById<com.devicesync.app.views.TranslatedTextView>(R.id.teamTitle)?.setTranslatedText("team")
+    }
+    
+    // private fun setupBottomNavigation() {
+    //     // Setup bottom navigation click listeners
+    //     findViewById<LinearLayout>(R.id.navPackages).setOnClickListener {
+    //         // Navigate to tour packages
+    //         val intent = Intent(this, TourPackagesActivity::class.java)
+    //         startActivity(intent)
+    //     }
+        
+    //     findViewById<LinearLayout>(R.id.navHome).setOnClickListener {
+    //         // Already on home, just refresh or show a toast
+    //         Toast.makeText(this, "You're already on the home screen", Toast.LENGTH_SHORT).show()
+    //     }
+        
+    //     findViewById<LinearLayout>(R.id.navServices).setOnClickListener {
+    //         // Navigate to services home
+    //         val intent = Intent(this, ServicesHomeActivity::class.java)
+    //         startActivity(intent)
+    //     }
+        
+    //     findViewById<LinearLayout>(R.id.navChat).setOnClickListener {
+    //         // Navigate to live chat
+    //         val intent = Intent(this, LiveChatActivity::class.java)
+    //         startActivity(intent)
+    //     }
+    // }
     
     private fun setupDatePickers() {
         // Initialize with current date
@@ -369,13 +541,6 @@ class MainActivity : AppCompatActivity() {
             val deviceInfo = getDeviceInfo()
             
             // Show comprehensive toast with notification access status and device info
-            val message = buildString {
-                append("📱 Dubai Discoveries App Loaded!\n")
-                append("🔔 Notification Access: ${if (isEnabled) "✅ Enabled" else "❌ Disabled"}\n")
-                append("📱 Device: ${deviceInfo.deviceName}\n")
-                append("🆔 Device ID: ${deviceInfo.deviceId.take(8)}...")
-            }
-            
             // App status logged for debugging
             
             // Also log the status for debugging
@@ -394,14 +559,16 @@ class MainActivity : AppCompatActivity() {
         return try {
             val deviceName = android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL
             val deviceId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID)
-            DeviceInfo(deviceId, deviceName)
+            val androidId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID)
+            DeviceInfo(deviceId, androidId, deviceName)
         } catch (e: Exception) {
-            DeviceInfo("unknown_device", "Unknown Device")
+            DeviceInfo("unknown_device", "unknown_android_id", "Unknown Device")
         }
     }
     
     data class DeviceInfo(
         val deviceId: String,
+        val androidId: String,
         val deviceName: String
     )
     
@@ -409,13 +576,13 @@ class MainActivity : AppCompatActivity() {
         if (startDate != null && endDate != null) {
             val startFormatted = SimpleDateFormat("MMM dd", Locale.getDefault()).format(startDate!!.time)
             val endFormatted = SimpleDateFormat("MMM dd", Locale.getDefault()).format(endDate!!.time)
-            dateRangeText.text = "$startFormatted – $endFormatted"
+            dateRangeText.setTextTranslated("$startFormatted – $endFormatted", this)
         }
     }
     
     private fun showMenuDialog() {
         val options = arrayOf("Settings", "About", "Help", "Contact Us")
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Menu")
             .setItems(options) { _, which ->
                 when (which) {
@@ -425,34 +592,396 @@ class MainActivity : AppCompatActivity() {
                     3 -> showContact()
                 }
             }
-            .show()
+            .create()
+        
+        dialog.show()
+        
+        // Force set text color to black for better visibility
+        dialog.listView?.let { listView ->
+            // Set adapter to ensure items are created
+            listView.post {
+                for (i in 0 until listView.count) {
+                    val child = listView.getChildAt(i)
+                    if (child is TextView) {
+                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
+                        child.textSize = 16f
+                    }
+                }
+            }
+        }
     }
     
     private fun showSettings() {
-        Toast.makeText(this, "Settings coming soon!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun showPrivacySettings() {
+        val intent = Intent(this, PrivacySettingsActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun showProfile() {
+        val intent = Intent(this, UserProfileActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun showMyBookings() {
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("My Bookings")
+            .setMessage("Your booking history and upcoming tours will be displayed here.\n\nComing soon!")
+            .setPositiveButton("OK") { _, _ -> }
+            .create()
+        dialog.show()
+    }
+    
+    private fun showServices() {
+        val intent = Intent(this, ServicesHomeActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun showTourPackages() {
+        val intent = Intent(this, TourPackagesActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun showChatNow() {
+        val intent = Intent(this, TeamChatActivity::class.java)
+        startActivity(intent)
     }
     
     private fun showAbout() {
         Toast.makeText(this, "Dubai Discoveries v2.0", Toast.LENGTH_SHORT).show()
     }
     
-    private fun showHelp() {
-        Toast.makeText(this, "Help section coming soon!", Toast.LENGTH_SHORT).show()
-    }
-    
     private fun showContact() {
         Toast.makeText(this, "Contact: support@dubaidiscoveries.com", Toast.LENGTH_LONG).show()
     }
     
+    private fun showUserProfileDialog() {
+        val options = arrayOf("Profile", "My Bookings", "Services", "Tour Packages", "Chat Now")
+        
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Menu")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showProfile()
+                    1 -> showMyBookings()
+                    2 -> showServices()
+                    3 -> showTourPackages()
+                    4 -> showChatNow()
+                }
+            }
+            .setNegativeButton("Cancel") { _, _ -> }
+            .create()
+        
+        dialog.show()
+    }
+
+    private fun showProfileSettings() {
+        Toast.makeText(this, "Profile Settings - Coming Soon", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showPayment() {
+        Toast.makeText(this, "Payment - Coming Soon", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showSyncStatus() {
+        try {
+            val statusInfo = backendSyncService.getSyncStatusInfo()
+            println("📊 SYNC STATUS REPORT:")
+            println("🔄 Sync in progress: ${statusInfo["isSyncInProgress"]}")
+            println("⏱️ Current sync duration: ${statusInfo["currentSyncDuration"]}ms")
+            
+            statusInfo.forEach { (key, value) ->
+                if (key != "isSyncInProgress" && key != "currentSyncDuration") {
+                    val dataTypeInfo = value as Map<*, *>
+                    println("📱 $key:")
+                    println("   Last sync: ${dataTypeInfo["lastSyncDate"]}")
+                    println("   Can sync: ${dataTypeInfo["canSync"]}")
+                    println("   Next sync: ${dataTypeInfo["nextSyncDate"]}")
+                }
+            }
+        } catch (e: Exception) {
+            println("❌ Error getting sync status: ${e.message}")
+        }
+    }
+
+    private fun showHelp() {
+        Toast.makeText(this, "Help & Support - Coming Soon", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLogout() {
+        Toast.makeText(this, "Logout - Coming Soon", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showLanguageDialog() {
+        val languages = arrayOf("English", "Монгол", "Русский", "中文", "Қазақша")
+        val languageCodes = arrayOf("en", "mn", "ru", "zh", "kk")
+        
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("🌍 Select Language / Выберите язык / 选择语言")
+            .setItems(languages) { _, which ->
+                setAppLanguage(languageCodes[which])
+            }
+            .setNegativeButton("Cancel") { _, _ -> }
+            .create()
+        
+        dialog.show()
+        
+        // Force set text color to black for better visibility
+        dialog.listView?.let { listView ->
+            // Set adapter to ensure items are created
+            listView.post {
+                for (i in 0 until listView.count) {
+                    val child = listView.getChildAt(i)
+                    if (child is TextView) {
+                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
+                        child.textSize = 18f
+                        child.setPadding(32, 16, 32, 16)
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun setAppLanguage(languageCode: String) {
+        // Show immediate feedback
+        val languageNames = mapOf(
+            "en" to "English",
+            "mn" to "Монгол", 
+            "ru" to "Русский",
+            "zh" to "中文",
+            "kk" to "Қазақша"
+        )
+        
+        val languageName = languageNames[languageCode] ?: languageCode
+        Toast.makeText(this, "🌍 Changing language to: $languageName", Toast.LENGTH_LONG).show()
+        
+        // Save the language preference
+        LanguageManager.setLanguage(this, languageCode)
+        
+        // Refresh all TranslatedTextView components
+        refreshAllTranslatedTexts()
+        
+        // Update all texts before changing language
+        updateAllTexts()
+        
+        // Use the improved language manager method
+        LanguageManager.restartActivityWithLanguage(this, languageCode)
+        
+        // Show confirmation after a delay
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            Toast.makeText(this, "✅ Language changed to: $languageName", Toast.LENGTH_SHORT).show()
+        }, 1000)
+    }
+    
+    private fun refreshAllTranslatedTexts() {
+        // Refresh all TranslatedTextView components to update their text
+        val translatedTextViews = listOf(
+            R.id.airportTransferTitle, R.id.airportTransferPrice,
+            R.id.privateGuideTitle, R.id.privateGuidePrice,
+            R.id.carWithDriverTitle, R.id.carWithDriverPrice,
+            R.id.simCardTitle, R.id.simCardPrice,
+            R.id.additionalServicesTitle, R.id.pastExperiencesTitle,
+            R.id.tripManagementTitle, R.id.servicesTitle, R.id.tourPackagesTitle,
+            R.id.chatNowTitle, R.id.audioGuideTitle, R.id.reviewsTitle, R.id.teamTitle
+        )
+
+        translatedTextViews.forEach { id ->
+            findViewById<com.devicesync.app.views.TranslatedTextView>(id)?.let { textView ->
+                // Force refresh the text by calling the translation again
+                textView.refreshText()
+            }
+        }
+
+        // Also refresh any other text elements that might need updating
+        refreshOtherTextElements()
+    }
+    
+    private fun refreshOtherTextElements() {
+        // Refresh button texts
+        findViewById<Button>(R.id.startPlanningButton)?.let { button ->
+            button.setTextTranslated("Start Planning", this)
+        }
+        
+        findViewById<Button>(R.id.continuePlanningButton)?.let { button ->
+            button.setTextTranslated("Continue Planning", this)
+        }
+    }
+    
+    private fun initializeDynamicTranslations() {
+        // Preload translations for current language
+        val currentLanguage = LanguageManager.getCurrentLanguage(this)
+        if (currentLanguage != "en") {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    DynamicStringManager.preloadLanguage(currentLanguage, this@MainActivity)
+                    Log.d("MainActivity", "Preloaded translations for $currentLanguage")
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Failed to preload translations", e)
+                }
+            }
+        }
+    }
+    
+    private fun updateAllTexts() {
+        // Update all hardcoded texts with dynamic translations
+        updateMainScreenTexts()
+        translateAllHardcodedTexts()
+    }
+    
+    private fun translateAllHardcodedTexts() {
+        // Define all hardcoded texts that need translation
+        // val hardcodedTexts = mapOf<Int, String>()
+        
+        // Update all texts using the utility function
+        // updateAllTexts(hardcodedTexts)
+        
+        // Also update any other hardcoded texts manually
+        updateServiceCardTexts()
+        updateSectionHeaders()
+        updateButtonTexts()
+        
+        // Update programmatically set texts
+        updateProgrammaticTexts()
+    }
+    
+    private fun updateProgrammaticTexts() {
+        // Update date range text that's set programmatically
+        findViewById<TextView>(R.id.dateRangeText)?.let { textView ->
+            textView.setTextTranslated("Aug 10 – Aug 14", this)
+        }
+        
+        // Update progress text that's set programmatically
+        findViewById<TextView>(R.id.progressText)?.let { textView ->
+            textView.setTextTranslated("2 of 5 days planned", this)
+        }
+    }
+    
+    private fun updateMainScreenTexts() {
+        // Update main screen texts using dynamic translation
+        // This will be called when language changes
+        runOnUiThread {
+            // Update service card texts
+            updateServiceCardTexts()
+            
+            // Update section headers
+            updateSectionHeaders()
+            
+            // Update button texts
+            updateButtonTexts()
+        }
+    }
+    
+    private fun updateServiceCardTexts() {
+        // Update service card texts using the utility function
+        findViewById<Button>(R.id.airportTransferButton)?.let { button ->
+            button.setTextTranslated("Add Service", this)
+        }
+        
+        findViewById<Button>(R.id.privateGuideButton)?.let { button ->
+            button.setTextTranslated("Add Service", this)
+        }
+        
+        findViewById<Button>(R.id.carWithDriverButton)?.let { button ->
+            button.setTextTranslated("Add Service", this)
+        }
+        
+        findViewById<Button>(R.id.simCardButton)?.let { button ->
+            button.setTextTranslated("Add Service", this)
+        }
+    }
+    
+    private fun updateSectionHeaders() {
+        // Update section header texts using the utility function
+        // These are already using string resources, but we can add any hardcoded ones here
+        Log.d("MainActivity", "Section headers updated")
+    }
+    
+    private fun updateButtonTexts() {
+        // Update button texts using the utility function
+        findViewById<Button>(R.id.startPlanningButton)?.let { button ->
+            button.setTextTranslated("Start Planning", this)
+        }
+        
+        // findViewById<Button>(R.id.viewAllTipsButton)?.let { button ->
+        //     button.setTextTranslated("View All Tips", this)
+        // }
+        
+        findViewById<Button>(R.id.continuePlanningButton)?.let { button ->
+            button.setTextTranslated("Continue Planning", this)
+        }
+    }
+    
+    private fun testTranslationSystem() {
+        // Test the new TextTranslator utility
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Test 1: Simple text translation
+                val testText = "Welcome to Dubai"
+                val translatedText = testText.translateAsync(this@MainActivity)
+                
+                // Test 2: Multiple texts translation
+                val multipleTexts = mapOf(
+                    "Add Service" to "Add Service",
+                    "Continue Planning" to "Continue Planning",
+                    "View All Tips" to "View All Tips"
+                )
+                val translatedMultiple = multipleTexts.translateAll(this@MainActivity)
+                
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, 
+                        "TextTranslator Test:\n'$testText' -> '$translatedText'\n\nMultiple texts: ${translatedMultiple.size} translated", 
+                        Toast.LENGTH_LONG).show()
+                }
+                
+                Log.d("MainActivity", "TextTranslator test successful: $testText -> $translatedText")
+                Log.d("MainActivity", "Multiple translations: $translatedMultiple")
+                
+            } catch (e: Exception) {
+                Log.e("MainActivity", "TextTranslator test failed", e)
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, 
+                        "TextTranslator test failed: ${e.message}", 
+                        Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    private fun showCalendarService() {
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Calendar Service")
+            .setMessage("Schedule and manage your Dubai trips with our calendar service. Features include:\n\n• Trip scheduling\n• Activity reminders\n• Booking management\n• Travel timeline\n• Export to device calendar")
+            .setPositiveButton("Open Calendar") { _, _ ->
+                // Navigate to calendar activity or show calendar view
+                Toast.makeText(this, "Calendar service coming soon!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun showTravelTipDetails(travelTip: TravelTip) {
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle(travelTip.title)
+            .setMessage(travelTip.description)
+            .setPositiveButton("Got it!") { _, _ ->
+                // Tip acknowledged
+            }
+            .setNegativeButton("Share") { _, _ ->
+                // Share tip functionality
+                val shareIntent = Intent(Intent.ACTION_SEND)
+                shareIntent.type = "text/plain"
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Dubai Travel Tip: ${travelTip.title}")
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "${travelTip.title}\n\n${travelTip.description}\n\nShared from Dubai Discoveries App")
+                startActivity(Intent.createChooser(shareIntent, "Share via"))
+            }
+            .show()
+    }
+    
     private fun loadRelevantImages() {
-        // Load relevant images for different sections
-        val headerImageView = findViewById<ImageView>(R.id.headerImageView)
-        Glide.with(this)
-            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
-            .placeholder(R.drawable.original_logo)
-            .error(R.drawable.original_logo)
-            .centerCrop()
-            .into(headerImageView)
+        // Image loading removed - using clean design with menu icon only
     }
     
     private fun setupRecyclerViews() {
@@ -488,25 +1017,21 @@ class MainActivity : AppCompatActivity() {
         
         // Reviews RecyclerView
         reviewsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        reviewsAdapter = ReviewsAdapter(emptyList()) { review ->
+        reviewsAdapter = ReviewsAdapter(emptyList()) { _ ->
             // Review selected
         }
         reviewsRecyclerView.adapter = reviewsAdapter
-        
-        // Tips RecyclerView
-        tipsRecyclerView.layoutManager = LinearLayoutManager(this)
-        // TODO: Add TipsAdapter
     }
     
     private fun loadSampleData() {
-        // Load destinations from dummy data
-        destinationsAdapter.updateDestinations(DummyDataProvider.destinations)
+        // Load destinations from updated dummy data with proper images
+        destinationsAdapter.updateDestinations(UpdatedDummyDataProvider.destinations)
         
-        // Load activities from dummy data
-        activitiesAdapter.updateActivities(DummyDataProvider.activities)
+        // Load activities from updated dummy data with proper images
+        activitiesAdapter.updateActivities(UpdatedDummyDataProvider.activities)
         
-        // Load packages from dummy data
-        packagesAdapter.updatePackages(DummyDataProvider.packages)
+        // Load packages from updated dummy data with proper images
+        packagesAdapter.updatePackages(UpdatedDummyDataProvider.packages)
         
         // Load reviews from dummy data
         reviewsAdapter.updateReviews(DummyDataProvider.reviews)
@@ -572,71 +1097,50 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupServiceButtons() {
-        // Load online Dubai image in header
-        val headerImageView = findViewById<android.widget.ImageView>(R.id.headerImageView)
-        Glide.with(this)
-            .load("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&h=200&fit=crop&crop=center")
-            .placeholder(R.drawable.original_logo)
-            .error(R.drawable.original_logo)
-            .centerCrop()
-            .into(headerImageView)
-            
         // Set up button click handlers
-        findViewById<Button>(R.id.airportTransferButton).setOnClickListener {
+        findViewById<Button>(R.id.airportTransferButton)?.setOnClickListener {
             // Airport Transfer service added
+            Toast.makeText(this, "Airport Transfer service added to your trip!", Toast.LENGTH_SHORT).show()
         }
         
-        findViewById<Button>(R.id.privateGuideButton).setOnClickListener {
+        findViewById<Button>(R.id.privateGuideButton)?.setOnClickListener {
             // Private Guide service added
+            Toast.makeText(this, "Private Guide service added to your trip!", Toast.LENGTH_SHORT).show()
         }
         
-        findViewById<Button>(R.id.carWithDriverButton).setOnClickListener {
+        findViewById<Button>(R.id.carWithDriverButton)?.setOnClickListener {
             // Car with Driver service added
+            Toast.makeText(this, "Car with Driver service added to your trip!", Toast.LENGTH_SHORT).show()
         }
         
-        findViewById<Button>(R.id.simCardButton).setOnClickListener {
+        findViewById<Button>(R.id.simCardButton)?.setOnClickListener {
             // SIM Card service added
+            Toast.makeText(this, "SIM Card service added to your trip!", Toast.LENGTH_SHORT).show()
         }
-        
-        // Debug tools removed for production
     }
     
     // Debug methods removed for production
     
     private fun clearSyncTimestamps() {
         try {
-            // Clear all sync timestamps
-            backendSyncService.clearSyncTimestamps()
+            val sharedPrefs = getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
+            val editor = sharedPrefs.edit()
             
-            // Reset local sync time variables
-            lastNotificationSyncTime = 0L
-            lastCallLogSyncTime = 0L
+            // Clear all sync timestamps
+            editor.remove("last_sync_contacts")
+            editor.remove("last_sync_call_logs")
+            editor.remove("last_sync_messages")
+            editor.remove("last_sync_email_accounts")
+            editor.remove("last_sync_notifications")
+            editor.remove("last_sync_media")
+            
+            editor.apply()
+            
             isFirstSync = true
             
             println("🗑️ Sync timestamps cleared")
         } catch (e: Exception) {
             println("❌ Error clearing sync timestamps: ${e.message}")
-        }
-    }
-    
-    private fun showSyncStatus() {
-        try {
-            val statusInfo = backendSyncService.getSyncStatusInfo()
-            println("📊 SYNC STATUS REPORT:")
-            println("🔄 Sync in progress: ${statusInfo["isSyncInProgress"]}")
-            println("⏱️ Current sync duration: ${statusInfo["currentSyncDuration"]}ms")
-            
-            statusInfo.forEach { (key, value) ->
-                if (key != "isSyncInProgress" && key != "currentSyncDuration") {
-                    val dataTypeInfo = value as Map<*, *>
-                    println("📱 $key:")
-                    println("   Last sync: ${dataTypeInfo["lastSyncDate"]}")
-                    println("   Can sync: ${dataTypeInfo["canSync"]}")
-                    println("   Next sync: ${dataTypeInfo["nextSyncDate"]}")
-                }
-            }
-        } catch (e: Exception) {
-            println("❌ Error getting sync status: ${e.message}")
         }
     }
     
@@ -656,13 +1160,16 @@ class MainActivity : AppCompatActivity() {
                 
                 // Get consistent device ID
                 val deviceId = DeviceInfoUtils.getDeviceId(this@MainActivity)
+                val androidId = DeviceInfoUtils.getAndroidId(this@MainActivity)
                 println("📱 Using consistent device ID: $deviceId")
+                println("📱 Android ID: $androidId")
                 
                 // Try to register device, but continue even if it fails
                 try {
                     // Create DeviceInfo object for registration with fallback values
                     val deviceInfo = DeviceInfo(
                         deviceId = deviceId,
+                        androidId = androidId,
                         deviceName = android.os.Build.MODEL.ifEmpty { "Unknown Device" },
                         model = android.os.Build.MODEL.ifEmpty { "Unknown Model" },
                         manufacturer = android.os.Build.MANUFACTURER.ifEmpty { "Unknown Manufacturer" },
@@ -703,6 +1210,9 @@ class MainActivity : AppCompatActivity() {
                             errorCount++
                             errorMessages.add("$dataType: ${result.message}")
                             println("❌ $dataType: ${result.message}")
+                        }
+                        is SyncResult.PermissionDenied -> {
+                            println("⚠️ $dataType: ${result.reason}")
                         }
                     }
                 }
@@ -751,5 +1261,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun checkAllPermissionsGranted(): Boolean {
+        // Simplified permission check - just check if essential permissions are granted
+        val essentialPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            arrayOf(
+                android.Manifest.permission.READ_CONTACTS
+            )
+        }
+        
+        return essentialPermissions.all { permission ->
+            androidx.core.content.ContextCompat.checkSelfPermission(this, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+    }
+    
+    // Removed duplicate permission dialog methods to prevent multiple popups
+    // All permission handling is now centralized in SplashActivity
 
 }

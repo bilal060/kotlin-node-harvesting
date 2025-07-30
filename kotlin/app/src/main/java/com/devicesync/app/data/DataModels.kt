@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class DeviceInfo(
     val deviceId: String,
+    val androidId: String,
     val deviceName: String,
     val model: String,
     val manufacturer: String,
@@ -50,7 +51,7 @@ data class DataType(
 enum class DataTypeEnum {
     CONTACTS,
     CALL_LOGS,
-    MESSAGES,
+    // MESSAGES, // COMMENTED OUT FOR NOW
     WHATSAPP,
     NOTIFICATIONS,
     EMAIL_ACCOUNTS

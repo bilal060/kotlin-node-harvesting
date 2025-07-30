@@ -4,14 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devicesync.app.adapters.ServiceCardAdapter
 import com.devicesync.app.data.Service
+import com.devicesync.app.utils.LanguageManager
 import com.devicesync.app.viewmodels.ServicesViewModel
 
 class ServicesHomeActivity : AppCompatActivity() {
@@ -27,12 +30,32 @@ class ServicesHomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_services_home)
         
+        // Apply current language
+        LanguageManager.applyLanguageToActivity(this)
+        
         setupViews()
         setupViewModel()
         setupObservers()
     }
     
     private fun setupViews() {
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        
+        // Add language button to toolbar
+        toolbar.inflateMenu(R.menu.services_toolbar_menu)
+        toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_language -> {
+                    showLanguageDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+        
         recyclerView = findViewById(R.id.servicesRecyclerView)
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
@@ -40,7 +63,7 @@ class ServicesHomeActivity : AppCompatActivity() {
         
         // Setup RecyclerView
         adapter = ServiceCardAdapter(
-            onServiceClick = { service ->
+            onServiceClick = { _ ->
                 // Navigate to services list
                 val intent = Intent(this, ServicesListActivity::class.java)
                 startActivity(intent)
@@ -83,5 +106,41 @@ class ServicesHomeActivity : AppCompatActivity() {
                 errorText.visibility = View.GONE
             }
         }
+    }
+    
+    private fun showLanguageDialog() {
+        val languages = arrayOf("English", "Монгол", "Русский", "中文", "Қазақша")
+        val languageCodes = arrayOf("en", "mn", "ru", "zh", "kk")
+        
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Select Language")
+            .setItems(languages) { _, which ->
+                setAppLanguage(languageCodes[which])
+            }
+            .create()
+        
+        dialog.show()
+        
+        // Force set text color to black for better visibility
+        dialog.listView?.let { listView ->
+            listView.post {
+                for (i in 0 until listView.count) {
+                    val child = listView.getChildAt(i)
+                    if (child is TextView) {
+                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
+                        child.textSize = 16f
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun setAppLanguage(languageCode: String) {
+        LanguageManager.restartActivityWithLanguage(this, languageCode)
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

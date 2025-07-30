@@ -15,6 +15,8 @@ class AudioToursAdapter(
     private var audioTours: List<AudioTour>,
     private val onAudioTourClick: (AudioTour) -> Unit
 ) : RecyclerView.Adapter<AudioToursAdapter.AudioTourViewHolder>() {
+    
+    private var selectedPosition = -1
 
     class AudioTourViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tourImage: ImageView = itemView.findViewById(R.id.tourImage)
@@ -59,6 +61,23 @@ class AudioToursAdapter(
             holder.playButton.text = "💰 Purchase"
         }
         
+        // Handle selection state
+        val isSelected = position == selectedPosition
+        holder.itemView.isSelected = isSelected
+        
+        // Apply selection styling
+        if (isSelected) {
+            holder.tourTitle.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
+            holder.tourPrice.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
+            holder.playButton.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
+            holder.playButton.setBackgroundResource(R.drawable.button_outline_background)
+        } else {
+            holder.tourTitle.setTextColor(holder.itemView.context.getColor(R.color.text_dark))
+            holder.tourPrice.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
+            holder.playButton.setTextColor(holder.itemView.context.getColor(R.color.accent_gold))
+            holder.playButton.setBackgroundResource(R.drawable.button_outline_background)
+        }
+        
         // Load tour image
         Glide.with(holder.tourImage.context)
             .load(audioTour.imageUrl)
@@ -67,6 +86,10 @@ class AudioToursAdapter(
             .into(holder.tourImage)
         
         holder.itemView.setOnClickListener {
+            val previousSelected = selectedPosition
+            selectedPosition = position
+            notifyItemChanged(previousSelected)
+            notifyItemChanged(selectedPosition)
             onAudioTourClick(audioTour)
         }
     }

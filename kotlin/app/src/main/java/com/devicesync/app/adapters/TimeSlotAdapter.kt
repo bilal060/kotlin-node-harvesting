@@ -36,6 +36,12 @@ class TimeSlotAdapter(
                 else R.drawable.time_slot_background
             )
             
+            // Update price text color based on selection
+            priceText.setTextColor(
+                if (isSelected) itemView.context.getColor(R.color.accent_gold)
+                else itemView.context.getColor(R.color.primary)
+            )
+            
             itemView.setOnClickListener {
                 val previousSelected = selectedPosition
                 selectedPosition = adapterPosition

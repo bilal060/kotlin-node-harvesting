@@ -69,4 +69,8 @@
     <!-- Additional colors for new UI screens -->
     <color name="gray">#666666</color>
     <color name="light_gray">#BDBDBD</color>
+    
+    <!-- Navigation Drawer Colors -->
+    <color name="drawer_background">#2E7D32</color>  <!-- Green background -->
+    <color name="golden_color">#FFD700</color>       <!-- Golden text color -->
 </resources> 

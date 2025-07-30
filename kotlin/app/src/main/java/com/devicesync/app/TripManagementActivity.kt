@@ -150,7 +150,7 @@ class TripManagementActivity : AppCompatActivity() {
     }
     
     private fun showReportIssueDialog() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Report Issue with Guide")
             .setMessage("Would you like to send a request to the manager about an issue with your guide?")
             .setPositiveButton("Send Request") { _, _ ->

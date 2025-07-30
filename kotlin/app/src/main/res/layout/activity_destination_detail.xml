@@ -10,10 +10,22 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header with Image Slideshow -->
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary_color"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:title="Destination Details"
+            app:titleTextColor="@color/golden_color" />
+
+        <!-- Image Slideshow -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="250dp">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/imageViewPager"
@@ -24,26 +36,16 @@
             <!-- Gradient Overlay -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="80dp"
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/gradient_overlay_bottom" />
-
-            <!-- Back Button -->
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="16dp"
-                android:background="@drawable/circle_background"
-                android:src="@drawable/ic_arrow_back_white"
-                android:contentDescription="Back" />
 
             <!-- Title and Location -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_margin="16dp"
+                
                 android:orientation="vertical">
 
                 <TextView
@@ -52,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:text="Burj Khalifa"
                     android:textColor="@color/white"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -62,7 +64,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Downtown Dubai"
                     android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 

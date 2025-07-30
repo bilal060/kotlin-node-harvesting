@@ -6,42 +6,34 @@
     android:orientation="vertical"
     android:background="@drawable/gradient_background">
 
-    <!-- Header -->
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_color"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Tour Packages"
+        app:titleTextColor="@color/golden_color" />
+
+    <!-- Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:background="@drawable/gradient_overlay_top">
+        android:padding="20dp">
 
-        <TextView
+        <!-- Packages List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/packagesRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tour Packages"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:layout_marginBottom="10dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose from our carefully curated Dubai tour packages"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:alpha="0.9" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:clipToPadding="false" />
 
     </LinearLayout>
-
-    <!-- Packages List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/packagesRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp"
-        android:clipToPadding="false" />
 
 </LinearLayout> 

@@ -2,13 +2,13 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="280dp"
-    android:layout_height="320dp"
+    android:layout_height="wrap_content"
     android:layout_marginEnd="16dp"
     android:layout_marginStart="8dp"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
+    
     app:cardBackgroundColor="@color/surface_color">
 
     <LinearLayout
@@ -28,8 +28,7 @@
         <!-- Package Info -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp">
 
@@ -38,7 +37,7 @@
                 android:id="@+id/packageName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dubai Explorer Package"
+                android:text="@string/dubai_essential_package"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -49,7 +48,7 @@
                 android:id="@+id/packageDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3 Days / 2 Nights"
+                android:text="@string/package_duration_sample"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginBottom="8dp" />
@@ -59,12 +58,12 @@
                 android:id="@+id/packageDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Experience the best of Dubai with our comprehensive tour package including iconic landmarks and desert adventures."
+                android:text="@string/package_description_sample"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="2dp"
                 android:layout_marginBottom="8dp"
-                android:maxLines="2"
+                android:maxLines="3"
                 android:ellipsize="end" />
 
             <!-- Package Highlights -->
@@ -72,7 +71,7 @@
                 android:id="@+id/packageHighlights"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="• Burj Khalifa • Desert Safari • City Tour"
+                android:text="@string/package_highlights_sample"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginBottom="12dp" />
@@ -89,7 +88,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="From AED 899"
+                    android:text="@string/package_price_sample"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_color" />
@@ -98,7 +97,7 @@
                     android:id="@+id/bookPackageButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Book Now"
+                    android:text="@string/book_now"
                     android:textSize="14sp"
                     android:textColor="@color/white"
                     android:background="@drawable/gradient_background"

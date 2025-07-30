@@ -42,7 +42,7 @@ class TripStatusActivity : AppCompatActivity() {
     }
     
     private fun setupRecyclerView() {
-        ticketAdapter = TicketAdapter(emptyList()) { ticket ->
+        ticketAdapter = TicketAdapter(emptyList()) { _ ->
             // Handle ticket click
         }
         
@@ -130,7 +130,7 @@ class TripStatusActivity : AppCompatActivity() {
     }
     
     private fun showReportIssueDialog() {
-        val dialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("🚨 Report Issue with Guide")
             .setMessage("Please describe the issue you're experiencing with your guide:")
             .setView(R.layout.dialog_report_issue)
@@ -145,7 +145,7 @@ class TripStatusActivity : AppCompatActivity() {
     }
     
     private fun showSuccessDialog(message: String) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("✅ Success")
             .setMessage(message)
             .setPositiveButton("OK", null)

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
+import Link from 'next/link'
 import { deviceAPI, healthAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI, whatsappAPI, adminAPI, dataAPI, syncAPI } from '../lib/api'
 import DeviceCard from '../components/DeviceCard'
 import DeviceDetails from '../components/DeviceDetails'
@@ -40,7 +41,13 @@ export default function Home() {
     {
       refetchInterval: 30000,
       onSuccess: (response) => {
-        const devicesData = response.data || []
+        // Handle different possible response structures
+        const devicesData = Array.isArray(response) ? response : 
+                           Array.isArray(response.data) ? response.data : 
+                           Array.isArray(response.devices) ? response.devices : []
+        
+
+        
         const totalStats = devicesData.reduce((acc, device) => {
           return {
             totalDevices: acc.totalDevices + 1,
@@ -284,6 +291,20 @@ export default function Home() {
                   {healthLoading ? 'Checking...' : healthData ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
+              <Link
+                href="/devices"
+                className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+              >
+                <Smartphone className="h-4 w-4" />
+                <span>Devices</span>
+              </Link>
+              <Link
+                href="/data-viewer"
+                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                <Database className="h-4 w-4" />
+                <span>Data Viewer</span>
+              </Link>
               <button
                 onClick={() => refetch()}
                 className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -373,6 +394,7 @@ export default function Home() {
               disabled={!selectedDevice}
               className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <Image className="h-4 w-4" />
               <span>Upload Last 5 Images</span>
             </button>
@@ -505,11 +527,13 @@ export default function Home() {
                     <p>No devices connected</p>
                   </div>
                 ) : (
-                  devices.data.map((device) => (
+                  (Array.isArray(devices) ? devices : 
+                   Array.isArray(devices?.data) ? devices.data : 
+                   Array.isArray(devices?.devices) ? devices.devices : []).map((device) => (
                     <DeviceCard
-                      key={device._id}
+                      key={device._id || device.deviceId || device.id}
                       device={device}
-                      isSelected={selectedDevice?._id === device._id}
+                      isSelected={selectedDevice?._id === device._id || selectedDevice?.deviceId === device.deviceId}
                       onClick={() => setSelectedDevice(device)}
                       onStatusChange={handleDeviceStatusChange}
                     />

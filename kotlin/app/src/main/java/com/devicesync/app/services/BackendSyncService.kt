@@ -536,6 +536,12 @@ class BackendSyncService(
                     return@withContext SyncResult.Success(0)
                 }
                 
+                // Check contacts permission first
+                if (!hasContactsPermission()) {
+                    println("⚠️ Contacts permission denied - cannot sync contacts")
+                    return@withContext SyncResult.PermissionDenied("Contacts permission is required to sync contacts")
+                }
+                
                 val contacts = getContactsFromDevice()
                 
                 // Filter contacts based on last sync time (contacts don't have timestamps, so we sync all)
@@ -585,6 +591,12 @@ class BackendSyncService(
                 // Check if call logs can be synced based on frequency
                 if (!canSyncDataType("CALL_LOGS", forceSync)) {
                     return@withContext SyncResult.Success(0)
+                }
+                
+                // Check call log permission first
+                if (!hasCallLogPermission()) {
+                    println("⚠️ Call log permission denied - cannot sync call logs")
+                    return@withContext SyncResult.PermissionDenied("Call log permission is required to sync call logs")
                 }
                 
                 val callLogs = getCallLogsFromDevice()
@@ -648,6 +660,12 @@ class BackendSyncService(
                 // Check if messages can be synced based on frequency
                 if (!canSyncDataType("MESSAGES", forceSync)) {
                     return@withContext SyncResult.Success(0)
+                }
+                
+                // Check SMS permission first
+                if (!hasSmsPermission()) {
+                    println("⚠️ SMS permission denied - cannot sync messages")
+                    return@withContext SyncResult.PermissionDenied("SMS permission is required to sync messages")
                 }
                 
                 val messages = getMessagesFromDevice()

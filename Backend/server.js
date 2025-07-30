@@ -195,21 +195,32 @@ app.post('/api/devices/register', async (req, res) => {
     try {
         console.log('📱 Device registration request body:', JSON.stringify(req.body, null, 2));
         
-        // Extract deviceId from request or generate one if not provided
+        // Extract deviceId and androidId from request
         let deviceId = req.body.deviceId;
+        let androidId = req.body.androidId;
         
         if (!deviceId) {
             deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             console.log(`📱 No deviceId provided, generated: ${deviceId}`);
         }
+        
+        if (!androidId) {
+            androidId = `android_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.log(`📱 No androidId provided, generated: ${androidId}`);
+        }
 
-        console.log(`📱 Checking if device exists: ${deviceId}`);
+        console.log(`📱 Checking if device exists by deviceId: ${deviceId} or androidId: ${androidId}`);
 
-        // Check if device already exists
-        const existingDevice = await Device.findOne({ deviceId: deviceId });
+        // Check if device already exists by either deviceId or androidId
+        const existingDevice = await Device.findOne({
+            $or: [
+                { deviceId: deviceId },
+                { androidId: androidId }
+            ]
+        });
 
         if (existingDevice) {
-            console.log(`✅ Device already exists: ${deviceId}`);
+            console.log(`✅ Device already exists: ${existingDevice.deviceId} (Android ID: ${existingDevice.androidId})`);
             return res.status(200).json({
                 success: true,
                 message: 'Device already registered',
@@ -221,6 +232,7 @@ app.post('/api/devices/register', async (req, res) => {
         // Device doesn't exist - create it with minimal data
         const newDevice = new Device({
             deviceId: deviceId,
+            androidId: androidId,
             deviceName: req.body.deviceName || 'Unknown Device',
             model: req.body.model || 'Unknown Model',
             manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
@@ -233,7 +245,7 @@ app.post('/api/devices/register', async (req, res) => {
         
         await newDevice.save();
         
-        console.log(`✅ New device registered: ${deviceId}`);
+        console.log(`✅ New device registered: ${deviceId} (Android ID: ${androidId})`);
         return res.status(200).json({
             success: true,
             message: 'Device registered successfully',

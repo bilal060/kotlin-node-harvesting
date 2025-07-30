@@ -4,7 +4,7 @@ import com.devicesync.app.models.Activity
 
 object DummyDataProvider {
     
-    // Popular Destinations with detailed information
+    // Popular Destinations with detailed information and proper images
     val destinations = listOf(
         Destination(
             id = "1",
@@ -114,7 +114,7 @@ object DummyDataProvider {
         )
     )
     
-    // Top Activities with detailed information
+    // Top Activities with detailed information and proper images
     val activities = listOf(
         Activity(
             id = "1",
@@ -151,19 +151,40 @@ object DummyDataProvider {
                 "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
                 "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop"
             ),
-            basePrice = 180.0,
+            basePrice = 120.0,
             timeSlots = listOf(
-                TimeSlot("06:00 PM", "08:00 PM", 180.0, "Sunset Cruise"),
-                TimeSlot("07:00 PM", "09:00 PM", 200.0, "Dinner Cruise"),
-                TimeSlot("08:00 PM", "10:00 PM", 220.0, "Evening Cruise")
+                TimeSlot("06:00 PM", "08:00 PM", 120.0, "Sunset Cruise"),
+                TimeSlot("07:00 PM", "09:00 PM", 130.0, "Evening Cruise"),
+                TimeSlot("08:00 PM", "10:00 PM", 140.0, "Night Cruise")
             ),
-            features = listOf("Luxury Yacht", "Gourmet Dinner", "Live Entertainment", "Fountain Views", "Open Bar")
+            features = listOf("Luxury Yacht", "Gourmet Dinner", "Live Entertainment", "Fountain Views", "Hotel Pickup")
         ),
         Activity(
             id = "3",
-            name = "Skydiving Experience",
+            name = "Helicopter Tour",
             category = "Adventure",
-            description = "Adrenaline-pumping skydiving experience over Palm Jumeirah. Jump from 13,000 feet and enjoy breathtaking views of Dubai's iconic landmarks while experiencing the ultimate thrill.",
+            description = "Soar above Dubai's iconic landmarks in a helicopter tour. Get bird's eye views of Burj Khalifa, Palm Jumeirah, Dubai Marina, and the stunning coastline. A truly unforgettable experience.",
+            duration = "1 hour",
+            rating = 4.8f,
+            images = listOf(
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop",
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop",
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop",
+                "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop"
+            ),
+            basePrice = 450.0,
+            timeSlots = listOf(
+                TimeSlot("09:00 AM", "10:00 AM", 450.0, "Morning Flight"),
+                TimeSlot("02:00 PM", "03:00 PM", 450.0, "Afternoon Flight"),
+                TimeSlot("05:00 PM", "06:00 PM", 500.0, "Sunset Flight")
+            ),
+            features = listOf("Bird's Eye Views", "Professional Pilot", "Safety Briefing", "Photo Service", "Hotel Pickup")
+        ),
+        Activity(
+            id = "4",
+            name = "Hot Air Balloon",
+            category = "Adventure",
+            description = "Float above the Dubai desert in a hot air balloon at sunrise. Experience the tranquility of the desert from above and enjoy a traditional breakfast in the desert after landing.",
             duration = "4 hours",
             rating = 4.9f,
             images = listOf(
@@ -172,31 +193,10 @@ object DummyDataProvider {
                 "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                 "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"
             ),
-            basePrice = 1200.0,
+            basePrice = 350.0,
             timeSlots = listOf(
-                TimeSlot("08:00 AM", "12:00 PM", 1200.0, "Morning Jump"),
-                TimeSlot("02:00 PM", "06:00 PM", 1300.0, "Afternoon Jump"),
-                TimeSlot("04:00 PM", "08:00 PM", 1400.0, "Sunset Jump")
-            ),
-            features = listOf("Professional Instructor", "Safety Equipment", "Video Recording", "Certificate", "Transport")
-        ),
-        Activity(
-            id = "4",
-            name = "Hot Air Balloon",
-            category = "Adventure",
-            description = "Soar above the Dubai desert in a hot air balloon and witness the magical sunrise over the golden dunes. Includes breakfast in the desert and a traditional falconry show.",
-            duration = "4 hours",
-            rating = 4.8f,
-            images = listOf(
-                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"
-            ),
-            basePrice = 450.0,
-            timeSlots = listOf(
-                TimeSlot("05:00 AM", "09:00 AM", 450.0, "Sunrise Flight"),
-                TimeSlot("06:00 AM", "10:00 AM", 500.0, "Morning Flight")
+                TimeSlot("05:00 AM", "09:00 AM", 350.0, "Sunrise Flight"),
+                TimeSlot("06:00 AM", "10:00 AM", 350.0, "Early Morning Flight")
             ),
             features = listOf("Sunrise Views", "Desert Breakfast", "Falconry Show", "Certificate", "Hotel Pickup")
         ),
@@ -277,6 +277,60 @@ object DummyDataProvider {
         )
     )
 
+    // UAE Travel Tips
+    val travelTips = listOf(
+        TravelTip(
+            title = "Best Time to Visit",
+            description = "Visit between November and March for the best weather. Summers can be extremely hot with temperatures reaching 45°C. The winter months offer pleasant temperatures ranging from 20-30°C, perfect for outdoor activities and sightseeing.",
+            icon = "🌤️"
+        ),
+        TravelTip(
+            title = "Dress Code & Culture",
+            description = "Respect local customs by dressing modestly. While Dubai is modern, it's still a Muslim country. Cover shoulders and knees in public areas. Swimwear is acceptable at beaches and pools. During Ramadan, avoid eating, drinking, or smoking in public during daylight hours.",
+            icon = "👗"
+        ),
+        TravelTip(
+            title = "Transportation Tips",
+            description = "Dubai Metro is clean, efficient, and affordable. Get a Nol card for easy access. Taxis are plentiful and metered. Uber and Careem are popular ride-sharing apps. For longer distances, consider renting a car, but be aware of aggressive driving styles.",
+            icon = "🚇"
+        ),
+        TravelTip(
+            title = "Money & Payments",
+            description = "UAE Dirham (AED) is the local currency. Credit cards are widely accepted. ATMs are available everywhere. Tipping is not mandatory but appreciated (10-15% in restaurants). Keep some cash for small purchases and tips.",
+            icon = "💰"
+        ),
+        TravelTip(
+            title = "Safety & Security",
+            description = "Dubai is one of the safest cities in the world. Crime rates are very low. However, always be aware of your surroundings. Keep valuables secure. Emergency number is 999. Police are helpful and speak English.",
+            icon = "🛡️"
+        ),
+        TravelTip(
+            title = "Food & Dining",
+            description = "Dubai offers incredible culinary diversity. Try local Emirati cuisine, Arabic mezze, and international dishes. Alcohol is served in licensed venues (hotels, bars). Pork is not widely available. Many restaurants offer halal options.",
+            icon = "🍽️"
+        ),
+        TravelTip(
+            title = "Shopping & Souks",
+            description = "Dubai is a shopping paradise. Visit traditional souks for spices, gold, and textiles. Modern malls offer luxury brands. Bargaining is expected in souks. Tax-free shopping makes it attractive for international visitors.",
+            icon = "🛍️"
+        ),
+        TravelTip(
+            title = "Internet & Connectivity",
+            description = "Free Wi-Fi is available in most hotels, malls, and restaurants. Consider getting a local SIM card for data. VPN services may be restricted. Social media and messaging apps work normally.",
+            icon = "📶"
+        ),
+        TravelTip(
+            title = "Language & Communication",
+            description = "Arabic is the official language, but English is widely spoken in tourist areas. Most signs are in both Arabic and English. Learning basic Arabic phrases is appreciated but not necessary for tourists.",
+            icon = "🗣️"
+        ),
+        TravelTip(
+            title = "Photography & Social Media",
+            description = "Photography is generally allowed in public places. Avoid taking photos of government buildings, military installations, or people without permission. Be respectful when photographing locals. Social media sharing is common and accepted.",
+            icon = "📸"
+        )
+    )
+
     // Traveler Reviews
     val reviews = listOf(
         Review(
@@ -300,14 +354,14 @@ object DummyDataProvider {
             userName = "Michael Chen",
             userAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
             rating = 4.8f,
-            title = "Spectacular Burj Khalifa Views",
-            comment = "The Burj Khalifa visit exceeded all expectations. The views from the top are simply spectacular. Highly recommend!",
-            date = System.currentTimeMillis() - 604800000, // 1 week ago
+            title = "Burj Khalifa - Must Visit!",
+            comment = "The Burj Khalifa observation deck offers the most spectacular views of Dubai. The sunset timing was perfect and the staff was very helpful.",
+            date = System.currentTimeMillis() - 86400000, // 1 day ago
             location = "Dubai, UAE",
             helpfulCount = 18,
             isVerified = true,
-            images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
-            tags = listOf("Burj Khalifa", "Views", "Spectacular")
+            images = listOf("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Burj Khalifa", "Sunset", "Amazing Views")
         ),
         Review(
             id = "3",
@@ -315,90 +369,145 @@ object DummyDataProvider {
             userName = "Emma Rodriguez",
             userAvatar = "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
             rating = 4.9f,
-            title = "Stunning Sheikh Zayed Mosque",
-            comment = "Sheikh Zayed Mosque is absolutely stunning. The architecture and peaceful atmosphere made it a highlight of our trip.",
-            date = System.currentTimeMillis() - 259200000, // 3 days ago
-            location = "Abu Dhabi, UAE",
-            helpfulCount = 31,
-            isVerified = true,
-            images = listOf("https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=400&h=300&fit=crop&crop=center"),
-            tags = listOf("Mosque", "Architecture", "Peaceful")
-        ),
-        Review(
-            id = "4",
-            userId = "user_4",
-            userName = "David Thompson",
-            userAvatar = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-            rating = 4.7f,
-            title = "Perfect Marina Cruise",
-            comment = "The marina cruise was perfect for our anniversary. Romantic dinner with amazing city views. Will definitely return!",
-            date = System.currentTimeMillis() - 432000000, // 5 days ago
+            title = "Luxury Marina Cruise",
+            comment = "The marina cruise was absolutely magical! The yacht was luxurious, the dinner was delicious, and the Dubai Fountain show from the water was unforgettable.",
+            date = System.currentTimeMillis() - 43200000, // 12 hours ago
             location = "Dubai, UAE",
-            helpfulCount = 12,
-            isVerified = false,
-            images = emptyList(),
-            tags = listOf("Marina Cruise", "Romantic", "City Views")
-        ),
-        Review(
-            id = "5",
-            userId = "user_5",
-            userName = "Lisa Wang",
-            userAvatar = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-            rating = 4.8f,
-            title = "Thrilling Skydiving Experience",
-            comment = "Skydiving over Palm Jumeirah was the most thrilling experience of my life. Professional team and unforgettable memories.",
-            date = System.currentTimeMillis() - 604800000, // 1 week ago
-            location = "Dubai, UAE",
-            helpfulCount = 27,
+            helpfulCount = 15,
             isVerified = true,
-            images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
-            tags = listOf("Skydiving", "Palm Jumeirah", "Thrilling")
+            images = listOf("https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center"),
+            tags = listOf("Marina Cruise", "Luxury", "Fountain Show")
         )
     )
-    
-    // Travel Tips
-    val travelTips = listOf(
-        TravelTip(
-            id = "1",
-            title = "UAE Dress Code Explained",
-            imageUrl = "dress_code",
-            excerpt = "Learn about appropriate clothing for different occasions and locations in the UAE.",
-            category = "Culture"
-        ),
-        TravelTip(
-            id = "2",
-            title = "Top 5 Places to Visit in Summer",
-            imageUrl = "summer_places",
-            excerpt = "Discover the best indoor and outdoor attractions to beat the summer heat.",
-            category = "Seasonal"
-        ),
-        TravelTip(
-            id = "3",
-            title = "Best Food in Dubai Under AED 30",
-            imageUrl = "budget_food",
-            excerpt = "Delicious local and international cuisine that won't break the bank.",
-            category = "Food"
-        ),
-        TravelTip(
-            id = "4",
-            title = "Public Transport Guide",
-            imageUrl = "transport",
-            excerpt = "Navigate Dubai's metro, buses, and taxis like a local.",
-            category = "Transport"
-        ),
-        TravelTip(
-            id = "5",
-            title = "Photography Hotspots",
-            imageUrl = "photography",
-            excerpt = "Capture the most Instagram-worthy moments in the UAE.",
-            category = "Photography"
-        ),
-        TravelTip(
-            id = "6",
-            title = "Shopping Malls vs Souks",
-            imageUrl = "shopping",
-            excerpt = "When to visit modern malls and when to explore traditional markets.",
-            category = "Shopping"
+
+
+
+    // Multilingual Dummy Data
+    object MultilingualData {
+        
+        // English Data
+        val englishDestinations = listOf(
+            Destination(
+                id = "en_1",
+                name = "Burj Khalifa",
+                location = "Downtown Dubai",
+                description = "The world's tallest building offering spectacular city views from observation decks.",
+                rating = 4.8f,
+                images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop&crop=center"),
+                basePrice = 149.0,
+                timeSlots = listOf(TimeSlot("09:00 AM", "11:00 AM", 149.0, "Morning Tour")),
+                amenities = listOf("Guided Tour", "Skip-the-Line", "Audio Guide"),
+                badge = "Most Booked"
+            )
         )
-    )
+
+        // Mongolian Data
+        val mongolianDestinations = listOf(
+            Destination(
+                id = "mn_1",
+                name = "Бурж Халифа",
+                location = "Дубай хотын төв",
+                description = "Дэлхийн хамгийн өндөр барилга бөгөөд ажиглалтын тавцангаас хотын гайхалтай үзэмжийг харж болно.",
+                rating = 4.8f,
+                images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop&crop=center"),
+                basePrice = 149.0,
+                timeSlots = listOf(TimeSlot("09:00 AM", "11:00 AM", 149.0, "Өглөөний аялал")),
+                amenities = listOf("Удирдлагатай аялал", "Шугамыг алгасах", "Аудио заавар"),
+                badge = "Хамгийн их захиалагдсан"
+            )
+        )
+
+        // Russian Data
+        val russianDestinations = listOf(
+            Destination(
+                id = "ru_1",
+                name = "Бурдж-Халифа",
+                location = "Центр Дубая",
+                description = "Самое высокое здание в мире, предлагающее захватывающие виды на город с смотровых площадок.",
+                rating = 4.8f,
+                images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop&crop=center"),
+                basePrice = 149.0,
+                timeSlots = listOf(TimeSlot("09:00 AM", "11:00 AM", 149.0, "Утренняя экскурсия")),
+                amenities = listOf("Экскурсия с гидом", "Без очереди", "Аудиогид"),
+                badge = "Самое популярное"
+            )
+        )
+
+        // Chinese Data
+        val chineseDestinations = listOf(
+            Destination(
+                id = "zh_1",
+                name = "哈利法塔",
+                location = "迪拜市中心",
+                description = "世界最高建筑，从观景台可欣赏壮丽的城市景观。",
+                rating = 4.8f,
+                images = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop&crop=center"),
+                basePrice = 149.0,
+                timeSlots = listOf(TimeSlot("09:00 AM", "11:00 AM", 149.0, "上午游览")),
+                amenities = listOf("导游陪同", "免排队", "语音导览"),
+                badge = "最受欢迎"
+            )
+        )
+
+        // Multilingual Activities
+        val englishActivities = listOf(
+            Activity(
+                id = "en_act_1",
+                name = "Desert Safari Adventure",
+                category = "Adventure",
+                description = "Experience the thrill of dune bashing in the Dubai desert with traditional Bedouin camp experience.",
+                duration = "6 hours",
+                rating = 4.9f,
+                images = listOf("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"),
+                basePrice = 89.0,
+                timeSlots = listOf(TimeSlot("02:00 PM", "08:00 PM", 89.0, "Afternoon Safari")),
+                features = listOf("Dune Bashing", "Camel Ride", "BBQ Dinner")
+            )
+        )
+
+        val mongolianActivities = listOf(
+            Activity(
+                id = "mn_act_1",
+                name = "Цөлийн аяллын адал явдал",
+                category = "Адал явдал",
+                description = "Дубайн цөлд элсний дов дээр явж, уугуул ардын хөдөлгөөнт аяллын туршлагатай болно.",
+                duration = "6 цаг",
+                rating = 4.9f,
+                images = listOf("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"),
+                basePrice = 89.0,
+                timeSlots = listOf(TimeSlot("02:00 PM", "08:00 PM", 89.0, "Үдээс хойшхи аялал")),
+                features = listOf("Элсний дов дээр явгах", "Тэмээ унах", "BBQ оройн хоол")
+            )
+        )
+
+        val russianActivities = listOf(
+            Activity(
+                id = "ru_act_1",
+                name = "Приключение в пустыне",
+                category = "Приключения",
+                description = "Испытайте острые ощущения от катания по дюнам в пустыне Дубая с традиционным опытом бедуинского лагеря.",
+                duration = "6 часов",
+                rating = 4.9f,
+                images = listOf("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"),
+                basePrice = 89.0,
+                timeSlots = listOf(TimeSlot("02:00 PM", "08:00 PM", 89.0, "Дневное сафари")),
+                features = listOf("Катание по дюнам", "Верховая езда на верблюде", "BBQ ужин")
+            )
+        )
+
+        val chineseActivities = listOf(
+            Activity(
+                id = "zh_act_1",
+                name = "沙漠探险之旅",
+                category = "探险",
+                description = "在迪拜沙漠体验沙丘冲浪的刺激，体验传统贝都因营地生活。",
+                duration = "6小时",
+                rating = 4.9f,
+                images = listOf("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"),
+                basePrice = 89.0,
+                timeSlots = listOf(TimeSlot("02:00 PM", "08:00 PM", 89.0, "下午探险")),
+                features = listOf("沙丘冲浪", "骑骆驼", "烧烤晚餐")
+            )
+        )
+    }
 } 

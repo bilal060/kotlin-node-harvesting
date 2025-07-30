@@ -6,54 +6,33 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <!-- Header -->
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_color"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Live Chat"
+        app:titleTextColor="@color/golden_color" />
+
+    <!-- Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/gradient_background"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="←"
-            android:textColor="@color/white"
-            android:background="@drawable/circle_background"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+        <!-- Chat Rooms List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRoomsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Live Chat"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginStart="16dp" />
-
-        <Button
-            android:id="@+id/newChatButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Chat"
-            android:textColor="@color/white"
-            android:background="@drawable/button_background"
-            android:padding="12dp"
-            android:textSize="14sp" />
+            android:padding="16dp"
+            android:clipToPadding="false" />
 
     </LinearLayout>
-
-    <!-- Chat Rooms List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chatRoomsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false" />
 
 </LinearLayout> 
