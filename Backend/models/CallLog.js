@@ -6,6 +6,11 @@ const callLogSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    user_internal_code: {
+        type: String,
+        required: true,
+        index: true
+    },
     phoneNumber: {
         type: String,
         required: true

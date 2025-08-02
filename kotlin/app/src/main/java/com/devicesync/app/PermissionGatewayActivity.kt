@@ -53,7 +53,7 @@ class PermissionGatewayActivity : AppCompatActivity() {
     }
     
     private fun showPermissionError() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Permissions Required")
             .setMessage("This app requires all permissions to function properly. Please grant all permissions to continue.")
             .setPositiveButton("Try Again") { _, _ ->

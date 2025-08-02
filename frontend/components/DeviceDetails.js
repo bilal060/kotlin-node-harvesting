@@ -312,18 +312,17 @@ export default function DeviceDetails({ device, onSettingsUpdate, onRefresh }) {
                 />
               </div>
 
-              {/* Messages */}
+              {/* Messages - Disabled due to Android restrictions */}
               <div className="space-y-2">
-                <SettingToggle
-                  label="SMS Messages"
-                  path="messages.enabled"
-                  description="Collect SMS and MMS messages"
-                />
-                <FrequencyInput
-                  label="Frequency"
-                  path="messages.frequency"
-                  unit="seconds"
-                />
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div>
+                    <h5 className="text-sm font-medium text-gray-900">SMS Messages</h5>
+                    <p className="text-xs text-gray-500">SMS collection disabled due to Android security restrictions</p>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">Disabled</span>
+                  </div>
+                </div>
               </div>
 
 

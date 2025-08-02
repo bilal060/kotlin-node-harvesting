@@ -8,7 +8,7 @@
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
+    
     app:cardBackgroundColor="@color/surface_color">
 
     <LinearLayout
@@ -33,16 +33,36 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Activity Name -->
-            <TextView
-                android:id="@+id/activityName"
-                android:layout_width="wrap_content"
+            <!-- Price and Name Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Burj Khalifa"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <!-- Activity Name -->
+                <TextView
+                    android:id="@+id/activityName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/burj_khalifa"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Price -->
+                <TextView
+                    android:id="@+id/activityPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_price_sample"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_color" />
+
+            </LinearLayout>
 
             <!-- Rating and Reviews -->
             <LinearLayout
@@ -56,7 +76,7 @@
                     android:id="@+id/activityRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4.8"
+                    android:text="@string/activity_rating_sample"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/accent_gold"
@@ -74,29 +94,18 @@
                     android:id="@+id/activityReviews"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(2500 reviews)"
+                    android:text="@string/activity_reviews_sample"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
-
-            <!-- Price -->
-            <TextView
-                android:id="@+id/activityPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From AED 149"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_color"
-                android:layout_marginBottom="12dp" />
 
             <!-- Book Now Button -->
             <Button
                 android:id="@+id/bookActivityButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Book Now"
+                android:text="@string/book_now"
                 android:textSize="12sp"
                 android:textColor="@color/primary_color"
                 android:background="@drawable/button_background"

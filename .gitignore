@@ -1,4 +1,4 @@
-# ===== NODE.JS EXCLUSIONS =====
+# ===== NODE.JS & NEXT.JS EXCLUSIONS =====
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -7,11 +7,18 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# Build outputs
+# Next.js build outputs
+.next/
+out/
 build/
 dist/
 *.tgz
 *.tar.gz
+
+# Next.js cache
+.next/cache/
+.next/server/
+.next/static/
 
 # Runtime data
 pids
@@ -39,10 +46,33 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variables file
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# ===== BACKEND SPECIFIC =====
+Backend/node_modules/
+Backend/.env
+Backend/.env.local
+Backend/.env.production
+Backend/logs/
+Backend/uploads/
+Backend/temp/
+Backend/cache/
+Backend/dist/
+Backend/build/
+
+# ===== FRONTEND SPECIFIC =====
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/coverage/
+frontend/.nyc_output/
 
 # ===== KOTLIN/ANDROID EXCLUSIONS =====
 
@@ -114,6 +144,104 @@ kotlin/*.kts
 kotlin/buildSrc/
 kotlin/.kotlin/
 
+# ===== MOBILE APP SPECIFIC =====
+# Generated APK files
+*.apk
+*.aab
+*.apks
+*.apkx
+
+# Android Studio and IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle wrapper (if not needed in repo)
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+
+# Local configuration files
+local.properties
+gradle.properties
+
+# ===== PROJECT SPECIFIC =====
+# Test scripts and temporary files
+test_*.sh
+*_test.sh
+debug_*.sh
+fix_*.sh
+setup_*.sh
+build_*.sh
+final_*.sh
+verify_*.sh
+trigger_*.sh
+check_*.sh
+troubleshoot.sh
+
+# Documentation files that might contain sensitive info
+*_REPORT.md
+*_SUMMARY.md
+*_GUIDE.md
+*_FIX.md
+*_STATUS.md
+*_ANALYSIS.md
+*_ERRORS.md
+*_INTEGRATION.md
+*_PERMISSION.md
+*_SYNC.md
+*_VERIFICATION.md
+*_COMPLETE.md
+*_FIXED.md
+*_WORKING.md
+*_BACKUP.md
+*_ORIGINAL.md
+*_SIMPLE.md
+*_COMPREHENSIVE.md
+*_EMERGENCY.md
+*_QUICK.md
+*_LIVE.md
+*_REAL.md
+*_MEDIA.md
+*_TIMESTAMP.md
+*_DUPLICATE.md
+*_NETWORK.md
+*_ENVIRONMENT.md
+*_ATLAS.md
+*_RENDER.md
+*_GITHUB.md
+*_API.md
+*_CLIENT.md
+*_FRONTEND.md
+*_BACKEND.md
+*_MOBILE.md
+*_KOTLIN.md
+*_ANDROID.md
+*_SMS.md
+*_DATA.md
+*_HARVESTING.md
+*_POPUP.md
+*_DENIAL.md
+*_HANDLING.md
+*_SYSTEM.md
+*_FUNCTIONALITY.md
+*_CONNECTIVITY.md
+*_LOADING.md
+*_SETUP.md
+*_BUILD.md
+*_INSTALL.md
+*_START.md
+*_PUSH.md
+*_FINAL.md
+*_SIGNED.md
+*_INFO.md
+*_QUICK_START.md
+*_SETUP.md
+*_TROUBLESHOOT.md
+*_BUILD_MOBILE.md
+*_MOBILE_SETUP.md
+*_SETUP.md
+
 # ===== IDE FILES =====
 .vscode/
 .idea/
@@ -131,16 +259,24 @@ Thumbs.db
 logs
 *.log
 
+# ===== APK FILES =====
+*.apk
+*.aab
+*.apks
+*.apkx
+
 # ===== LARGE FILES =====
 *.zip
 *.tar
 *.gz
 *.rar
+*.7z
 
 # ===== DATABASE FILES =====
 *.db
 *.sqlite
 *.sqlite3
+*.mdb
 
 # ===== CACHE DIRECTORIES =====
 .cache/
@@ -158,4 +294,39 @@ coverage/
 
 # ===== TEMPORARY FILES =====
 tmp/
-temp/ 
+temp/
+
+# ===== LOG FILES =====
+*.log
+logs/
+Backend/logs/
+frontend/logs/
+
+# ===== UPLOAD FILES =====
+uploads/
+Backend/uploads/
+frontend/uploads/
+
+# ===== MEDIA FILES =====
+media/
+Backend/media/
+frontend/media/
+
+# ===== CONFIG FILES WITH SENSITIVE DATA =====
+config/local.js
+config/production.js
+Backend/config/local.js
+Backend/config/production.js
+
+# ===== SSL CERTIFICATES =====
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# ===== PACKAGE MANAGER FILES =====
+.npmrc
+.yarnrc
+.yarnrc.yml 

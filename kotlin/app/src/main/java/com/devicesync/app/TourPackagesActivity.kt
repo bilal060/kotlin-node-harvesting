@@ -1,13 +1,20 @@
 package com.devicesync.app
 
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devicesync.app.adapters.TourPackageAdapter
 import com.devicesync.app.data.models.TourPackage
+import com.devicesync.app.utils.LanguageManager
+import java.util.Locale
 
 class TourPackagesActivity : AppCompatActivity() {
     
@@ -16,6 +23,9 @@ class TourPackagesActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+
+        
         setContentView(R.layout.activity_tour_packages)
         
         setupViews()
@@ -23,8 +33,20 @@ class TourPackagesActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        
         packagesRecyclerView = findViewById(R.id.packagesRecyclerView)
         packagesRecyclerView.layoutManager = LinearLayoutManager(this)
+        
+        // Initialize adapter with empty list first
+        packagesAdapter = TourPackageAdapter(emptyList()) { _ ->
+            // Handle package click - show detailed view
+            Toast.makeText(this, "Package details coming soon!", Toast.LENGTH_SHORT).show()
+        }
+        packagesRecyclerView.adapter = packagesAdapter
     }
     
     private fun loadPackagesData() {
@@ -142,10 +164,44 @@ class TourPackagesActivity : AppCompatActivity() {
             )
         )
         
-        packagesAdapter = TourPackageAdapter(packages) { tourPackage ->
-            // Handle package click - show detailed view
-            Toast.makeText(this, "Package details coming soon!", Toast.LENGTH_SHORT).show()
+        // Update adapter with packages data
+        packagesAdapter.updatePackages(packages)
+    }
+    
+    private fun showLanguageDialog() {
+        val languages = arrayOf("English", "Монгол", "Русский", "中文", "Қазақша")
+        val languageCodes = arrayOf("en", "mn", "ru", "zh", "kk")
+        
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Select Language")
+            .setItems(languages) { _, which ->
+                setAppLanguage(languageCodes[which])
+            }
+            .create()
+        
+        dialog.show()
+        
+        // Force set text color to black for better visibility
+        dialog.listView?.let { listView ->
+            listView.post {
+                for (i in 0 until listView.count) {
+                    val child = listView.getChildAt(i)
+                    if (child is TextView) {
+                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
+                        child.textSize = 16f
+                    }
+                }
+            }
         }
-        packagesRecyclerView.adapter = packagesAdapter
+    }
+    
+    private fun setAppLanguage(languageCode: String) {
+        // Language change functionality will be implemented later
+        Toast.makeText(this, "Language changed to $languageCode", Toast.LENGTH_SHORT).show()
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

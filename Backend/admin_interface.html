@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeviceSync Admin Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+        
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .code-display {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+        
+        .users-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .user-info p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .build-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin: 15px 0;
+        }
+        
+        .build-info pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 DeviceSync Admin Panel</h1>
+            <p>User Management & APK Build System</p>
+        </div>
+        
+        <div class="content">
+            <!-- Create User Section -->
+            <div class="section">
+                <h2>👤 Create New User</h2>
+                <form id="createUserForm">
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="username">Username *</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxDevices">Max Devices</label>
+                            <input type="number" id="maxDevices" name="maxDevices" value="10" min="1">
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="subscriptionPlan">Subscription Plan</label>
+                            <select id="subscriptionPlan" name="subscriptionPlan">
+                                <option value="basic">Basic</option>
+                                <option value="premium">Premium</option>
+                                <option value="enterprise">Enterprise</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="billingCycle">Billing Cycle</label>
+                            <select id="billingCycle" name="billingCycle">
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminNotes">Admin Notes</label>
+                        <textarea id="adminNotes" name="adminNotes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Create User</button>
+                </form>
+            </div>
+
+            <!-- Users List Section -->
+            <div class="section">
+                <h2>📋 Users List</h2>
+                <div class="users-list" id="usersList">
+                    <div class="status info">Loading users...</div>
+                </div>
+            </div>
+
+            <!-- APK Build Section -->
+            <div class="section">
+                <h2>📱 APK Build Management</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Build Information</h3>
+                        <div id="buildInfo">
+                            <div class="status info">Select a user to view build information</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Build Actions</h3>
+                        <div id="buildActions">
+                            <div class="status info">Select a user to perform build actions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Code Management -->
+            <div class="section">
+                <h2>🔑 Manual Code Management</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Set Custom Code</h3>
+                        <div class="form-group">
+                            <label for="customCode">Custom Internal Code (5 characters)</label>
+                            <input type="text" id="customCode" maxlength="5" placeholder="ABC12">
+                        </div>
+                        <button class="btn btn-warning" onclick="setCustomCode()">Set Custom Code</button>
+                    </div>
+                    <div class="card">
+                        <h3>Regenerate Code</h3>
+                        <p>Generate a new random 5-digit alphanumeric code</p>
+                        <button class="btn btn-danger" onclick="regenerateCode()">Regenerate Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5002/api/admin';
+        let selectedUserId = null;
+
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', loadUsers);
+
+        // Create user form
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const userData = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('User created successfully!', 'success');
+                    e.target.reset();
+                    loadUsers();
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayUsers(result.data.users);
+                } else {
+                    showStatus(`Error loading users: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayUsers(users) {
+            const usersList = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="status info">No users found</div>';
+                return;
+            }
+            
+            usersList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <h4>${user.fullName}</h4>
+                        <p>Username: ${user.username} | Email: ${user.email}</p>
+                        <p>Code: <strong>${user.user_internal_code}</strong> | Devices: ${user.currentDevices}/${user.maxDevices}</p>
+                        <p>Plan: ${user.subscriptionPlan} | Status: ${user.subscriptionStatus}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-small" onclick="selectUser('${user._id}')">Select</button>
+                        <button class="btn btn-small btn-warning" onclick="editUser('${user._id}')">Edit</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteUser('${user._id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectUser(userId) {
+            selectedUserId = userId;
+            
+            try {
+                // Load build info
+                const buildResponse = await fetch(`${API_BASE}/users/${userId}/build-info`);
+                const buildResult = await buildResponse.json();
+                
+                if (buildResult.success) {
+                    displayBuildInfo(buildResult.data);
+                    displayBuildActions(buildResult.data);
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayBuildInfo(buildInfo) {
+            const buildInfoDiv = document.getElementById('buildInfo');
+            buildInfoDiv.innerHTML = `
+                <div class="build-info">
+                    <h4>User: ${buildInfo.fullName}</h4>
+                    <p><strong>Internal Code:</strong> <span class="code-display">${buildInfo.user_internal_code}</span></p>
+                    <p><strong>Package Name:</strong> ${buildInfo.buildConfig.packageName}</p>
+                    <p><strong>App Name:</strong> ${buildInfo.buildConfig.appName}</p>
+                    <p><strong>Version:</strong> ${buildInfo.apkVersion}</p>
+                    <p><strong>Devices:</strong> ${buildInfo.currentDevices}/${buildInfo.maxDevices}</p>
+                    <p><strong>Build Status:</strong> ${buildInfo.buildStatus}</p>
+                </div>
+            `;
+        }
+
+        function displayBuildActions(buildInfo) {
+            const buildActionsDiv = document.getElementById('buildActions');
+            buildActionsDiv.innerHTML = `
+                <button class="btn btn-success" onclick="initiateBuild()">🚀 Initiate APK Build</button>
+                <button class="btn btn-warning" onclick="generateBuildScript()">📝 Generate Build Script</button>
+                <button class="btn" onclick="getBuildStatus()">📊 Check Build Status</button>
+            `;
+        }
+
+        async function setCustomCode() {
+            if (!selectedUserId) {
+                showStatus('Please select a user first', 'error');
+                return;
+            }
+            
+            const customCode = document.getElementById('customCode').value.toUpperCase();
+            
+            if (customCode.length !== 5) {
+                showStatus('Code must be exactly 5 characters', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${selectedUserId}/internal-code`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_internal_code: customCode })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('Custom code set successfully!', 'success');
+                    loadUsers();
+                    selectUser(selectedUserId);
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function regenerateCode() {
+            if (!selectedUserId) {
+                showStatus('Please select a user first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${selectedUserId}/internal-code`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ regenerate: true })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('Code regenerated successfully!', 'success');
+                    loadUsers();
+                    selectUser(selectedUserId);
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function initiateBuild() {
+            if (!selectedUserId) {
+                showStatus('Please select a user first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${selectedUserId}/build-apk`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ version: '1.0.0' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('APK build initiated!', 'success');
+                    selectUser(selectedUserId);
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function generateBuildScript() {
+            if (!selectedUserId) {
+                showStatus('Please select a user first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${selectedUserId}/generate-build-script`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ buildType: 'release' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show build script in a modal or new window
+                    const scriptWindow = window.open('', '_blank');
+                    scriptWindow.document.write(`
+                        <html>
+                            <head><title>Build Script - ${result.data.user_internal_code}</title></head>
+                            <body style="font-family: monospace; padding: 20px; background: #1e1e1e; color: #fff;">
+                                <h2>Build Script for User: ${result.data.user_internal_code}</h2>
+                                <h3>Instructions:</h3>
+                                <ul>
+                                    ${result.data.instructions.map(instruction => `<li>${instruction}</li>`).join('')}
+                                </ul>
+                                <h3>Build Script:</h3>
+                                <pre style="background: #2d2d2d; padding: 15px; border-radius: 5px; overflow-x: auto;">${result.data.buildScript}</pre>
+                            </body>
+                        </html>
+                    `);
+                    showStatus('Build script generated!', 'success');
+                } else {
+                    showStatus(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            
+            document.body.appendChild(statusDiv);
+            
+            setTimeout(() => {
+                statusDiv.remove();
+            }, 5000);
+        }
+
+        // Placeholder functions
+        function editUser(userId) {
+            showStatus('Edit user functionality coming soon...', 'info');
+        }
+
+        async function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const response = await fetch(`${API_BASE}/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('User deleted successfully!', 'success');
+                        loadUsers();
+                    } else {
+                        showStatus(`Error: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    showStatus(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function getBuildStatus() {
+            showStatus('Build status functionality coming soon...', 'info');
+        }
+    </script>
+</body>
+</html> 

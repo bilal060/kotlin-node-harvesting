@@ -16,34 +16,37 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     
-    <!-- SMS and MMS Permissions -->
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION -->
+    <!-- <uses-permission android:name="android.permission.READ_SMS" /> -->
+    <!-- <uses-permission android:name="android.permission.RECEIVE_SMS" /> -->
     
     <!-- Storage Permissions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" android:maxSdkVersion="32" />
     
     <!-- Background and Service Permissions -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     
     <!-- Notification Access -->
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:maxSdkVersion="32" />
     
     <!-- Email and Account Access -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    
+    <!-- Audio and Recording Permissions -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     
     <!-- Camera and Media (for file scanning) -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -70,8 +73,7 @@
         android:theme="@style/Theme.DubaiDiscoveries"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:usesCleartextTraffic="true">
         
         <activity
             android:name=".SplashActivity"
@@ -86,9 +88,25 @@
         </activity>
 
         <activity
+            android:name=".LanguageSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries.Splash"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.DeviceSync"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+            
+        <!-- Data Sync Service -->
+        <service
+            android:name=".services.DataSyncService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
@@ -148,6 +166,173 @@
 
         <activity
             android:name=".AudioToursActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".BookingFormActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TravelTipsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Additional Services Activities -->
+        <activity
+            android:name=".PastExperiencesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TripManagementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TourPackagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".TeamActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Privacy Policy Activity -->
+        <activity
+            android:name=".PrivacyPolicyActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Privacy Settings Activity -->
+        <activity
+            android:name=".PrivacySettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Settings Activity -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Tours Activity -->
+        <activity
+            android:name=".ToursActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Services Activity -->
+        <activity
+            android:name=".ServicesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Bookings Activity -->
+        <activity
+            android:name=".BookingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Profile Activity -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+                   <!-- Contact Activity -->
+           <activity
+               android:name=".ContactActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Attractions Detail Activity -->
+           <activity
+               android:name=".AttractionsDetailActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Itinerary Booking Activity -->
+           <activity
+               android:name=".ItineraryBookingActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Popular Destinations Activity -->
+           <activity
+               android:name=".PopularDestinationsActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Hot Deals Activity -->
+                   <activity
+            android:name=".HotDealsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ThemeSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PackagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+           <!-- User Profile Activity -->
+        <activity
+            android:name=".UserProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Team Chat Activity -->
+        <activity
+            android:name=".TeamChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Build Itinerary Activity -->
+        <activity
+            android:name=".BuildItineraryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Itinerary Day Selection Activity -->
+        <activity
+            android:name=".ItineraryDaySelectionActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />

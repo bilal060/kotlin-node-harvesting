@@ -10,9 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devicesync.app.R
 import com.devicesync.app.data.models.TourPackage
+import com.devicesync.app.utils.setTextTranslated
 
 class TourPackageAdapter(
-    private val packages: List<TourPackage>,
+    private var packages: List<TourPackage>,
     private val onPackageClick: (TourPackage) -> Unit
 ) : RecyclerView.Adapter<TourPackageAdapter.PackageViewHolder>() {
 
@@ -37,13 +38,13 @@ class TourPackageAdapter(
     override fun onBindViewHolder(holder: PackageViewHolder, position: Int) {
         val tourPackage = packages[position]
         
-        holder.nameText.text = tourPackage.name
-        holder.descriptionText.text = tourPackage.description
-        holder.durationText.text = tourPackage.duration
-        holder.priceText.text = tourPackage.price
-        holder.ratingText.text = "★ ${tourPackage.rating}"
-        holder.reviewsText.text = "(${tourPackage.reviews} reviews)"
-        holder.categoryText.text = tourPackage.category
+        holder.nameText.setTextTranslated(tourPackage.name, holder.itemView.context)
+        holder.descriptionText.setTextTranslated(tourPackage.description, holder.itemView.context)
+        holder.durationText.setTextTranslated(tourPackage.duration, holder.itemView.context)
+        holder.priceText.setTextTranslated(tourPackage.price, holder.itemView.context)
+        holder.ratingText.setTextTranslated("★ ${tourPackage.rating}", holder.itemView.context)
+        holder.reviewsText.setTextTranslated("(${tourPackage.reviews} reviews)", holder.itemView.context)
+        holder.categoryText.setTextTranslated(tourPackage.category, holder.itemView.context)
         
         // Show popular badge if applicable
         holder.popularBadge.visibility = if (tourPackage.isPopular) View.VISIBLE else View.GONE
@@ -62,4 +63,9 @@ class TourPackageAdapter(
     }
 
     override fun getItemCount(): Int = packages.size
+    
+    fun updatePackages(newPackages: List<TourPackage>) {
+        packages = newPackages
+        notifyDataSetChanged()
+    }
 } 

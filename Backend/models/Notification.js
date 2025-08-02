@@ -6,6 +6,11 @@ const notificationSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    user_internal_code: {
+        type: String,
+        required: true,
+        index: true
+    },
     notificationId: {
         type: String,
         required: true

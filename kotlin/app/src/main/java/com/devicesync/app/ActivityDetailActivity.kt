@@ -32,6 +32,11 @@ class ActivityDetailActivity : AppCompatActivity() {
     }
     
     private fun initializeViews() {
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        
         activityImage = findViewById(R.id.activityImage)
         activityName = findViewById(R.id.activityName)
         activityRating = findViewById(R.id.activityRating)
@@ -83,7 +88,7 @@ class ActivityDetailActivity : AppCompatActivity() {
     }
     
     private fun showBookingDialog() {
-        val dialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("🎫 Book ${activityName.text}")
             .setMessage("""
                 📅 Available Dates: Aug 10-15, 2024
@@ -103,12 +108,17 @@ class ActivityDetailActivity : AppCompatActivity() {
     }
     
     private fun showSuccessDialog(message: String) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("✅ Success")
             .setMessage(message)
             .setPositiveButton("OK") { _, _ ->
                 finish()
             }
             .show()
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

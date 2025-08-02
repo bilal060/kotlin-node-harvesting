@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devicesync.app.R
 import com.devicesync.app.data.Activity
+import com.devicesync.app.utils.setTextTranslated
 
 class ActivitiesAdapter(
     private var activities: List<Activity>,
@@ -33,15 +34,15 @@ class ActivitiesAdapter(
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         val activity = activities[position]
         
-        holder.activityName.text = activity.name
-        holder.activityRating.text = activity.rating.toString()
-        holder.activityReviews.text = "(${activity.rating.toInt() * 500} reviews)"
+        holder.activityName.setTextTranslated(activity.name, holder.itemView.context)
+        holder.activityRating.setTextTranslated(activity.rating.toString(), holder.itemView.context)
+        holder.activityReviews.setTextTranslated("(${activity.rating.toInt() * 500} reviews)", holder.itemView.context)
         
         // Handle free activities
         if (activity.basePrice == 0.0) {
-            holder.activityPrice.text = "Free Entry"
+            holder.activityPrice.setTextTranslated("Free Entry", holder.itemView.context)
         } else {
-            holder.activityPrice.text = "From AED ${activity.basePrice.toInt()}"
+            holder.activityPrice.setTextTranslated("From AED ${activity.basePrice.toInt()}", holder.itemView.context)
         }
         
         // Load activity image using Glide

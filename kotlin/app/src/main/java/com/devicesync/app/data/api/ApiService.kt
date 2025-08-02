@@ -70,6 +70,7 @@ class ApiService {
     suspend fun registerDevice(deviceInfo: DeviceInfo): Response<DeviceRegistrationResponse> {
         val request = DeviceRegistrationRequest(
             deviceId = deviceInfo.deviceId,
+            androidId = deviceInfo.androidId,
             deviceInfo = mapOf(
                 "platform" to deviceInfo.platform,
                 "details" to deviceInfo.details
@@ -102,6 +103,7 @@ class ApiService {
 // Request/Response data classes
 data class DeviceRegistrationRequest(
     val deviceId: String,
+    val androidId: String,
     val deviceInfo: Map<String, String>
 )
 

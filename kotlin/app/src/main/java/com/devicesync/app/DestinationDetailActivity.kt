@@ -27,7 +27,6 @@ class DestinationDetailActivity : AppCompatActivity() {
     private lateinit var timeSlotRecyclerView: RecyclerView
     private lateinit var amenitiesChipGroup: ChipGroup
     private lateinit var bookButton: Button
-    private lateinit var backButton: ImageButton
     
     private lateinit var timeSlotAdapter: TimeSlotAdapter
     
@@ -45,10 +44,19 @@ class DestinationDetailActivity : AppCompatActivity() {
         timeSlotRecyclerView = findViewById(R.id.timeSlotRecyclerView)
         amenitiesChipGroup = findViewById(R.id.amenitiesChipGroup)
         bookButton = findViewById(R.id.bookButton)
-        backButton = findViewById(R.id.backButton)
+        
+        // Setup toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         
         // Get destination data from intent
-        val destination = intent.getParcelableExtra<Destination>("destination")
+        val destination = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("destination", Destination::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("destination")
+        }
         
         if (destination != null) {
             setupDestinationDetails(destination)
@@ -57,7 +65,6 @@ class DestinationDetailActivity : AppCompatActivity() {
             setupSampleDestination()
         }
         
-        setupBackButton()
         setupBookButton()
     }
     
@@ -80,6 +87,9 @@ class DestinationDetailActivity : AppCompatActivity() {
         // Setup pricing
         val formatter = NumberFormat.getCurrencyInstance(Locale.US)
         priceText.text = "From ${formatter.format(destination.basePrice)}"
+        
+        // Set initial price color to primary
+        priceText.setTextColor(resources.getColor(R.color.primary, theme))
     }
     
     private fun setupSampleDestination() {
@@ -113,6 +123,10 @@ class DestinationDetailActivity : AppCompatActivity() {
             // Handle time slot selection
             val formatter = NumberFormat.getCurrencyInstance(Locale.US)
             priceText.text = formatter.format(selectedSlot.price)
+            
+            // Change price text color to yellow when selected
+            priceText.setTextColor(resources.getColor(R.color.accent_gold, theme))
+            
             bookButton.text = "Book ${selectedSlot.name} - ${formatter.format(selectedSlot.price)}"
         }
         
@@ -134,11 +148,7 @@ class DestinationDetailActivity : AppCompatActivity() {
         }
     }
     
-    private fun setupBackButton() {
-        backButton.setOnClickListener {
-            finish()
-        }
-    }
+
     
     private fun setupBookButton() {
         bookButton.setOnClickListener {
@@ -158,7 +168,7 @@ class DestinationDetailActivity : AppCompatActivity() {
                 "Time: ${timeSlot.startTime} - ${timeSlot.endTime}\n" +
                 "Price: ${formatter.format(timeSlot.price)}"
         
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Confirm Booking")
             .setMessage(message)
             .setPositiveButton("Confirm") { _, _ ->
@@ -167,5 +177,10 @@ class DestinationDetailActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 } 

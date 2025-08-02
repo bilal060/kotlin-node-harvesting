@@ -45,7 +45,6 @@ router.get('/stats', async (req, res) => {
       totalContacts,
       totalCallLogs,
       totalNotifications,
-      totalMessages,
       totalEmails,
       last24hDevices
     ] = await Promise.all([
@@ -54,7 +53,6 @@ router.get('/stats', async (req, res) => {
       Contact.countDocuments(),
       CallLog.countDocuments(),
       Notification.countDocuments(),
-      Message.countDocuments(),
       EmailAccount.countDocuments(),
       Device.countDocuments({
         lastSeen: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
@@ -62,10 +60,10 @@ router.get('/stats', async (req, res) => {
     ]);
 
     const stats = {
-      totalRecords: totalContacts + totalCallLogs + totalNotifications + totalMessages + totalEmails,
+      totalRecords: totalContacts + totalCallLogs + totalNotifications + totalEmails,
       last24h: last24hDevices,
       activeSyncs: activeDevices,
-      storageUsed: `${Math.round((totalContacts + totalCallLogs + totalNotifications + totalMessages + totalEmails) / 1000)} KB`,
+      storageUsed: `${Math.round((totalContacts + totalCallLogs + totalNotifications + totalEmails) / 1000)} KB`,
       devices: {
         total: totalDevices,
         active: activeDevices
@@ -74,7 +72,6 @@ router.get('/stats', async (req, res) => {
         contacts: totalContacts,
         callLogs: totalCallLogs,
         notifications: totalNotifications,
-        messages: totalMessages,
         emails: totalEmails
       }
     };
@@ -101,7 +98,6 @@ router.get('/devices/:deviceId', async (req, res) => {
       totalContacts: await Contact.countDocuments({ deviceId }),
       totalCallLogs: await CallLog.countDocuments({ deviceId }),
       totalNotifications: await Notification.countDocuments({ deviceId }),
-      totalMessages: await Message.countDocuments({ deviceId }),
       totalEmails: await EmailAccount.countDocuments({ deviceId })
     };
 

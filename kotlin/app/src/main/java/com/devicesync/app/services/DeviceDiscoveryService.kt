@@ -103,6 +103,7 @@ class DeviceDiscoveryService(private val context: Context) {
     fun onBluetoothDeviceFound(device: BluetoothDevice) {
         val deviceInfo = DeviceInfo(
             deviceId = device.address,
+            androidId = device.address, // Use device address as androidId for Bluetooth devices
             deviceName = device.name ?: "Unknown Device",
             model = "Bluetooth Device",
             manufacturer = "Unknown",
@@ -118,6 +119,7 @@ class DeviceDiscoveryService(private val context: Context) {
     fun onWifiP2pDeviceFound(device: WifiP2pDevice) {
         val deviceInfo = DeviceInfo(
             deviceId = device.deviceAddress,
+            androidId = device.deviceAddress, // Use device address as androidId for WiFi P2P devices
             deviceName = device.deviceName,
             model = "WiFi P2P Device",
             manufacturer = "Unknown",

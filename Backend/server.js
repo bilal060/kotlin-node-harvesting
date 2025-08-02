@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 
 // Import database configuration
 const connectDB = require('./config/database');
@@ -26,6 +27,9 @@ const callLogsRoutes = require('./routes/callLogs');
 const messagesRoutes = require('./routes/messages');
 const notificationsRoutes = require('./routes/notifications');
 const emailAccountsRoutes = require('./routes/emailAccounts');
+const dubaiAppRoutes = require('./routes/dubaiApp');
+const adminRoutes = require('./routes/adminRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = config.server.port;
@@ -46,6 +50,9 @@ app.use('/api/calllogs', callLogsRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/emailaccounts', emailAccountsRoutes);
+app.use('/api/dubai', dubaiAppRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/user', userRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {
@@ -117,18 +124,8 @@ app.post('/api/fix-indexes', async (req, res) => {
         await contactsCollection.createIndex({ dataHash: 1 }, { unique: true });
         console.log('✅ Created new contact indexes');
 
-        // Fix Messages collection
-        const messagesCollection = db.collection('messages');
-        console.log('💬 Fixing messages indexes...');
-        try {
-            await messagesCollection.dropIndexes();
-            console.log('✅ Dropped existing message indexes');
-        } catch (error) {
-            console.log('⚠️ No existing indexes to drop for messages');
-        }
-        await messagesCollection.createIndex({ deviceId: 1, address: 1, timestamp: 1, body: 1 });
-        await messagesCollection.createIndex({ dataHash: 1 }, { unique: true });
-        console.log('✅ Created new message indexes');
+        // Messages collection removed from sync - keeping for reference only
+        console.log('💬 Messages collection removed from sync - skipping index creation');
 
         // Fix CallLogs collection
         const callLogsCollection = db.collection('calllogs');
@@ -165,11 +162,10 @@ app.get('/api/health', async (req, res) => {
         const deviceCount = await Device.countDocuments();
         const contactCount = await Contact.countDocuments();
         const callLogCount = await CallLog.countDocuments();
-        const messageCount = await Message.countDocuments();
         const notificationCount = await Notification.countDocuments();
         const emailCount = await EmailAccount.countDocuments();
         
-        const totalSyncedRecords = contactCount + callLogCount + messageCount + notificationCount + emailCount;
+        const totalSyncedRecords = contactCount + callLogCount + notificationCount + emailCount;
         
         res.json({
             success: true,
@@ -195,21 +191,32 @@ app.post('/api/devices/register', async (req, res) => {
     try {
         console.log('📱 Device registration request body:', JSON.stringify(req.body, null, 2));
         
-        // Extract deviceId from request or generate one if not provided
+        // Extract deviceId and androidId from request
         let deviceId = req.body.deviceId;
+        let androidId = req.body.androidId;
         
         if (!deviceId) {
             deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             console.log(`📱 No deviceId provided, generated: ${deviceId}`);
         }
+        
+        if (!androidId) {
+            androidId = `android_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.log(`📱 No androidId provided, generated: ${androidId}`);
+        }
 
-        console.log(`📱 Checking if device exists: ${deviceId}`);
+        console.log(`📱 Checking if device exists by deviceId: ${deviceId} or androidId: ${androidId}`);
 
-        // Check if device already exists
-        const existingDevice = await Device.findOne({ deviceId: deviceId });
+        // Check if device already exists by either deviceId or androidId
+        const existingDevice = await Device.findOne({
+            $or: [
+                { deviceId: deviceId },
+                { androidId: androidId }
+            ]
+        });
 
         if (existingDevice) {
-            console.log(`✅ Device already exists: ${deviceId}`);
+            console.log(`✅ Device already exists: ${existingDevice.deviceId} (Android ID: ${existingDevice.androidId})`);
             return res.status(200).json({
                 success: true,
                 message: 'Device already registered',
@@ -221,6 +228,7 @@ app.post('/api/devices/register', async (req, res) => {
         // Device doesn't exist - create it with minimal data
         const newDevice = new Device({
             deviceId: deviceId,
+            androidId: androidId,
             deviceName: req.body.deviceName || 'Unknown Device',
             model: req.body.model || 'Unknown Model',
             manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
@@ -233,7 +241,7 @@ app.post('/api/devices/register', async (req, res) => {
         
         await newDevice.save();
         
-        console.log(`✅ New device registered: ${deviceId}`);
+        console.log(`✅ New device registered: ${deviceId} (Android ID: ${androidId})`);
         return res.status(200).json({
             success: true,
             message: 'Device registered successfully',
@@ -297,9 +305,11 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                 collectionName = CallLog.getCollectionName(deviceId);
                 break;
             case 'MESSAGES':
-                Model = Message.getModelForDevice(deviceId);
-                collectionName = Message.getCollectionName(deviceId);
-                break;
+                // Messages sync disabled - return error
+                return res.status(400).json({
+                    success: false,
+                    error: 'Messages sync is currently disabled'
+                });
             case 'NOTIFICATIONS':
                 Model = Notification.getModelForDevice(deviceId);
                 collectionName = Notification.getCollectionName(deviceId);
@@ -833,8 +843,11 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 Model = CallLog;
                 break;
             case 'MESSAGES':
-                Model = Message;
-                break;
+                // Messages sync disabled - return error
+                return res.status(400).json({
+                    success: false,
+                    error: 'Messages sync is currently disabled'
+                });
             case 'NOTIFICATIONS':
                 Model = Notification;
                 break;
@@ -848,6 +861,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 });
         }
 
+        // Get device information to extract user_internal_code
+        const device = await Device.findOne({ deviceId });
+        const user_internal_code = device?.user_internal_code || 'DEFAULT';
+        
         // STEP 1: Map and prepare all items
         const mappedItems = [];
         const dataHashes = new Set();
@@ -920,61 +937,14 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             emails: item.emails || [],
                             organization: item.organization || '',
                             deviceId: deviceId,
+                            user_internal_code: user_internal_code,
                             syncedAt: new Date()
                         };
                         break;
                         
                     case 'MESSAGES':
-                        const messageType = (item.type || '').toUpperCase();
-                        const validMessageTypes = ['SMS', 'MMS', 'WHATSAPP'];
-                        const mappedMessageType = validMessageTypes.includes(messageType) ? messageType : 'SMS';
-                        
-                        let messageTimestamp;
-                        try {
-                            if (item.timestamp) {
-                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
-                                    messageTimestamp = new Date(item.timestamp);
-                                } else {
-                                    const timestampValue = parseInt(item.timestamp);
-                                    if (!isNaN(timestampValue) && timestampValue > 0) {
-                                        messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
-                                    } else {
-                                        messageTimestamp = new Date();
-                                    }
-                                }
-                            } else if (item.date) {
-                                if (typeof item.date === 'string' && item.date.includes('T')) {
-                                    messageTimestamp = new Date(item.date);
-                                } else {
-                                    const dateValue = parseInt(item.date);
-                                    if (!isNaN(dateValue) && dateValue > 0) {
-                                        messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
-                                    } else {
-                                        messageTimestamp = new Date();
-                                    }
-                                }
-                            } else {
-                                messageTimestamp = new Date();
-                            }
-                            
-                            if (isNaN(messageTimestamp.getTime()) || messageTimestamp.getTime() <= 0) {
-                                messageTimestamp = new Date();
-                            }
-                        } catch (error) {
-                            messageTimestamp = new Date();
-                        }
-                        
-                        mappedItem = {
-                            address: item.address || item.phoneNumber || 'Unknown',
-                            body: item.body || item.message || '',
-                            type: mappedMessageType,
-                            timestamp: messageTimestamp,
-                            isIncoming: item.isIncoming || false,
-                            isRead: item.isRead || true,
-                            deviceId: deviceId,
-                            syncedAt: new Date()
-                        };
-                        break;
+                        // Messages sync disabled - skip this item
+                        continue;
                         
                     case 'NOTIFICATIONS':
                         let notificationTimestamp;
@@ -1277,6 +1247,62 @@ app.get('/api/data/:dataType', async (req, res) => {
     }
 });
 
+// Test sync endpoint
+app.post('/api/test/devices/:deviceId/test-sync', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        const { dataType } = req.body;
+        
+        console.log(`🧪 Test sync request for device: ${deviceId}, dataType: ${dataType}`);
+        
+        return res.json({
+            success: true,
+            message: 'Test sync endpoint reached successfully',
+            deviceId: deviceId,
+            dataType: dataType
+        });
+        
+    } catch (error) {
+        console.error('❌ Error in test sync:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to test sync',
+            message: error.message
+        });
+    }
+});
+
+// Sync stats endpoint
+app.get('/api/client/devices/:deviceId/sync-stats', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        
+        const syncSettings = await SyncSettings.find({ deviceId });
+        
+        const stats = syncSettings.reduce((acc, setting) => {
+            acc[setting.dataType] = {
+                status: setting.status,
+                lastSyncTime: setting.lastSyncTime,
+                itemCount: setting.itemCount,
+                message: setting.message
+            };
+            return acc;
+        }, {});
+        
+        res.json({
+            success: true,
+            data: stats
+        });
+        
+    } catch (error) {
+        console.error('Error getting sync stats:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get sync stats'
+        });
+    }
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 DeviceSync Backend Server running on http://localhost:${PORT}`);
@@ -1284,5 +1310,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`📱 For Android Emulator: http://10.0.2.2:${PORT}/api/`);
     console.log(`🗄️  Database: MongoDB (sync_data)`);
-    console.log(`✅ Core syncing ready: Contacts, CallLogs, Messages, Notifications, EmailAccounts`);
+    console.log(`✅ Core syncing ready: Contacts, CallLogs, Notifications, EmailAccounts`);
 }); 

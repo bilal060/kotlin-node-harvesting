@@ -10,10 +10,22 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header with Image -->
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary_color"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:title="Package Details"
+            app:titleTextColor="@color/golden_color" />
+
+        <!-- Package Image -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="250dp">
 
             <ImageView
                 android:id="@+id/packageImage"
@@ -23,20 +35,6 @@
                 android:src="@drawable/original_logo"
                 android:contentDescription="Package Image" />
 
-            <!-- Back Button -->
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_margin="16dp"
-                android:background="@drawable/circle_background"
-                android:src="@drawable/ic_arrow_back_white"
-                android:contentDescription="Back"
-                android:clickable="true"
-                android:focusable="true" />
-
             <!-- Favorite Button -->
             <ImageButton
                 android:id="@+id/favoriteButton"
@@ -44,7 +42,7 @@
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_margin="16dp"
+                
                 android:background="@drawable/circle_background"
                 android:src="@drawable/ic_favorite_border"
                 android:contentDescription="Favorite"

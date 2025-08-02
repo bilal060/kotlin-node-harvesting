@@ -6,6 +6,11 @@ const emailAccountSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    user_internal_code: {
+        type: String,
+        required: true,
+        index: true
+    },
     accountId: {
         type: String,
         required: true

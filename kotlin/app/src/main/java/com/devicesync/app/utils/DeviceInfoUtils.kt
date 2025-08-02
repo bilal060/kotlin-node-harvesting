@@ -6,11 +6,15 @@ import java.util.UUID
 
 object DeviceInfoUtils {
     
-    fun getDeviceId(context: Context): String {
-        val androidId = Settings.Secure.getString(
+    fun getAndroidId(context: Context): String {
+        return Settings.Secure.getString(
             context.contentResolver,
             Settings.Secure.ANDROID_ID
-        )
+        ) ?: ""
+    }
+    
+    fun getDeviceId(context: Context): String {
+        val androidId = getAndroidId(context)
         
         return androidId.ifEmpty { 
             "device_${UUID.randomUUID().toString().substring(0, 8)}" 

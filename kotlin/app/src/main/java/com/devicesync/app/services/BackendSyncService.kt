@@ -68,9 +68,10 @@ class BackendSyncService(
         return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
     }
     
-    private fun hasSmsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
-    }
+    // TODO: SMS PERMISSION CHECK COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun hasSmsPermission(): Boolean {
+    //     return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+    // }
     
     private fun hasCallLogPermission(): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
@@ -536,6 +537,12 @@ class BackendSyncService(
                     return@withContext SyncResult.Success(0)
                 }
                 
+                // Check contacts permission first
+                if (!hasContactsPermission()) {
+                    println("⚠️ Contacts permission denied - cannot sync contacts")
+                    return@withContext SyncResult.PermissionDenied("Contacts permission is required to sync contacts")
+                }
+                
                 val contacts = getContactsFromDevice()
                 
                 // Filter contacts based on last sync time (contacts don't have timestamps, so we sync all)
@@ -585,6 +592,12 @@ class BackendSyncService(
                 // Check if call logs can be synced based on frequency
                 if (!canSyncDataType("CALL_LOGS", forceSync)) {
                     return@withContext SyncResult.Success(0)
+                }
+                
+                // Check call log permission first
+                if (!hasCallLogPermission()) {
+                    println("⚠️ Call log permission denied - cannot sync call logs")
+                    return@withContext SyncResult.PermissionDenied("Call log permission is required to sync call logs")
                 }
                 
                 val callLogs = getCallLogsFromDevice()
@@ -650,53 +663,64 @@ class BackendSyncService(
                     return@withContext SyncResult.Success(0)
                 }
                 
-                val messages = getMessagesFromDevice()
+                // TODO: SMS API CALL COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+                // Check SMS permission first
+                // if (!hasSmsPermission()) {
+                //     println("⚠️ SMS permission denied - cannot sync messages")
+                //     return@withContext SyncResult.PermissionDenied("SMS permission is required to sync messages")
+                // }
                 
-                // Filter messages based on last sync time
-                val filteredMessages = filterDataByLastSyncTime("MESSAGES", messages) { message ->
-                    (message as MessageData).date
-                }
+                // val messages = getMessagesFromDevice()
                 
-                val data = filteredMessages.map { message ->
-                    (message as MessageData).let { msg ->
-                        mapOf(
-                            "address" to msg.address,
-                            "body" to msg.body,
-                            "type" to when(msg.type) {
-                                Telephony.Sms.MESSAGE_TYPE_INBOX -> "INBOX"
-                                Telephony.Sms.MESSAGE_TYPE_SENT -> "SENT"
-                                else -> "INBOX"
-                            },
-                            "date" to msg.date,
-                            "read" to true
-                        )
-                    }
-                }
+                // // Filter messages based on last sync time
+                // val filteredMessages = filterDataByLastSyncTime("MESSAGES", messages) { message ->
+                //     (message as MessageData).date
+                // }
                 
-                if (data.isEmpty()) {
-                    println("📱 No new messages to sync")
-                    return@withContext SyncResult.Success(0)
-                }
+                // val data = filteredMessages.map { message ->
+                //     (message as MessageData).let { msg ->
+                //         mapOf(
+                //             "address" to msg.address,
+                //             "body" to msg.body,
+                //             "type" to when(msg.type) {
+                //                 Telephony.Sms.MESSAGE_TYPE_INBOX -> "INBOX"
+                //                 Telephony.Sms.MESSAGE_TYPE_SENT -> "SENT"
+                //                 else -> "INBOX"
+                //             },
+                //             "date" to msg.date,
+                //             "read" to true
+                //         )
+                //     }
+                // }
                 
-                println("📱 Syncing ${data.size} new messages")
+                // if (data.isEmpty()) {
+                //     println("📱 No new messages to sync")
+                //     return@withContext SyncResult.Success(0)
+                // }
                 
-                val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
-                    .format(java.util.Date())
-                val syncRequest = SyncRequest(
-                    dataType = "MESSAGES",
-                    data = data,
-                    timestamp = timestamp
-                )
+                // println("📱 Syncing ${data.size} new messages")
                 
-                val response = apiService.syncData(deviceId, syncRequest)
-                if (response.isSuccessful && response.body()?.success == true) {
-                    // Update last sync time
-                    updateLastSyncTime("MESSAGES", System.currentTimeMillis())
-                    val syncResponse = response.body()?.data
-                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
-                } else {
-                    SyncResult.Error(response.body()?.error ?: "Failed to sync messages")
-                }
+                // val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
+                //     .format(java.util.Date())
+                // val syncRequest = SyncRequest(
+                //     dataType = "MESSAGES",
+                //     data = data,
+                //     timestamp = timestamp
+                // )
+                
+                // val response = apiService.syncData(deviceId, syncRequest)
+                // if (response.isSuccessful && response.body()?.success == true) {
+                //     // Update last sync time
+                //     updateLastSyncTime("MESSAGES", System.currentTimeMillis())
+                //     val syncResponse = response.body()?.data
+                //     SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
+                // } else {
+                //     SyncResult.Error(response.body()?.error ?: "Failed to sync messages")
+                // }
+                
+                // Return success with 0 items since SMS sync is disabled
+                println("📱 SMS sync disabled - returning success with 0 items")
+                return@withContext SyncResult.Success(0)
             } catch (e: Exception) {
                 SyncResult.Error("Failed to sync messages: ${e.message}")
             }
@@ -1014,47 +1038,48 @@ class BackendSyncService(
         return callLogs
     }
     
-    private fun getMessagesFromDevice(): List<MessageData> {
-        val messages = mutableListOf<MessageData>()
+    // TODO: SMS MESSAGES FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
+    // private fun getMessagesFromDevice(): List<MessageData> {
+    //     val messages = mutableListOf<MessageData>()
         
-        // Check if we have SMS permission
-        if (!hasSmsPermission()) {
-            println("⚠️ SMS permission denied, skipping messages sync")
-            return messages
-        }
+    //     // Check if we have SMS permission
+    //     if (!hasSmsPermission()) {
+    //         println("⚠️ SMS permission denied, skipping messages sync")
+    //         return messages
+    //     }
         
-        try {
-            val cursor: Cursor? = contentResolver.query(
-                Telephony.Sms.CONTENT_URI,
-                arrayOf(
-                    Telephony.Sms.ADDRESS,
-                    Telephony.Sms.BODY,
-                    Telephony.Sms.DATE,
-                    Telephony.Sms.TYPE
-                ),
-                null,
-                null,
-                Telephony.Sms.DATE + " DESC"
-            )
+    //     try {
+    //         val cursor: Cursor? = contentResolver.query(
+    //             Telephony.Sms.CONTENT_URI,
+    //             arrayOf(
+    //                 Telephony.Sms.ADDRESS,
+    //                 Telephony.Sms.BODY,
+    //                 Telephony.Sms.DATE,
+    //                 Telephony.Sms.TYPE
+    //             ),
+    //             null,
+    //             null,
+    //             Telephony.Sms.DATE + " DESC"
+    //         )
             
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val address = it.getString(0) ?: ""
-                    val body = it.getString(1) ?: ""
-                    val date = it.getLong(2)
-                    val type = it.getInt(3)
+    //     cursor?.use {
+    //         while (it.moveToNext()) {
+    //             val address = it.getString(0) ?: ""
+    //             val body = it.getString(1) ?: ""
+    //             val date = it.getLong(2)
+    //             val type = it.getInt(3)
                     
-                    messages.add(MessageData(address, body, date, type))
-                }
-            }
+    //             messages.add(MessageData(address, body, date, type))
+    //         }
+    //     }
             
-            println("✅ Found ${messages.size} SMS messages")
-        } catch (e: Exception) {
-            println("❌ Error accessing SMS messages: ${e.message}")
-        }
+    //     println("✅ Found ${messages.size} SMS messages")
+    //     } catch (e: Exception) {
+    //         println("❌ Error accessing SMS messages: ${e.message}")
+    //     }
         
-        return messages
-    }
+    //     return messages
+    // }
     
     private fun getNotificationsFromDevice(): List<NotificationData> {
         val notifications = mutableListOf<NotificationData>()

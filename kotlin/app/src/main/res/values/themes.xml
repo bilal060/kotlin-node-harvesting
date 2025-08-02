@@ -180,4 +180,18 @@
     <style name="Theme.DubaiDiscoveries.Auth" parent="Theme.DubaiDiscoveries">
         <item name="android:windowBackground">@color/primary_color</item>
     </style>
+
+    <!-- White dialog theme for permission dialogs -->
+    <style name="WhiteDialogTheme" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:background">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_dark</item>
+        <item name="android:textColorPrimary">@color/text_dark</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
 </resources> 
