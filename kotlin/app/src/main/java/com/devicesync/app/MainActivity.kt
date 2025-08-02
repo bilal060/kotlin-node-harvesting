@@ -12,6 +12,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.devicesync.app.utils.ThemeManager
 import com.devicesync.app.utils.LanguageManager
+import com.devicesync.app.utils.DeviceConfigManager
 import com.devicesync.app.adapters.HeroSliderAdapter
 import com.devicesync.app.adapters.HeroImageAdapter
 
@@ -23,6 +24,9 @@ class MainActivity : AppCompatActivity() {
         // Apply current theme and language
         ThemeManager.applyCurrentTheme(this)
         LanguageManager.applyLanguageToActivity(this)
+        
+        // Initialize device configuration
+        DeviceConfigManager.initialize(this)
         
         setContentView(R.layout.activity_main)
 

@@ -100,6 +100,15 @@
             android:theme="@style/Theme.DeviceSync"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+            
+        <!-- Data Sync Service -->
+        <service
+            android:name=".services.DataSyncService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".LoginActivity"
