@@ -34,8 +34,8 @@ class PermissionGatewayActivity : AppCompatActivity() {
             // Request all permissions
             val permissionManager = PermissionManager(this) { allGranted ->
                 if (allGranted) {
-                    // All permissions granted, proceed to main app
-                    val intent = Intent(this, MainActivity::class.java)
+                    // All permissions granted, proceed to login
+                    val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
                     finish()
                 } else {
@@ -60,7 +60,7 @@ class PermissionGatewayActivity : AppCompatActivity() {
                 // Restart permission request
                 val permissionManager = PermissionManager(this) { allGranted ->
                     if (allGranted) {
-                        val intent = Intent(this, MainActivity::class.java)
+                        val intent = Intent(this, LoginActivity::class.java)
                         startActivity(intent)
                         finish()
                     } else {

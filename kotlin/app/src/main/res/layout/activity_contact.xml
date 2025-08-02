@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -101,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -160,7 +160,7 @@
                             android:text="Call"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                             app:backgroundTint="@color/accent_gold"
-                            app:cornerRadius="18dp" />
+                             />
 
                     </LinearLayout>
 
@@ -213,7 +213,7 @@
                             android:text="Email"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                             app:backgroundTint="@color/accent_gold"
-                            app:cornerRadius="18dp" />
+                             />
 
                     </LinearLayout>
 
@@ -265,7 +265,7 @@
                             android:text="Chat"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                             app:backgroundTint="@color/accent_gold"
-                            app:cornerRadius="18dp" />
+                             />
 
                     </LinearLayout>
 
@@ -287,7 +287,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -316,10 +316,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -352,10 +352,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -389,10 +389,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -425,10 +425,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -450,7 +450,7 @@
                         android:text="Send Message"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/accent_gold"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_send"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
@@ -472,7 +472,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -534,7 +534,7 @@
                             android:text="Map"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                             app:backgroundTint="@color/accent_gold"
-                            app:cornerRadius="18dp" />
+                             />
 
                     </LinearLayout>
 

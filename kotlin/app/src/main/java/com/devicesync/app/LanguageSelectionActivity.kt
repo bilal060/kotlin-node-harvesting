@@ -92,11 +92,16 @@ class LanguageSelectionActivity : AppCompatActivity() {
     }
 
     private fun applyLanguage() {
-        // Apply the selected language and restart activity
-        LanguageManager.restartActivityWithLanguage(this, selectedLanguage)
+        // Apply the selected language
+        LanguageManager.setLanguage(this, selectedLanguage)
         
         val languageName = LanguageManager.getLanguageName(selectedLanguage)
         Toast.makeText(this, "Language changed to $languageName", Toast.LENGTH_SHORT).show()
+        
+        // Navigate to permission gateway
+        val intent = Intent(this, PermissionGatewayActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onSupportNavigateUp(): Boolean {

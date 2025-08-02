@@ -61,6 +61,7 @@
         android:id="@+id/logoImage"
         android:layout_width="140dp"
         android:layout_height="140dp"
+        android:layout_marginTop="75dp"
         android:contentDescription="Dubai Discoveries Logo"
         android:src="@drawable/original_logo"
         android:scaleType="fitCenter"

@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -238,7 +238,7 @@
                                 android:text="View Details"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/primary_color"
-                                app:cornerRadius="20dp" />
+                                 />
 
                             <com.google.android.material.button.MaterialButton
                                 android:layout_width="0dp"
@@ -248,7 +248,7 @@
                                 android:text="Contact Guide"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -263,7 +263,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -399,7 +399,7 @@
                                 android:text="View Details"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/primary_color"
-                                app:cornerRadius="20dp" />
+                                 />
 
                             <com.google.android.material.button.MaterialButton
                                 android:layout_width="0dp"
@@ -409,7 +409,7 @@
                                 android:text="Cancel"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/white"
-                                app:cornerRadius="20dp"
+                                
                                 app:strokeColor="@color/divider_color"
                                 app:strokeWidth="1dp" />
 
@@ -426,7 +426,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -458,7 +458,7 @@
                         android:text="Book New Experience"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/accent_gold"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_add"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
@@ -471,7 +471,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -503,7 +503,7 @@
                         android:text="Contact Support"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />

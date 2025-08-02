@@ -21,17 +21,15 @@ async function seedAdmin() {
             return;
         }
 
-        // Hash password
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash('bilal123', saltRounds);
+
 
         // Create admin user
         const admin = new Admin({
+            username: 'bilal_admin',
             email: 'bilal.xbt@gmail.com',
-            password: hashedPassword,
-            name: 'Bilal Admin',
+            password: 'bilal123', // Will be hashed by pre-save hook
             role: 'admin',
-            permissions: ['manage_users', 'view_all_devices', 'manage_devices', 'view_analytics']
+            permissions: ['view_devices', 'manage_users', 'manage_codes', 'view_analytics', 'system_settings']
         });
 
         await admin.save();

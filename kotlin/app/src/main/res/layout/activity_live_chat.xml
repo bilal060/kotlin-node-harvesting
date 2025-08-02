@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:cardCornerRadius="16dp"
+            
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -99,7 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
-            app:cardCornerRadius="16dp"
+            
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -132,7 +132,7 @@
                         android:text="Book Tour"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                         app:backgroundTint="@color/accent_gold"
-                        app:cornerRadius="20dp"
+                        
                         app:icon="@android:drawable/ic_menu_myplaces"
                         app:iconSize="16dp" />
 
@@ -145,7 +145,7 @@
                         android:text="Get Help"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="20dp"
+                        
                         app:icon="@android:drawable/ic_menu_help"
                         app:iconSize="16dp" />
 
@@ -160,7 +160,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:cardCornerRadius="24dp"
+            
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -193,7 +193,7 @@
                     android:layout_height="48dp"
                     android:layout_marginStart="8dp"
                     app:backgroundTint="@color/accent_gold"
-                    app:cornerRadius="24dp"
+                    
                     app:icon="@android:drawable/ic_menu_send"
                     app:iconTint="@color/white" />
 

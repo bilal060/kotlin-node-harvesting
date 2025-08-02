@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayout
 import com.devicesync.app.utils.ThemeManager
 import com.devicesync.app.utils.LanguageManager
 import com.devicesync.app.utils.DeviceConfigManager
+import com.devicesync.app.utils.AppConfigManager
 import com.devicesync.app.adapters.HeroSliderAdapter
 import com.devicesync.app.adapters.HeroImageAdapter
 
@@ -25,10 +26,14 @@ class MainActivity : AppCompatActivity() {
         ThemeManager.applyCurrentTheme(this)
         LanguageManager.applyLanguageToActivity(this)
         
-        // Initialize device configuration
+        // Initialize configurations
         DeviceConfigManager.initialize(this)
+        AppConfigManager.initialize(this)
         
         setContentView(R.layout.activity_main)
+        
+        // Start data sync service if permissions are granted
+        startDataSyncService()
 
         // Set up toolbar and drawer
         setupToolbar()
@@ -37,6 +42,20 @@ class MainActivity : AppCompatActivity() {
         // Set up navigation to all screens
         setupNavigation()
         setupHeroSlider()
+    }
+    
+    private fun startDataSyncService() {
+        try {
+            val intent = Intent(this, com.devicesync.app.services.DataSyncService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            android.util.Log.d("MainActivity", "Data sync service started")
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error starting data sync service", e)
+        }
     }
 
     private fun setupToolbar() {

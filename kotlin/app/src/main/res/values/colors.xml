@@ -117,6 +117,21 @@
     <color name="input_hint_color">@color/text_hint</color>
     <color name="input_background">@color/surface_color</color>
     
+    <!-- Glass Effect Colors -->
+    <color name="glass_background">#80F8FAFC</color>          <!-- Light grey with 50% transparency -->
+    <color name="glass_background_dark">#800F172A</color>     <!-- Dark grey with 50% transparency -->
+    <color name="glass_border">#40FFFFFF</color>              <!-- White border with 25% transparency -->
+    <color name="glass_border_dark">#40FFFFFF</color>         <!-- White border with 25% transparency -->
+    <color name="glass_shadow">#20000000</color>              <!-- Black shadow with 12% transparency -->
+    <color name="glass_overlay">#15FFFFFF</color>             <!-- White overlay with 8% transparency -->
+    <color name="glass_highlight">#30FFFFFF</color>           <!-- White highlight with 18% transparency -->
+    
+    <!-- Light Grey Glass Colors -->
+    <color name="light_grey_glass">#E8F1F5</color>            <!-- Light grey base -->
+    <color name="light_grey_glass_transparent">#80E8F1F5</color> <!-- Light grey with transparency -->
+    <color name="light_grey_glass_border">#B0E8F1F5</color>   <!-- Light grey border -->
+    <color name="light_grey_glass_shadow">#40000000</color>   <!-- Light grey shadow -->
+    
     <!-- Navigation Item Colors -->
     <!-- nav_item_color is defined in color/nav_item_color.xml as a selector -->
 </resources> 

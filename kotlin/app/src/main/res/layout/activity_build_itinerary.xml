@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -92,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -121,10 +121,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -165,10 +165,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:boxBackgroundColor="@color/white"
-                                app:boxCornerRadiusBottomEnd="8dp"
-                                app:boxCornerRadiusBottomStart="8dp"
-                                app:boxCornerRadiusTopEnd="8dp"
-                                app:boxCornerRadiusTopStart="8dp"
+                                
+                                
+                                
+                                
                                 app:boxStrokeColor="@color/divider_color"
                                 app:hintTextColor="@color/text_secondary">
 
@@ -203,10 +203,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:boxBackgroundColor="@color/white"
-                                app:boxCornerRadiusBottomEnd="8dp"
-                                app:boxCornerRadiusBottomStart="8dp"
-                                app:boxCornerRadiusTopEnd="8dp"
-                                app:boxCornerRadiusTopStart="8dp"
+                                
+                                
+                                
+                                
                                 app:boxStrokeColor="@color/divider_color"
                                 app:hintTextColor="@color/text_secondary">
 
@@ -242,10 +242,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxBackgroundColor="@color/white"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusTopStart="8dp"
+                            
+                            
+                            
+                            
                             app:boxStrokeColor="@color/divider_color"
                             app:hintTextColor="@color/text_secondary">
 
@@ -279,7 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -460,7 +460,7 @@
                         android:text="Add More Attractions"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="8dp"
+                        
                         app:icon="@android:drawable/ic_menu_add"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
@@ -474,7 +474,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -583,7 +583,7 @@
                 android:text="Build My Itinerary"
                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                 app:backgroundTint="@color/accent_gold"
-                app:cornerRadius="12dp"
+                
                 app:icon="@android:drawable/ic_menu_myplaces"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
@@ -592,7 +592,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -624,7 +624,7 @@
                         android:text="Contact Expert"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />

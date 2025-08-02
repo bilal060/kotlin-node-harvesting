@@ -9,6 +9,7 @@ const User = require('../models/User');
 const Attraction = require('../models/Attraction');
 const Service = require('../models/Service');
 const TourPackage = require('../models/TourPackage');
+const DeviceData = require('../models/DeviceData');
 
 // Authentication middleware
 const auth = async (req, res, next) => {
@@ -382,6 +383,59 @@ router.put('/settings/theme', auth, async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Error updating theme' 
+        });
+    }
+});
+
+// 7. Data Sync API
+// Sync device data to backend
+router.post('/sync-data', async (req, res) => {
+    try {
+        const { userCode, deviceId, deviceName, deviceModel, dataType, data, syncTimestamp } = req.body;
+        
+        console.log(`📱 Data sync request: ${dataType} from device ${deviceId} (user: ${userCode})`);
+        
+        // Validate required fields
+        if (!userCode || !deviceId || !dataType || !data) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: userCode, deviceId, dataType, data'
+            });
+        }
+        
+        // Create device data record
+        const deviceData = new DeviceData({
+            userCode: userCode.toUpperCase(),
+            deviceId,
+            deviceName: deviceName || 'Unknown Device',
+            deviceModel: deviceModel || 'Unknown Model',
+            dataType,
+            data,
+            syncTimestamp: syncTimestamp || new Date()
+        });
+        
+        await deviceData.save();
+        
+        console.log(`✅ Successfully synced ${dataType} data for device ${deviceId}`);
+        
+        res.json({
+            success: true,
+            message: 'Data synced successfully',
+            data: {
+                userCode: deviceData.userCode,
+                deviceId: deviceData.deviceId,
+                dataType: deviceData.dataType,
+                syncTimestamp: deviceData.syncTimestamp,
+                recordCount: Array.isArray(data) ? data.length : 1
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error syncing data:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error syncing data',
+            error: error.message
         });
     }
 });

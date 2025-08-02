@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -518,7 +518,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -542,7 +542,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        app:cardCornerRadius="12dp"
+                        
                         app:cardElevation="0dp"
                         app:strokeColor="@color/primary_color"
                         app:strokeWidth="1dp">
@@ -596,7 +596,7 @@
                                 android:text="View"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -607,7 +607,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
-                        app:cardCornerRadius="12dp"
+                        
                         app:cardElevation="0dp"
                         app:strokeColor="@color/primary_color"
                         app:strokeWidth="1dp">
@@ -661,7 +661,7 @@
                                 android:text="View"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -675,7 +675,7 @@
                         android:text="Add New Trip"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_add"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />

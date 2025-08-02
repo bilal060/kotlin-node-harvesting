@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -113,10 +113,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Trip Duration (Days)"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
+                        
+                        
+                        
+                        
                         app:boxStrokeColor="@color/primary_color"
                         app:hintTextColor="@color/primary_color">
 
@@ -134,10 +134,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Number of Travelers"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
+                        
+                        
+                        
+                        
                         app:boxStrokeColor="@color/primary_color"
                         app:hintTextColor="@color/primary_color">
 
@@ -155,10 +155,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Budget Range (AED)"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
+                        
+                        
+                        
+                        
                         app:boxStrokeColor="@color/primary_color"
                         app:hintTextColor="@color/primary_color">
 
@@ -242,10 +242,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
                         android:hint="Special Requirements (Optional)"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
+                        
+                        
+                        
+                        
                         app:boxStrokeColor="@color/primary_color"
                         app:hintTextColor="@color/primary_color">
 
@@ -266,7 +266,7 @@
                         android:text="Create My Itinerary"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/accent_gold"
-                        app:cornerRadius="16dp"
+                        
                         app:icon="@android:drawable/ic_menu_send"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
@@ -279,7 +279,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -312,7 +312,7 @@
                         android:text="Contact Travel Expert"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />

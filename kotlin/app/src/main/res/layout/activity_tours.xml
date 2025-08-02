@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="20dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -201,7 +201,7 @@
                                 android:text="Book Now"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -216,7 +216,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -315,7 +315,7 @@
                                 android:text="Book Now"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -330,7 +330,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -429,7 +429,7 @@
                                 android:text="Book Now"
                                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
                                 app:backgroundTint="@color/accent_gold"
-                                app:cornerRadius="20dp" />
+                                 />
 
                         </LinearLayout>
 
@@ -443,7 +443,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
+                
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -475,7 +475,7 @@
                         android:text="Contact Expert"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
-                        app:cornerRadius="12dp"
+                        
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />

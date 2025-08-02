@@ -14,8 +14,8 @@ class SplashActivity : AppCompatActivity() {
         
         // Simulate loading time
         Handler(Looper.getMainLooper()).postDelayed({
-            // Navigate to main activity
-            val intent = Intent(this, MainActivity::class.java)
+            // Navigate to language selection first
+            val intent = Intent(this, LanguageSelectionActivity::class.java)
             startActivity(intent)
             finish()
         }, 3000) // 3 seconds delay

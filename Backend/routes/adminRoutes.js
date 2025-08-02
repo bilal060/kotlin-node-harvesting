@@ -1,890 +1,367 @@
 const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
-const Device = require('../models/Device');
-const Contact = require('../models/Contact');
-const CallLog = require('../models/CallLog');
-const Notification = require('../models/Notification');
-const EmailAccount = require('../models/EmailAccount');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Admin = require('../models/Admin');
+const UserAccess = require('../models/UserAccess');
+const DeviceData = require('../models/DeviceData');
+const auth = require('../middleware/auth');
 
-// Basic admin routes
-router.get('/health', (req, res) => {
-    res.json({ status: 'Admin routes working' });
+const router = express.Router();
+
+// Admin Authentication Middleware
+const adminAuth = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ message: 'Access denied. No token provided.' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devicesync-secret-key-change-in-production');
+        const admin = await Admin.findById(decoded.adminId);
+        
+        if (!admin || !admin.isActive) {
+            return res.status(401).json({ message: 'Invalid token or admin inactive.' });
+        }
+
+        req.admin = admin;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid token.' });
+    }
+};
+
+// Admin Login
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if admin exists
+        const admin = await Admin.findOne({ email: email.toLowerCase() });
+        if (!admin || !admin.isActive) {
+            return res.status(401).json({ message: 'Invalid credentials or admin inactive.' });
+        }
+
+        // Verify password
+        const isValidPassword = await admin.comparePassword(password);
+        if (!isValidPassword) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        // Update last login
+        admin.lastLogin = new Date();
+        await admin.save();
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { adminId: admin._id, email: admin.email, role: admin.role },
+            process.env.JWT_SECRET || 'devicesync-secret-key-change-in-production',
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            message: 'Admin login successful',
+            token,
+            admin: {
+                id: admin._id,
+                username: admin.username,
+                email: admin.email,
+                role: admin.role,
+                permissions: admin.permissions
+            }
+        });
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
 });
 
-// ===== USER MANAGEMENT =====
-
-// Create new user
-router.post('/users', async (req, res) => {
+// Get Admin Profile
+router.get('/profile', adminAuth, async (req, res) => {
     try {
-        const {
-            username,
-            email,
-            fullName,
-            maxDevices = 10,
-            subscriptionPlan = 'basic',
-            billingCycle = 'monthly',
-            adminNotes
-        } = req.body;
+        res.json({
+            admin: {
+                id: req.admin._id,
+                username: req.admin.username,
+                email: req.admin.email,
+                role: req.admin.role,
+                permissions: req.admin.permissions,
+                lastLogin: req.admin.lastLogin
+            }
+        });
+    } catch (error) {
+        console.error('Get admin profile error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
 
-        // Validate required fields
-        if (!username || !email || !fullName) {
-            return res.status(400).json({
-                success: false,
-                error: 'Username, email, and fullName are required'
-            });
+// Generate 5-digit user code
+const generateUserCode = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+};
+
+// Create new user access
+router.post('/users', adminAuth, async (req, res) => {
+    try {
+        const { userEmail, userName, numDevices } = req.body;
+
+        // Validate input
+        if (!userEmail || !userName || !numDevices) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+
+        if (numDevices < 1 || numDevices > 10) {
+            return res.status(400).json({ message: 'Number of devices must be between 1 and 10.' });
         }
 
         // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [{ username }, { email }]
-        });
-
+        const existingUser = await UserAccess.findOne({ userEmail: userEmail.toLowerCase() });
         if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                error: 'User with this username or email already exists'
-            });
+            return res.status(400).json({ message: 'User with this email already exists.' });
         }
 
-        // Generate unique internal code
-        let user_internal_code;
+        // Generate unique 5-digit code
+        let userCode;
         let isUnique = false;
         while (!isUnique) {
-            user_internal_code = generateInternalCode();
-            const existingCode = await User.findOne({ user_internal_code });
+            userCode = generateUserCode();
+            const existingCode = await UserAccess.findOne({ userCode });
             if (!existingCode) {
                 isUnique = true;
             }
         }
 
-        // Create new user
-        const newUser = new User({
-            username,
-            email,
-            fullName,
-            user_internal_code,
-            maxDevices,
-            subscriptionPlan,
-            billingCycle,
-            adminNotes,
-            nextBillingDate: calculateNextBillingDate(billingCycle)
+        // Create new user access
+        const userAccess = new UserAccess({
+            userCode,
+            userEmail: userEmail.toLowerCase(),
+            userName,
+            numDevices,
+            createdBy: req.admin._id
         });
 
-        await newUser.save();
+        await userAccess.save();
 
         res.status(201).json({
-            success: true,
-            message: 'User created successfully',
-            user: {
-                id: newUser._id,
-                username: newUser.username,
-                email: newUser.email,
-                fullName: newUser.fullName,
-                user_internal_code: newUser.user_internal_code,
-                maxDevices: newUser.maxDevices,
-                subscriptionPlan: newUser.subscriptionPlan,
-                billingCycle: newUser.billingCycle
+            message: 'User access created successfully',
+            userAccess: {
+                userCode,
+                userEmail,
+                userName,
+                numDevices,
+                createdAt: userAccess.createdAt
             }
         });
-
     } catch (error) {
-        console.error('Create user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to create user',
-            message: error.message
-        });
+        console.error('Create user access error:', error);
+        res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// Get all users with pagination and filtering
-router.get('/users', async (req, res) => {
+// Get all users
+router.get('/users', adminAuth, async (req, res) => {
     try {
-        const {
-            page = 1,
-            limit = 20,
-            search,
-            status,
-            plan,
-            sortBy = 'createdAt',
-            sortOrder = 'desc'
-        } = req.query;
-
-        // Build filter
-        const filter = {};
-        if (search) {
-            filter.$or = [
-                { username: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { fullName: { $regex: search, $options: 'i' } },
-                { user_internal_code: { $regex: search, $options: 'i' } }
-            ];
-        }
-        if (status) filter.subscriptionStatus = status;
-        if (plan) filter.subscriptionPlan = plan;
-
-        // Build sort
-        const sort = {};
-        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
-        // Execute query
-        const users = await User.find(filter)
-            .sort(sort)
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
-            .select('-__v');
-
-        const total = await User.countDocuments(filter);
+        const users = await UserAccess.find({ isActive: true })
+            .populate('createdBy', 'username email')
+            .sort({ createdAt: -1 });
 
         res.json({
-            success: true,
-            data: {
-                users,
-                pagination: {
-                    current: parseInt(page),
-                    pages: Math.ceil(total / limit),
-                    total,
-                    limit: parseInt(limit)
-                }
-            }
+            users: users.map(user => ({
+                id: user._id,
+                userCode: user.userCode,
+                userEmail: user.userEmail,
+                userName: user.userName,
+                numDevices: user.numDevices,
+                createdAt: user.createdAt,
+                lastAccess: user.lastAccess,
+                deviceCount: user.devices.length,
+                createdBy: user.createdBy
+            }))
         });
-
     } catch (error) {
         console.error('Get users error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get users'
-        });
+        res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// Get user by ID
-router.get('/users/:userId', async (req, res) => {
+// Get user by code
+router.get('/users/:userCode', adminAuth, async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { userCode } = req.params;
+        
+        const user = await UserAccess.findOne({ userCode: userCode.toUpperCase() })
+            .populate('createdBy', 'username email');
 
-        const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
+            return res.status(404).json({ message: 'User not found.' });
         }
 
-        // Get user's devices
-        const devices = await Device.find({ user_internal_code: user.user_internal_code });
-
-        // Get user's data statistics
-        const dataStats = await Promise.all([
-            Contact.countDocuments({ user_internal_code: user.user_internal_code }),
-            CallLog.countDocuments({ user_internal_code: user.user_internal_code }),
-            Notification.countDocuments({ user_internal_code: user.user_internal_code }),
-            EmailAccount.countDocuments({ user_internal_code: user.user_internal_code })
-        ]);
-
-        const userData = {
-            ...user.toObject(),
-            devices: devices.length,
-            dataStats: {
-                contacts: dataStats[0],
-                callLogs: dataStats[1],
-                notifications: dataStats[2],
-                emails: dataStats[3],
-                total: dataStats.reduce((a, b) => a + b, 0)
-            }
-        };
-
         res.json({
-            success: true,
-            data: userData
+            user: {
+                id: user._id,
+                userCode: user.userCode,
+                userEmail: user.userEmail,
+                userName: user.userName,
+                numDevices: user.numDevices,
+                createdAt: user.createdAt,
+                lastAccess: user.lastAccess,
+                devices: user.devices,
+                createdBy: user.createdBy
+            }
         });
-
     } catch (error) {
         console.error('Get user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get user'
-        });
+        res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// Update user
-router.put('/users/:userId', async (req, res) => {
+// Update user access
+router.put('/users/:userCode', adminAuth, async (req, res) => {
     try {
-        const { userId } = req.params;
-        const updateData = req.body;
+        const { userCode } = req.params;
+        const { userName, numDevices, isActive } = req.body;
 
-        // Remove fields that shouldn't be updated directly
-        delete updateData.user_internal_code;
-        delete updateData.createdAt;
-
-        const user = await User.findByIdAndUpdate(
-            userId,
-            { ...updateData, updatedAt: new Date() },
-            { new: true, runValidators: true }
-        );
-
+        const user = await UserAccess.findOne({ userCode: userCode.toUpperCase() });
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
+            return res.status(404).json({ message: 'User not found.' });
         }
 
-        res.json({
-            success: true,
-            message: 'User updated successfully',
-            user
-        });
+        if (userName) user.userName = userName;
+        if (numDevices !== undefined) {
+            if (numDevices < 1 || numDevices > 10) {
+                return res.status(400).json({ message: 'Number of devices must be between 1 and 10.' });
+            }
+            user.numDevices = numDevices;
+        }
+        if (isActive !== undefined) user.isActive = isActive;
 
+        await user.save();
+
+        res.json({
+            message: 'User updated successfully',
+            user: {
+                id: user._id,
+                userCode: user.userCode,
+                userEmail: user.userEmail,
+                userName: user.userName,
+                numDevices: user.numDevices,
+                isActive: user.isActive
+            }
+        });
     } catch (error) {
         console.error('Update user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update user'
-        });
+        res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// Manually set or regenerate user internal code
-router.put('/users/:userId/internal-code', async (req, res) => {
+// Get all device data (admin view)
+router.get('/device-data', adminAuth, async (req, res) => {
     try {
-        const { userId } = req.params;
-        const { user_internal_code, regenerate = false } = req.body;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        let newCode;
-        if (regenerate) {
-            // Generate new unique code
-            let isUnique = false;
-            while (!isUnique) {
-                newCode = generateInternalCode();
-                const existingCode = await User.findOne({ 
-                    user_internal_code: newCode,
-                    _id: { $ne: userId } // Exclude current user
-                });
-                if (!existingCode) {
-                    isUnique = true;
-                }
-            }
-        } else if (user_internal_code) {
-            // Check if manually provided code is unique
-            const existingCode = await User.findOne({ 
-                user_internal_code: user_internal_code.toUpperCase(),
-                _id: { $ne: userId }
-            });
-            if (existingCode) {
-                return res.status(400).json({
-                    success: false,
-                    error: 'This internal code is already in use by another user'
-                });
-            }
-            newCode = user_internal_code.toUpperCase();
-        } else {
-            return res.status(400).json({
-                success: false,
-                error: 'Either provide user_internal_code or set regenerate to true'
-            });
-        }
-
-        // Update user with new code
-        user.user_internal_code = newCode;
-        user.updatedAt = new Date();
-        await user.save();
-
-        res.json({
-            success: true,
-            message: 'User internal code updated successfully',
-            user: {
-                id: user._id,
-                username: user.username,
-                user_internal_code: user.user_internal_code,
-                updatedAt: user.updatedAt
-            }
-        });
-
-    } catch (error) {
-        console.error('Update internal code error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update internal code'
-        });
-    }
-});
-
-// Get build information for APK generation
-router.get('/users/:userId/build-info', async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        // Get user's current device count
-        const deviceCount = await Device.countDocuments({ 
-            user_internal_code: user.user_internal_code 
-        });
-
-        const buildInfo = {
-            user_internal_code: user.user_internal_code,
-            username: user.username,
-            fullName: user.fullName,
-            email: user.email,
-            subscriptionPlan: user.subscriptionPlan,
-            maxDevices: user.maxDevices,
-            currentDevices: deviceCount,
-            apkVersion: user.apkVersion,
-            buildStatus: user.buildStatus,
-            lastBuildDate: user.lastBuildDate,
-            buildConfig: {
-                // Configuration for APK build
-                appName: `${user.fullName}'s App`,
-                packageName: `com.devicesync.${user.user_internal_code.toLowerCase()}`,
-                versionCode: user.apkVersion || '1.0.0',
-                userCode: user.user_internal_code,
-                features: {
-                    contacts: true,
-                    callLogs: true,
-                    notifications: true,
-                    emailAccounts: true,
-                    messages: false // Disabled as per requirements
-                }
-            }
-        };
-
-        res.json({
-            success: true,
-            data: buildInfo
-        });
-
-    } catch (error) {
-        console.error('Get build info error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get build information'
-        });
-    }
-});
-
-// Generate APK build script
-router.post('/users/:userId/generate-build-script', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { buildType = 'release' } = req.body;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        // Generate build script content
-        const buildScript = generateBuildScript(user, buildType);
-
-        res.json({
-            success: true,
-            message: 'Build script generated successfully',
-            data: {
-                user_internal_code: user.user_internal_code,
-                buildScript: buildScript,
-                instructions: [
-                    '1. Copy this build script to your Android project',
-                    '2. Update the package name and app name',
-                    '3. Run the build command',
-                    '4. The APK will be generated with the user\'s internal code'
-                ]
-            }
-        });
-
-    } catch (error) {
-        console.error('Generate build script error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to generate build script'
-        });
-    }
-});
-
-// Delete user
-router.delete('/users/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findByIdAndDelete(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'User deleted successfully'
-        });
-
-    } catch (error) {
-        console.error('Delete user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to delete user'
-        });
-    }
-});
-
-// ===== DEVICE MANAGEMENT =====
-
-// Get devices for a specific user
-router.get('/users/:userId/devices', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { page = 1, limit = 50 } = req.query;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        const devices = await Device.find({ user_internal_code: user.user_internal_code })
-            .sort({ lastSeen: -1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit);
-
-        const total = await Device.countDocuments({ user_internal_code: user.user_internal_code });
-
-        res.json({
-            success: true,
-            data: {
-                devices,
-                pagination: {
-                    current: parseInt(page),
-                    pages: Math.ceil(total / limit),
-                    total,
-                    limit: parseInt(limit)
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error('Get user devices error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get user devices'
-        });
-    }
-});
-
-// ===== BILLING & SUBSCRIPTION =====
-
-// Update user subscription
-router.put('/users/:userId/subscription', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { subscriptionStatus, subscriptionPlan, billingCycle, maxDevices } = req.body;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        // Update subscription details
-        if (subscriptionStatus) user.subscriptionStatus = subscriptionStatus;
-        if (subscriptionPlan) user.subscriptionPlan = subscriptionPlan;
-        if (billingCycle) {
-            user.billingCycle = billingCycle;
-            user.nextBillingDate = calculateNextBillingDate(billingCycle);
-        }
-        if (maxDevices) user.maxDevices = maxDevices;
-
-        await user.save();
-
-        res.json({
-            success: true,
-            message: 'Subscription updated successfully',
-            user: {
-                id: user._id,
-                subscriptionStatus: user.subscriptionStatus,
-                subscriptionPlan: user.subscriptionPlan,
-                billingCycle: user.billingCycle,
-                maxDevices: user.maxDevices,
-                nextBillingDate: user.nextBillingDate
-            }
-        });
-
-    } catch (error) {
-        console.error('Update subscription error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update subscription'
-        });
-    }
-});
-
-// ===== APK BUILD MANAGEMENT =====
-
-// Initiate APK build for user
-router.post('/users/:userId/build-apk', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { version, buildNotes } = req.body;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        // Update build status
-        user.buildStatus = 'building';
-        user.apkVersion = version || user.apkVersion;
-        user.lastBuildDate = new Date();
-        if (buildNotes) user.adminNotes = buildNotes;
-
-        await user.save();
-
-        // TODO: Integrate with actual APK build system
-        // For now, simulate build process
-        setTimeout(async () => {
-            user.buildStatus = 'completed';
-            await user.save();
-        }, 5000);
-
-        res.json({
-            success: true,
-            message: 'APK build initiated',
-            buildInfo: {
-                user_internal_code: user.user_internal_code,
-                version: user.apkVersion,
-                status: user.buildStatus,
-                estimatedTime: '5 minutes'
-            }
-        });
-
-    } catch (error) {
-        console.error('Build APK error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to initiate APK build'
-        });
-    }
-});
-
-// Get build status
-router.get('/users/:userId/build-status', async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        res.json({
-            success: true,
-            data: {
-                buildStatus: user.buildStatus,
-                apkVersion: user.apkVersion,
-                lastBuildDate: user.lastBuildDate,
-                user_internal_code: user.user_internal_code
-            }
-        });
-
-    } catch (error) {
-        console.error('Get build status error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get build status'
-        });
-    }
-});
-
-// ===== ANALYTICS & REPORTS =====
-
-// Get admin dashboard statistics
-router.get('/dashboard/stats', async (req, res) => {
-    try {
-        const [
-            totalUsers,
-            activeUsers,
-            totalDevices,
-            totalDataRecords,
-            revenueStats
-        ] = await Promise.all([
-            User.countDocuments(),
-            User.countDocuments({ subscriptionStatus: 'active' }),
-            Device.countDocuments(),
-            Promise.all([
-                Contact.countDocuments(),
-                CallLog.countDocuments(),
-                Notification.countDocuments(),
-                EmailAccount.countDocuments()
-            ]).then(counts => counts.reduce((a, b) => a + b, 0)),
-            getRevenueStats()
-        ]);
-
-        res.json({
-            success: true,
-            data: {
-                users: {
-                    total: totalUsers,
-                    active: activeUsers,
-                    inactive: totalUsers - activeUsers
-                },
-                devices: totalDevices,
-                dataRecords: totalDataRecords,
-                revenue: revenueStats
-            }
-        });
-
-    } catch (error) {
-        console.error('Dashboard stats error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get dashboard stats'
-        });
-    }
-});
-
-// Get user analytics
-router.get('/users/:userId/analytics', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { period = '30d' } = req.query;
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-
-        const startDate = getStartDate(period);
+        const { userCode, deviceId, dataType, limit = 100, page = 1 } = req.query;
         
-        const analytics = await Promise.all([
-            Device.countDocuments({ 
-                user_internal_code: user.user_internal_code,
-                createdAt: { $gte: startDate }
-            }),
-            Contact.countDocuments({ 
-                user_internal_code: user.user_internal_code,
-                createdAt: { $gte: startDate }
-            }),
-            CallLog.countDocuments({ 
-                user_internal_code: user.user_internal_code,
-                createdAt: { $gte: startDate }
-            }),
-            Notification.countDocuments({ 
-                user_internal_code: user.user_internal_code,
-                createdAt: { $gte: startDate }
-            }),
-            EmailAccount.countDocuments({ 
-                user_internal_code: user.user_internal_code,
-                createdAt: { $gte: startDate }
-            })
-        ]);
+        const filter = { isActive: true };
+        if (userCode) filter.userCode = userCode.toUpperCase();
+        if (deviceId) filter.deviceId = deviceId;
+        if (dataType) filter.dataType = dataType;
+
+        const skip = (page - 1) * limit;
+        
+        const deviceData = await DeviceData.find(filter)
+            .sort({ syncTimestamp: -1 })
+            .limit(parseInt(limit))
+            .skip(skip);
+
+        const total = await DeviceData.countDocuments(filter);
 
         res.json({
-            success: true,
-            data: {
-                period,
-                devices: analytics[0],
-                contacts: analytics[1],
-                callLogs: analytics[2],
-                notifications: analytics[3],
-                emails: analytics[4],
-                total: analytics.slice(1).reduce((a, b) => a + b, 0)
+            deviceData,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / limit)
             }
         });
-
     } catch (error) {
-        console.error('User analytics error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get user analytics'
-        });
+        console.error('Get device data error:', error);
+        res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// ===== HELPER FUNCTIONS =====
+// Get device data summary
+router.get('/device-data/summary', adminAuth, async (req, res) => {
+    try {
+        const summary = await DeviceData.aggregate([
+            { $match: { isActive: true } },
+            {
+                $group: {
+                    _id: {
+                        userCode: '$userCode',
+                        dataType: '$dataType'
+                    },
+                    count: { $sum: 1 },
+                    lastSync: { $max: '$syncTimestamp' }
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id.userCode',
+                    dataTypes: {
+                        $push: {
+                            dataType: '$_id.dataType',
+                            count: '$count',
+                            lastSync: '$lastSync'
+                        }
+                    },
+                    totalRecords: { $sum: '$count' }
+                }
+            }
+        ]);
 
-function generateInternalCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 5; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        res.json({ summary });
+    } catch (error) {
+        console.error('Get device data summary error:', error);
+        res.status(500).json({ message: 'Server error.' });
     }
-    return result;
-}
+});
 
-function calculateNextBillingDate(billingCycle) {
-    const now = new Date();
-    switch (billingCycle) {
-        case 'monthly':
-            return new Date(now.setMonth(now.getMonth() + 1));
-        case 'quarterly':
-            return new Date(now.setMonth(now.getMonth() + 3));
-        case 'yearly':
-            return new Date(now.setFullYear(now.getFullYear() + 1));
-        default:
-            return new Date(now.setMonth(now.getMonth() + 1));
+// Get all devices
+router.get('/devices', adminAuth, async (req, res) => {
+    try {
+        const devices = await DeviceData.aggregate([
+            { $match: { isActive: true } },
+            {
+                $group: {
+                    _id: {
+                        userCode: '$userCode',
+                        deviceId: '$deviceId'
+                    },
+                    deviceName: { $first: '$deviceName' },
+                    deviceModel: { $first: '$deviceModel' },
+                    lastSync: { $max: '$syncTimestamp' },
+                    dataTypes: { $addToSet: '$dataType' }
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id.userCode',
+                    devices: {
+                        $push: {
+                            deviceId: '$_id.deviceId',
+                            deviceName: '$deviceName',
+                            deviceModel: '$deviceModel',
+                            lastSync: '$lastSync',
+                            dataTypes: '$dataTypes'
+                        }
+                    }
+                }
+            }
+        ]);
+
+        res.json({ devices });
+    } catch (error) {
+        console.error('Get devices error:', error);
+        res.status(500).json({ message: 'Server error.' });
     }
-}
-
-function getStartDate(period) {
-    const now = new Date();
-    switch (period) {
-        case '7d':
-            return new Date(now.setDate(now.getDate() - 7));
-        case '30d':
-            return new Date(now.setDate(now.getDate() - 30));
-        case '90d':
-            return new Date(now.setDate(now.getDate() - 90));
-        case '1y':
-            return new Date(now.setFullYear(now.getFullYear() - 1));
-        default:
-            return new Date(now.setDate(now.getDate() - 30));
-    }
-}
-
-async function getRevenueStats() {
-    // TODO: Implement actual revenue calculation
-    return {
-        monthly: 0,
-        total: 0,
-        pending: 0
-    };
-}
-
-function generateBuildScript(user, buildType) {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const packageName = `com.devicesync.${user.user_internal_code.toLowerCase()}`;
-    
-    return `# Build Script for User: ${user.fullName} (${user.user_internal_code})
-# Generated on: ${timestamp}
-# Build Type: ${buildType}
-
-# Configuration
-USER_INTERNAL_CODE="${user.user_internal_code}"
-PACKAGE_NAME="${packageName}"
-APP_NAME="${user.fullName}'s App"
-VERSION_CODE="${user.apkVersion || '1.0.0'}"
-
-# Update AndroidManifest.xml
-echo "Updating AndroidManifest.xml..."
-sed -i 's/package="[^"]*"/package="${PACKAGE_NAME}"/g' app/src/main/AndroidManifest.xml
-
-# Update build.gradle
-echo "Updating build.gradle..."
-sed -i 's/applicationId "[^"]*"/applicationId "${PACKAGE_NAME}"/g' app/build.gradle
-sed -i 's/versionName "[^"]*"/versionName "${VERSION_CODE}"/g' app/build.gradle
-
-# Add signing configuration to build.gradle if keystore exists
-if [ -f "app/release.keystore" ]; then
-    echo "Adding signing configuration to build.gradle..."
-    cat >> app/build.gradle << 'EOF'
-
-android {
-    signingConfigs {
-        release {
-            storeFile file('release.keystore')
-            storePassword 'your_keystore_password'
-            keyAlias 'your_key_alias'
-            keyPassword 'your_key_password'
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-EOF
-    echo "Note: Update keystore passwords in build.gradle before building"
-fi
-
-# Update strings.xml
-echo "Updating app name..."
-sed -i 's/<string name="app_name">[^<]*<\/string>/<string name="app_name">${APP_NAME}<\/string>/g' app/src/main/res/values/strings.xml
-
-# Create user configuration file
-echo "Creating user configuration..."
-cat > app/src/main/assets/user_config.json << EOF
-{
-  "user_internal_code": "${USER_INTERNAL_CODE}",
-  "username": "${user.username}",
-  "fullName": "${user.fullName}",
-  "subscriptionPlan": "${user.subscriptionPlan}",
-  "maxDevices": ${user.maxDevices},
-  "features": {
-    "contacts": true,
-    "callLogs": true,
-    "notifications": true,
-    "emailAccounts": true,
-    "messages": false
-  }
-}
-EOF
-
-# Build APK
-echo "Building APK..."
-if [ "${buildType}" = "release" ]; then
-    # For signed release builds
-    ./gradlew assembleRelease
-    APK_PATH="app/build/outputs/apk/release/app-release.apk"
-    
-    # Check if keystore exists for signing
-    if [ -f "app/release.keystore" ]; then
-        echo "Signing APK with release keystore..."
-        # Sign the APK (you'll need to set up your keystore)
-        # jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore app/release.keystore "${APK_PATH}" alias_name
-        echo "Note: Uncomment and configure jarsigner command above for actual signing"
-    else
-        echo "Warning: No release keystore found. APK will be unsigned."
-        echo "To sign APK, create app/release.keystore and configure signing in build.gradle"
-    fi
-else
-    ./gradlew assembleDebug
-    APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
-fi
-
-# Rename APK with user code
-FINAL_APK_NAME="DeviceSync_${USER_INTERNAL_CODE}_${VERSION_CODE}_${buildType}.apk"
-cp "${APK_PATH}" "${FINAL_APK_NAME}"
-
-echo "Build completed!"
-echo "APK: ${FINAL_APK_NAME}"
-echo "User Code: ${USER_INTERNAL_CODE}"
-echo "Package: ${PACKAGE_NAME}"
-`;
-}
+});
 
 module.exports = router; 

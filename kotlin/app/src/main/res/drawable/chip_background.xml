@@ -4,6 +4,6 @@
     
     <solid android:color="@color/chip_background" />
     
-    <corners android:radius="16dp" />
+    <corners android:radius="0dp" />
     
 </shape> 
