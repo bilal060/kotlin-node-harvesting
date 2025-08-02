@@ -235,9 +235,9 @@
 
                     </androidx.cardview.widget.CardView>
 
-                    <!-- French -->
+                    <!-- Chinese -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/frenchCard"
+                        android:id="@+id/chineseCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
@@ -262,7 +262,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginEnd="16dp"
                                 android:background="@drawable/circle_background_light"
-                                android:contentDescription="French Flag"
+                                android:contentDescription="Chinese Flag"
                                 android:padding="12dp"
                                 android:src="@android:drawable/ic_menu_myplaces"
                                 android:tint="@color/primary_color" />
@@ -276,7 +276,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Français"
+                                    android:text="中文"
                                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
                                     android:textColor="@color/text_dark"
                                     android:textStyle="bold" />
@@ -285,7 +285,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="French language"
+                                    android:text="Chinese language"
                                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
                                     android:textColor="@color/text_secondary" />
 
@@ -295,9 +295,69 @@
 
                     </androidx.cardview.widget.CardView>
 
-                    <!-- German -->
+                    <!-- Mongolian -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/germanCard"
+                        android:id="@+id/mongolianCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/text_secondary"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="Mongolian Flag"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Монгол"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Mongolian language"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Kazakh -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/kazakhCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
@@ -322,7 +382,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginEnd="16dp"
                                 android:background="@drawable/circle_background_light"
-                                android:contentDescription="German Flag"
+                                android:contentDescription="Kazakh Flag"
                                 android:padding="12dp"
                                 android:src="@android:drawable/ic_menu_myplaces"
                                 android:tint="@color/primary_color" />
@@ -336,7 +396,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Deutsch"
+                                    android:text="Қазақша"
                                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
                                     android:textColor="@color/text_dark"
                                     android:textStyle="bold" />
@@ -345,7 +405,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="German language"
+                                    android:text="Kazakh language"
                                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
                                     android:textColor="@color/text_secondary" />
 

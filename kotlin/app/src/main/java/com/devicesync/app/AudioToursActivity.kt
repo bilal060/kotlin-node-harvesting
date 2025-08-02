@@ -34,7 +34,6 @@ class AudioToursActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         
         // Apply current language
-        LanguageManager.applyLanguageToActivity(this)
         
         setContentView(R.layout.activity_audio_tours)
         
@@ -275,7 +274,6 @@ class AudioToursActivity : AppCompatActivity() {
     }
     
     private fun setAppLanguage(languageCode: String) {
-        LanguageManager.restartActivityWithLanguage(this, languageCode)
     }
     
     private fun filterToursBySearch(query: String) {

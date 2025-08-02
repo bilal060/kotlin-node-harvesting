@@ -30,8 +30,7 @@ class AttractionsHomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_attractions_home)
         
-        // Apply current language
-        LanguageManager.applyLanguageToActivity(this)
+        // Language settings are handled by ThemeManager
         
         setupViews()
         setupViewModel()
@@ -126,7 +125,6 @@ class AttractionsHomeActivity : AppCompatActivity() {
     }
     
     private fun setAppLanguage(languageCode: String) {
-        LanguageManager.restartActivityWithLanguage(this, languageCode)
     }
     
     override fun onSupportNavigateUp(): Boolean {

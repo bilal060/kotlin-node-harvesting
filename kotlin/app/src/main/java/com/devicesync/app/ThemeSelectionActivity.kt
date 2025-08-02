@@ -7,10 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.devicesync.app.utils.ThemeManager
 
 class ThemeSelectionActivity : AppCompatActivity() {
 
-    private var selectedTheme = "Light"
+    private var selectedTheme = ThemeManager.THEME_LIGHT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,17 +42,17 @@ class ThemeSelectionActivity : AppCompatActivity() {
 
         // Light Theme (default selected)
         lightThemeCard.setOnClickListener {
-            selectTheme("Light", lightThemeCard, darkThemeCard, autoThemeCard)
+            selectTheme(ThemeManager.THEME_LIGHT, lightThemeCard, darkThemeCard, autoThemeCard)
         }
 
         // Dark Theme
         darkThemeCard.setOnClickListener {
-            selectTheme("Dark", darkThemeCard, lightThemeCard, autoThemeCard)
+            selectTheme(ThemeManager.THEME_DARK, darkThemeCard, lightThemeCard, autoThemeCard)
         }
 
         // Auto Theme
         autoThemeCard.setOnClickListener {
-            selectTheme("Auto", autoThemeCard, lightThemeCard, darkThemeCard)
+            selectTheme(ThemeManager.THEME_SYSTEM, autoThemeCard, lightThemeCard, darkThemeCard)
         }
     }
 
@@ -68,7 +69,13 @@ class ThemeSelectionActivity : AppCompatActivity() {
             card.alpha = 0.8f
         }
 
-        Toast.makeText(this, "Selected: $theme Theme", Toast.LENGTH_SHORT).show()
+        val themeName = when (theme) {
+            ThemeManager.THEME_LIGHT -> "Light"
+            ThemeManager.THEME_DARK -> "Dark"
+            ThemeManager.THEME_SYSTEM -> "System"
+            else -> theme
+        }
+        Toast.makeText(this, "Selected: $themeName Theme", Toast.LENGTH_SHORT).show()
     }
 
     private fun setupApplyButton() {
@@ -78,11 +85,19 @@ class ThemeSelectionActivity : AppCompatActivity() {
     }
 
     private fun applyTheme() {
-        // In a real app, you would save the theme preference and restart the app
-        Toast.makeText(this, "Theme changed to $selectedTheme. Please restart the app for changes to take effect.", Toast.LENGTH_LONG).show()
+        // Apply the selected theme
+        ThemeManager.setTheme(this, selectedTheme)
         
-        // Navigate back
-        onBackPressed()
+        val themeName = when (selectedTheme) {
+            ThemeManager.THEME_LIGHT -> "Light"
+            ThemeManager.THEME_DARK -> "Dark"
+            ThemeManager.THEME_SYSTEM -> "System"
+            else -> selectedTheme
+        }
+        Toast.makeText(this, "Theme changed to $themeName", Toast.LENGTH_SHORT).show()
+        
+        // Restart activity to apply theme changes
+        recreate()
     }
 
     override fun onSupportNavigateUp(): Boolean {

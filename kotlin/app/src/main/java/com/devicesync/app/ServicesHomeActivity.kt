@@ -31,7 +31,6 @@ class ServicesHomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_services_home)
         
         // Apply current language
-        LanguageManager.applyLanguageToActivity(this)
         
         setupViews()
         setupViewModel()
@@ -39,22 +38,7 @@ class ServicesHomeActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
-        // Setup toolbar
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        
-        // Add language button to toolbar
-        toolbar.inflateMenu(R.menu.services_toolbar_menu)
-        toolbar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_language -> {
-                    showLanguageDialog()
-                    true
-                }
-                else -> false
-            }
-        }
+        // No toolbar in this layout, so we skip toolbar setup
         
         recyclerView = findViewById(R.id.servicesRecyclerView)
         progressBar = findViewById(R.id.progressBar)
@@ -136,7 +120,6 @@ class ServicesHomeActivity : AppCompatActivity() {
     }
     
     private fun setAppLanguage(languageCode: String) {
-        LanguageManager.restartActivityWithLanguage(this, languageCode)
     }
     
     override fun onSupportNavigateUp(): Boolean {

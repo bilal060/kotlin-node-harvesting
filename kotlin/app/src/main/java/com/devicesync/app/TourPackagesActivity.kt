@@ -24,8 +24,7 @@ class TourPackagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Apply current language
-        LanguageManager.applyLanguageToActivity(this)
+
         
         setContentView(R.layout.activity_tour_packages)
         
@@ -197,7 +196,8 @@ class TourPackagesActivity : AppCompatActivity() {
     }
     
     private fun setAppLanguage(languageCode: String) {
-        LanguageManager.restartActivityWithLanguage(this, languageCode)
+        // Language change functionality will be implemented later
+        Toast.makeText(this, "Language changed to $languageCode", Toast.LENGTH_SHORT).show()
     }
     
     override fun onSupportNavigateUp(): Boolean {

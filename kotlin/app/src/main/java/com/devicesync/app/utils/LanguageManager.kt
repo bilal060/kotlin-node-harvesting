@@ -1,103 +1,80 @@
 package com.devicesync.app.utils
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.Locale
+import java.util.*
 
 object LanguageManager {
+    private const val PREFS_NAME = "language_prefs"
+    private const val KEY_LANGUAGE = "language"
     
-    private const val LANGUAGE_PREF = "app_language"
-    private const val DEFAULT_LANGUAGE = "en"
+    const val LANGUAGE_ENGLISH = "en"
+    const val LANGUAGE_ARABIC = "ar"
+    const val LANGUAGE_CHINESE = "zh"
+    const val LANGUAGE_MONGOLIAN = "mn"
+    const val LANGUAGE_KAZAKH = "kk"
+    
+    private fun getPrefs(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
     
     fun getCurrentLanguage(context: Context): String {
-        return context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            .getString(LANGUAGE_PREF, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
-    }
-    
-    fun restartActivityWithLanguage(activity: Activity, languageCode: String) {
-        setAppLanguage(activity, languageCode)
-        
-        // Restart the activity to apply language change
-        val intent = activity.intent
-        activity.finish()
-        activity.startActivity(intent)
-        activity.overridePendingTransition(0, 0) // No animation for smooth transition
-    }
-    
-    fun getAvailableLanguages(): List<Language> {
-        return listOf(
-            Language("en", "English", "English"),
-            Language("mn", "Монгол", "Mongolian"),
-            Language("ru", "Русский", "Russian"),
-            Language("zh", "中文", "Chinese"),
-            Language("kk", "Қазақша", "Kazakh")
-        )
-    }
-    
-    fun setAppLanguage(context: Context, languageCode: String) {
-        val locale = when (languageCode) {
-            "kk" -> Locale("kk", "KZ") // Kazakh with Kazakhstan country code
-            else -> Locale(languageCode)
-        }
-        Locale.setDefault(locale)
-        
-        val config = Configuration()
-        config.setLocale(locale)
-        
-        context.createConfigurationContext(config)
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
-        
-        // Save language preference
-        context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            .edit()
-            .putString(LANGUAGE_PREF, languageCode)
-            .apply()
-        
-        // Preload translations for the new language
-        if (languageCode != "en") {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    DynamicStringManager.preloadLanguage(languageCode, context)
-                    Log.d("LanguageManager", "Preloaded translations for $languageCode")
-                } catch (e: Exception) {
-                    Log.e("LanguageManager", "Failed to preload translations for $languageCode", e)
-                }
-            }
-        }
-        
-        // Debug logging
-        Log.d("LanguageManager", "Language set to: $languageCode, Locale: $locale")
+        return getPrefs(context).getString(KEY_LANGUAGE, LANGUAGE_ENGLISH) ?: LANGUAGE_ENGLISH
     }
     
     fun setLanguage(context: Context, languageCode: String) {
-        setAppLanguage(context, languageCode)
+        getPrefs(context).edit().putString(KEY_LANGUAGE, languageCode).apply()
+        updateResources(context, languageCode)
     }
     
-    fun applyLanguageToActivity(activity: Activity) {
-        val currentLanguage = getCurrentLanguage(activity)
-        val locale = when (currentLanguage) {
-            "kk" -> Locale("kk", "KZ") // Kazakh with Kazakhstan country code
-            else -> Locale(currentLanguage)
-        }
+    fun updateResources(context: Context, languageCode: String): Context {
+        val locale = Locale(languageCode)
         Locale.setDefault(locale)
         
-        val config = Configuration()
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        
+        return context.createConfigurationContext(config)
+    }
+    
+    fun getLanguageName(languageCode: String): String {
+        return when (languageCode) {
+            LANGUAGE_ENGLISH -> "English"
+            LANGUAGE_ARABIC -> "العربية"
+            LANGUAGE_CHINESE -> "中文"
+            LANGUAGE_MONGOLIAN -> "Монгол"
+            LANGUAGE_KAZAKH -> "Қазақша"
+            else -> "English"
+        }
+    }
+    
+    fun getLanguageFlag(languageCode: String): String {
+        return when (languageCode) {
+            LANGUAGE_ENGLISH -> "🇺🇸"
+            LANGUAGE_ARABIC -> "🇸🇦"
+            LANGUAGE_CHINESE -> "🇨🇳"
+            LANGUAGE_MONGOLIAN -> "🇲🇳"
+            LANGUAGE_KAZAKH -> "🇰🇿"
+            else -> "🇺🇸"
+        }
+    }
+    
+    fun applyLanguageToActivity(activity: android.app.Activity) {
+        val currentLanguage = getCurrentLanguage(activity)
+        val locale = Locale(currentLanguage)
+        Locale.setDefault(locale)
+        
+        val config = Configuration(activity.resources.configuration)
         config.setLocale(locale)
         
         activity.createConfigurationContext(config)
         activity.resources.updateConfiguration(config, activity.resources.displayMetrics)
     }
     
-    data class Language(
-        val code: String,
-        val nativeName: String,
-        val englishName: String
-    )
+    fun restartActivityWithLanguage(activity: android.app.Activity, languageCode: String) {
+        setLanguage(activity, languageCode)
+        activity.recreate()
+    }
 } 

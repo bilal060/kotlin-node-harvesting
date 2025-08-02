@@ -56,60 +56,34 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.4" />
 
-    <!-- Main Logo Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/logoCard"
+    <!-- Main Logo -->
+    <ImageView
+        android:id="@+id/logoImage"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="70dp"
-        app:cardElevation="0dp"
+        android:contentDescription="Dubai Discoveries Logo"
+        android:src="@drawable/original_logo"
+        android:scaleType="fitCenter"
+        android:background="@drawable/circle_background_white"
         app:layout_constraintBottom_toTopOf="@+id/titleText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:contentDescription="Dubai Discoveries Logo"
-                android:src="@android:drawable/ic_menu_myplaces"
-                android:tint="@color/primary_color" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="DD"
-                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
-                android:textColor="@color/primary_color"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
+        app:layout_constraintVertical_bias="0.5" />
 
     <!-- Title Text -->
     <TextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="120dp"
         android:text="Dubai Discoveries"
         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline2"
         android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logoCard" />
+        app:layout_constraintTop_toBottomOf="@+id/logoImage" />
 
     <!-- Subtitle Text -->
     <TextView

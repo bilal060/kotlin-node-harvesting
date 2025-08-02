@@ -54,6 +54,14 @@
     <color name="divider_dark">#334155</color>
     <color name="shadow_dark">#40000000</color>
     
+    <!-- Theme-aware colors -->
+    <color name="background_primary_light">@color/background_ivory</color>
+    <color name="background_primary_dark">@color/background_dark</color>
+    <color name="surface_primary_light">@color/surface_color</color>
+    <color name="surface_primary_dark">@color/surface_dark_color</color>
+    <color name="text_primary_light">@color/text_dark</color>
+    <color name="text_primary_dark_light">@color/text_primary_dark</color>
+    
     <!-- Additional colors for detail views -->
     <color name="primary">@color/primary_color</color>
     <color name="border_light">#E2E8F0</color>
@@ -110,5 +118,5 @@
     <color name="input_background">@color/surface_color</color>
     
     <!-- Navigation Item Colors -->
-    <color name="nav_item_color">@color/text_dark</color>
+    <!-- nav_item_color is defined in color/nav_item_color.xml as a selector -->
 </resources> 

@@ -25,6 +25,19 @@ class PastExperiencesActivity : AppCompatActivity() {
     private fun setupViews() {
         experiencesRecyclerView = findViewById(R.id.experiencesRecyclerView)
         experiencesRecyclerView.layoutManager = LinearLayoutManager(this)
+        
+        // Add spacing between items
+        experiencesRecyclerView.addItemDecoration(object : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: android.graphics.Rect, view: android.view.View, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+                val position = parent.getChildAdapterPosition(view)
+                if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                    outRect.left = 16
+                    outRect.right = 16
+                    outRect.top = if (position == 0) 16 else 8
+                    outRect.bottom = 8
+                }
+            }
+        })
     }
     
     private fun loadExperiencesData() {

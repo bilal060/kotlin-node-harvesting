@@ -11,16 +11,17 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_color"
+        android:background="@android:color/transparent"
         android:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/hero_gradient_background"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:title="Settings"
             app:titleTextColor="@color/white"
             app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
@@ -130,12 +131,16 @@
 
                     <!-- Personal Information -->
                     <LinearLayout
+                        android:id="@+id/profileSetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -186,12 +191,16 @@
 
                     <!-- Security &amp; Privacy -->
                     <LinearLayout
+                        android:id="@+id/securitySetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -320,12 +329,16 @@
 
                     <!-- Language -->
                     <LinearLayout
+                        android:id="@+id/languageSetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -376,12 +389,16 @@
 
                     <!-- Theme -->
                     <LinearLayout
+                        android:id="@+id/themeSetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -454,12 +471,16 @@
 
                     <!-- Help &amp; Support -->
                     <LinearLayout
+                        android:id="@+id/helpSetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -510,12 +531,16 @@
 
                     <!-- About App -->
                     <LinearLayout
+                        android:id="@+id/aboutSetting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rounded_corner_background"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -564,6 +589,7 @@
 
             <!-- Logout Button -->
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/logoutButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginBottom="24dp"

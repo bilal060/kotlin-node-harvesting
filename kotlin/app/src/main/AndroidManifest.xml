@@ -321,6 +321,13 @@
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
+        <!-- Itinerary Day Selection Activity -->
+        <activity
+            android:name=".ItineraryDaySelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
         <!-- Attractions Activities -->
         <activity
             android:name=".AttractionsHomeActivity"
