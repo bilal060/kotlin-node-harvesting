@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
+// API base URL from environment variables
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://kotlin-node-harvesting.onrender.com'}/api`;
+
 export default function AdminDashboard() {
     const [adminInfo, setAdminInfo] = useState(null);
     const [users, setUsers] = useState([]);
@@ -30,7 +33,7 @@ export default function AdminDashboard() {
             const token = localStorage.getItem('adminToken');
             
             // Fetch users
-            const usersResponse = await fetch('/api/admin/users', {
+            const usersResponse = await fetch(`${API_BASE_URL}/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -42,7 +45,7 @@ export default function AdminDashboard() {
             }
 
             // Fetch device data summary
-            const summaryResponse = await fetch('/api/admin/device-data/summary', {
+            const summaryResponse = await fetch(`${API_BASE_URL}/admin/device-data/summary`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -68,7 +71,7 @@ export default function AdminDashboard() {
     const handleAddUser = async (userData) => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('/api/admin/users', {
+            const response = await fetch(`${API_BASE_URL}/admin/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
