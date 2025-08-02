@@ -23,7 +23,7 @@ export default function AdminDashboard() {
 
         setAdminInfo(JSON.parse(admin));
         fetchData();
-    }, []);
+    }, [router]);
 
     const fetchData = async () => {
         try {
