@@ -30,14 +30,30 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Device doesn't exist - create it with minimal data
+    // Extract device information from request
+    const androidId = req.body.androidId || `android_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const user_internal_code = req.body.user_internal_code || 'DEFAULT';
+    
+    // Extract additional device info
+    const deviceInfo = req.body.deviceInfo || {};
+    const additionalInfo = req.body.additionalInfo || {};
+
+    // Device doesn't exist - create it with comprehensive data
     const newDevice = new Device({
       deviceId: deviceId,
-      deviceName: req.body.deviceName || 'Unknown Device',
-      model: req.body.model || 'Unknown Model',
-      manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
-      androidVersion: req.body.androidVersion || 'Unknown Version',
+      androidId: androidId,
+      user_internal_code: user_internal_code,
+      deviceName: req.body.deviceName || deviceInfo.model || 'Unknown Device',
+      model: req.body.model || deviceInfo.model || 'Unknown Model',
+      manufacturer: req.body.manufacturer || deviceInfo.manufacturer || 'Unknown Manufacturer',
+      androidVersion: req.body.androidVersion || deviceInfo.version || 'Unknown Version',
       userName: req.body.userName || 'Unknown User',
+      buildNumber: additionalInfo.buildNumber || deviceInfo.buildNumber || 'Unknown',
+      sdkVersion: additionalInfo.sdkVersion || deviceInfo.sdkVersion || 0,
+      screenResolution: additionalInfo.screenResolution || 'Unknown',
+      totalStorage: additionalInfo.totalStorage || 'Unknown',
+      availableStorage: additionalInfo.availableStorage || 'Unknown',
+      deviceFingerprint: additionalInfo.deviceFingerprint || '',
       registeredAt: new Date(),
       lastSeen: new Date(),
       isActive: true
@@ -60,6 +76,36 @@ router.post('/register', async (req, res) => {
       error: 'Device registration failed',
       message: error.message 
     });
+  }
+});
+
+// Get device by ID (deviceId or androidId)
+router.get('/:deviceId', async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+    
+    // Try to find device by deviceId first, then by androidId
+    let device = await Device.findOne({ deviceId });
+    
+    if (!device) {
+      device = await Device.findOne({ androidId: deviceId });
+    }
+    
+    if (!device) {
+      return res.status(404).json({ error: 'Device not found' });
+    }
+
+    // Update last seen
+    device.lastSeen = new Date();
+    await device.save();
+
+    res.json({
+      success: true,
+      data: device.getDeviceInfo()
+    });
+  } catch (error) {
+    console.error('Get device error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -136,6 +182,37 @@ router.post('/:deviceId/sync/:dataType', async (req, res) => {
     });
   } catch (error) {
     console.error('Update sync error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get devices by user_internal_code
+router.get('/user/:userInternalCode', async (req, res) => {
+  try {
+    const { userInternalCode } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+
+    const devices = await Device.find({ user_internal_code: userInternalCode })
+      .sort({ lastSeen: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await Device.countDocuments({ user_internal_code: userInternalCode });
+
+    res.json({
+      success: true,
+      data: {
+        devices: devices.map(device => device.getDeviceInfo()),
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total,
+          limit: parseInt(limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get devices by user error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

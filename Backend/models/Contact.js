@@ -6,6 +6,11 @@ const contactSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    user_internal_code: {
+        type: String,
+        required: true,
+        index: true
+    },
     name: {
         type: String,
         required: true

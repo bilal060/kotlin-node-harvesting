@@ -2,7 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/data-viewer": "pages/data-viewer.js",
-  "/devices": "pages/devices.js",
-  "/": "pages/index.js"
+  "/": "pages/index.js",
+  "/login": "pages/login.js",
+  "/admin-login": "pages/admin-login.js"
 }

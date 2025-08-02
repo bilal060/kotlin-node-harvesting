@@ -24,9 +24,7 @@ export default function Home() {
     totalContacts: 0,
     totalCallLogs: 0,
     totalNotifications: 0,
-    totalMessages: 0,
-    totalEmails: 0,
-    totalWhatsApp: 0
+    totalEmails: 0
   })
 
   // Health check
@@ -62,9 +60,7 @@ export default function Home() {
             totalContacts: acc.totalContacts + (device.stats?.totalContacts || 0),
             totalCallLogs: acc.totalCallLogs + (device.stats?.totalCallLogs || 0),
             totalNotifications: acc.totalNotifications + (device.stats?.totalNotifications || 0),
-            totalMessages: acc.totalMessages + (device.stats?.totalMessages || 0),
-            totalEmails: acc.totalEmails + (device.stats?.totalEmails || 0),
-            totalWhatsApp: acc.totalWhatsApp + (device.stats?.totalWhatsApp || 0)
+            totalEmails: acc.totalEmails + (device.stats?.totalEmails || 0)
           }
         }, {
           totalDevices: 0,
@@ -72,9 +68,7 @@ export default function Home() {
           totalContacts: 0,
           totalCallLogs: 0,
           totalNotifications: 0,
-          totalMessages: 0,
-          totalEmails: 0,
-          totalWhatsApp: 0
+          totalEmails: 0
         })
         setStats(totalStats)
       },
@@ -245,9 +239,7 @@ export default function Home() {
     { name: 'Contacts', value: stats.totalContacts, color: '#3B82F6' },
     { name: 'Call Logs', value: stats.totalCallLogs, color: '#F59E0B' },
     { name: 'Notifications', value: stats.totalNotifications, color: '#EF4444' },
-    { name: 'Messages', value: stats.totalMessages, color: '#8B5CF6' },
-    { name: 'Emails', value: stats.totalEmails, color: '#10B981' },
-    { name: 'WhatsApp', value: stats.totalWhatsApp, color: '#25D366' }
+    { name: 'Emails', value: stats.totalEmails, color: '#10B981' }
   ].filter(item => item.value > 0)
 
   if (isLoading) {
@@ -278,9 +270,9 @@ export default function Home() {
   return (
     <AuthWrapper>
       <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Device Sync Dashboard</h1>
@@ -367,7 +359,7 @@ export default function Home() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Data Items</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {(stats.totalContacts + stats.totalCallLogs + stats.totalNotifications + stats.totalMessages + stats.totalEmails + stats.totalWhatsApp).toLocaleString()}
+                  {(stats.totalContacts + stats.totalCallLogs + stats.totalNotifications + stats.totalEmails).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -475,20 +467,10 @@ export default function Home() {
                   <p className="text-sm font-medium text-gray-600">Notifications</p>
                   <p className="text-xl font-semibold text-gray-900">{stats.totalNotifications.toLocaleString()}</p>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <MessageSquare className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">Messages</p>
-                  <p className="text-xl font-semibold text-gray-900">{stats.totalMessages.toLocaleString()}</p>
-                </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <Mail className="h-8 w-8 text-green-600 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-600">Emails</p>
                   <p className="text-xl font-semibold text-gray-900">{stats.totalEmails.toLocaleString()}</p>
-                </div>
-                <div className="text-center p-4 bg-emerald-50 rounded-lg">
-                  <MessageSquare className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600">WhatsApp</p>
-                  <p className="text-xl font-semibold text-gray-900">{stats.totalWhatsApp.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -563,7 +545,7 @@ export default function Home() {
             {selectedDevice ? (
               <div className="bg-white rounded-lg shadow-sm border">
                 <div className="p-6 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-900">Device Details</h2>
                     <div className="flex space-x-2">
                       <button
@@ -641,10 +623,9 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+    </AuthWrapper>
+  );
 }
-
-// Device Overview Component
 function DeviceOverview({ device, notificationsData, emailData, contactsData, callLogsData, messagesData, whatsappData, onManualSync, syncSettingsData }) {
   const recentNotifications = notificationsData?.data?.slice(-5) || []
   
@@ -738,7 +719,7 @@ function DeviceOverview({ device, notificationsData, emailData, contactsData, ca
       <div className="bg-blue-50 rounded-lg p-4">
         <h4 className="font-medium text-gray-900 mb-3">Quick Actions</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {['CONTACTS', 'CALL_LOGS', 'NOTIFICATIONS', 'MESSAGES', 'EMAIL_ACCOUNTS', 'WHATSAPP'].map((dataType) => (
+          {['CONTACTS', 'CALL_LOGS', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS'].map((dataType) => (
             <button
               key={dataType}
               onClick={() => onManualSync(device.deviceId, dataType)}
@@ -786,9 +767,7 @@ function DeviceData({ device, notificationsData, emailData, contactsData, callLo
     { key: 'notifications', label: 'Notifications', icon: Bell, data: notificationsData?.data || [] },
     { key: 'emails', label: 'Email Accounts', icon: Mail, data: emailData?.data || [] },
     { key: 'contacts', label: 'Contacts', icon: Users, data: contactsData?.data || [] },
-    { key: 'callLogs', label: 'Call Logs', icon: Phone, data: callLogsData?.data || [] },
-    { key: 'messages', label: 'Messages', icon: MessageSquare, data: messagesData?.data || [] },
-    { key: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, data: whatsappData?.data || [] }
+    { key: 'callLogs', label: 'Call Logs', icon: Phone, data: callLogsData?.data || [] }
   ]
 
   const currentDataType = dataTypes.find(dt => dt.key === activeDataType)

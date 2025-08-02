@@ -1,126 +1,148 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: {
+    // Basic user info
+    username: {
         type: String,
         required: true,
-        trim: true
+        unique: true
     },
     email: {
         type: String,
         required: true,
-        unique: true,
-        trim: true,
-        lowercase: true
+        unique: true
     },
-    password: {
+    fullName: {
         type: String,
         required: true
     },
-    phone: {
+    
+    // Internal code for APK builds
+    user_internal_code: {
         type: String,
-        trim: true
+        required: true,
+        unique: true,
+        length: 5,
+        uppercase: true
     },
-    language: {
+    
+    // Device management
+    maxDevices: {
+        type: Number,
+        required: true,
+        default: 10,
+        min: 1
+    },
+    currentDevices: {
+        type: Number,
+        default: 0
+    },
+    
+    // Billing and subscription
+    subscriptionStatus: {
         type: String,
-        enum: ['en', 'ar', 'zh', 'mn', 'kk'],
-        default: 'en'
+        enum: ['active', 'inactive', 'suspended', 'expired'],
+        default: 'active'
     },
-    theme: {
+    subscriptionPlan: {
         type: String,
-        enum: ['light', 'dark', 'system'],
-        default: 'light'
+        enum: ['basic', 'premium', 'enterprise'],
+        default: 'basic'
     },
-    preferences: {
-        notifications: {
-            type: Boolean,
-            default: true
-        },
-        emailUpdates: {
-            type: Boolean,
-            default: true
-        },
-        pushNotifications: {
-            type: Boolean,
-            default: true
-        }
+    billingCycle: {
+        type: String,
+        enum: ['monthly', 'quarterly', 'yearly'],
+        default: 'monthly'
     },
-    favorites: {
-        attractions: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Attraction'
-        }],
-        services: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Service'
-        }],
-        packages: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'TourPackage'
-        }]
+    nextBillingDate: {
+        type: Date,
+        default: Date.now
     },
-    itineraries: [{
-        name: String,
-        startDate: Date,
-        endDate: Date,
-        attractions: [{
-            attractionId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Attraction'
-            },
-            visitDate: Date,
-            timeSlot: String,
-            notes: String
-        }],
-        services: [{
-            serviceId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Service'
-            },
-            date: Date,
-            timeSlot: String,
-            notes: String
-        }],
-        accommodations: {
-            hotel: String,
-            checkIn: Date,
-            checkOut: Date,
-            roomType: String
-        },
-        meals: {
-            breakfast: Boolean,
-            lunch: Boolean,
-            dinner: Boolean
-        },
-        transport: {
-            type: String,
-            details: String
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        },
-        updatedAt: {
-            type: Date,
-            default: Date.now
-        }
-    }],
+    
+    // APK and build info
+    apkVersion: {
+        type: String,
+        default: '1.0.0'
+    },
+    lastBuildDate: {
+        type: Date
+    },
+    buildStatus: {
+        type: String,
+        enum: ['pending', 'building', 'completed', 'failed'],
+        default: 'pending'
+    },
+    
+    // Data tracking
+    totalDataRecords: {
+        type: Number,
+        default: 0
+    },
+    lastDataSync: {
+        type: Date
+    },
+    
+    // Admin notes
+    adminNotes: {
+        type: String
+    },
+    
+    // Status
     isActive: {
         type: Boolean,
         default: true
     },
-    lastLogin: {
-        type: Date
+    
+    // Timestamps
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     }
 }, {
-    timestamps: true,
-    collection: 'inner_app_users'
+    timestamps: true
 });
 
-// Index for email queries
-userSchema.index({ email: 1 });
+// Generate unique 5-digit alphanumeric code
+userSchema.methods.generateInternalCode = function() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+};
 
-// Index for language and theme queries
-userSchema.index({ language: 1, theme: 1 });
+// Check if user can add more devices
+userSchema.methods.canAddDevice = function() {
+    return this.currentDevices < this.maxDevices && this.subscriptionStatus === 'active';
+};
+
+// Increment device count
+userSchema.methods.addDevice = function() {
+    if (this.canAddDevice()) {
+        this.currentDevices += 1;
+        return true;
+    }
+    return false;
+};
+
+// Decrement device count
+userSchema.methods.removeDevice = function() {
+    if (this.currentDevices > 0) {
+        this.currentDevices -= 1;
+        return true;
+    }
+    return false;
+};
+
+// Update data statistics
+userSchema.methods.updateDataStats = function(recordCount) {
+    this.totalDataRecords += recordCount;
+    this.lastDataSync = new Date();
+};
 
 module.exports = mongoose.model('User', userSchema); 
