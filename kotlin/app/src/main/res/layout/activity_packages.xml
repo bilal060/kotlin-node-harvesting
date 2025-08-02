@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".PackagesActivity">
+
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_color">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Tour Packages"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_background"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/circle_background_white"
+                        android:contentDescription="Packages Icon"
+                        android:padding="20dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:tint="@color/primary_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Dubai Tour Packages"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="Curated experiences for every traveler"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/white"
+                        android:alpha="0.9" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Essential Dubai Package -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@drawable/gradient_background"
+                        android:contentDescription="Essential Dubai Package"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_myplaces" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Essential Dubai"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                android:textColor="@color/text_dark"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/accent_gold"
+                                android:padding="8dp"
+                                android:text="AED 899"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:text="Perfect 3-day introduction to Dubai including Burj Khalifa, Dubai Mall, Palm Jumeirah, and Desert Safari."
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="4dp"
+                                    android:contentDescription="Rating"
+                                    android:src="@android:drawable/btn_star_big_on"
+                                    android:tint="@color/accent_gold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="4.8"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="(2.5k reviews)"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/bookEssentialPackage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:text="Book Now"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                app:backgroundTint="@color/accent_gold"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Luxury Dubai Package -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@drawable/gradient_background"
+                        android:contentDescription="Luxury Dubai Package"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_myplaces" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Luxury Dubai"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                android:textColor="@color/text_dark"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/accent_gold"
+                                android:padding="8dp"
+                                android:text="AED 1,899"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:text="Premium 5-day experience with VIP access, luxury hotels, private tours, and exclusive dining experiences."
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="4dp"
+                                    android:contentDescription="Rating"
+                                    android:src="@android:drawable/btn_star_big_on"
+                                    android:tint="@color/accent_gold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="4.9"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="(1.2k reviews)"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/bookLuxuryPackage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:text="Book Now"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                app:backgroundTint="@color/accent_gold"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Family Dubai Package -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@drawable/gradient_background"
+                        android:contentDescription="Family Dubai Package"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_myplaces" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Family Dubai"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                android:textColor="@color/text_dark"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/accent_gold"
+                                android:padding="8dp"
+                                android:text="AED 1,299"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:text="Family-friendly 4-day package with kid-friendly attractions, water parks, and interactive experiences."
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="4dp"
+                                    android:contentDescription="Rating"
+                                    android:src="@android:drawable/btn_star_big_on"
+                                    android:tint="@color/accent_gold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="4.7"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="(1.8k reviews)"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/bookFamilyPackage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:text="Book Now"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                app:backgroundTint="@color/accent_gold"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Contact Support -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Need Custom Package?"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Our travel experts can create a custom package tailored to your preferences and budget."
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/contactSupportButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Contact Travel Expert"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

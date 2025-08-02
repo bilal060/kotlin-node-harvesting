@@ -1,303 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_ivory">
+    android:background="@color/background_color"
+    tools:context=".BookingFormActivity">
 
-    <LinearLayout
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@color/primary_color">
 
-        <!-- Toolbar -->
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary_color"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:title="@string/start_planning"
-            app:titleTextColor="@color/golden_color"
-            android:layout_marginBottom="24dp" />
+            app:title="Book Your Experience"
+            app:titleTextColor="@color/white" />
 
-        <!-- Booking Form Card -->
-        <androidx.cardview.widget.CardView
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            
-            app:cardBackgroundColor="@color/white"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <LinearLayout
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/booking_form_title"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_dark"
-                    android:gravity="center"
-                    android:layout_marginBottom="24dp" />
-
-                <!-- Date Selection -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/select_date"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <Button
-                        android:id="@+id/dateButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:text="@string/select_date_with_icon"
-                        android:textColor="@color/text_dark"
-                        android:background="@drawable/edit_text_background"
-                        android:textSize="16sp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp" />
-
-                </LinearLayout>
-
-                <!-- Time Selection -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/select_time"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <Button
-                        android:id="@+id/timeButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:text="@string/select_time_with_icon"
-                        android:textColor="@color/text_dark"
-                        android:background="@drawable/edit_text_background"
-                        android:textSize="16sp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp" />
-
-                </LinearLayout>
-
-                <!-- Number of People -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/number_of_people"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <Button
-                            android:id="@+id/decreasePeopleButton"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:text="@string/minus_sign"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/white"
-                            android:background="@drawable/circle_background" />
-
-                        <TextView
-                            android:id="@+id/peopleCountText"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/default_people_count"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_dark"
-                            android:gravity="center" />
-
-                        <Button
-                            android:id="@+id/increasePeopleButton"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:text="@string/plus_sign"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/white"
-                            android:background="@drawable/circle_background" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <!-- Contact Information -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/contact_name"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <EditText
-                        android:id="@+id/contactNameEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="Enter your name"
-                        android:background="@drawable/edit_text_background"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/contact_email"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <EditText
-                        android:id="@+id/contactEmailEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="Enter your email"
-                        android:inputType="textEmailAddress"
-                        android:background="@drawable/edit_text_background"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/contact_phone"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <EditText
-                        android:id="@+id/contactPhoneEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="Enter your phone number"
-                        android:inputType="phone"
-                        android:background="@drawable/edit_text_background"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <!-- Special Requests -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="24dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/special_requests"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="8dp" />
-
-                    <EditText
-                        android:id="@+id/specialRequestsEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:hint="Any special requests or requirements..."
-                        android:inputType="textMultiLine"
-                        android:gravity="top"
-                        android:background="@drawable/edit_text_background"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <!-- Book Now Button -->
-                <Button
-                    android:id="@+id/bookNowButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/book_now"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
                     android:background="@drawable/gradient_background"
-                    android:elevation="4dp" />
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-            </LinearLayout>
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="Booking Icon"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:tint="@color/white" />
 
-        </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Book Your Dubai Adventure"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
 
-    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="Fill in the details below to secure your spot"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/white"
+                        android:alpha="0.9" />
 
-</ScrollView> 
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Booking Form -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Personal Information"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <!-- Full Name -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Full Name"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/fullNameInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Email -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Email Address"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/emailInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Phone -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Phone Number"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/phoneInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Number of Guests -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Number of Guests"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/guestsInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Preferred Date -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Preferred Date"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/dateInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="date" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Special Requests -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:hint="Special Requests (Optional)"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/requestsInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine"
+                            android:minLines="3" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Submit Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/submitBookingButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Submit Booking Request"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/accent_gold"
+                        app:cornerRadius="16dp"
+                        app:icon="@android:drawable/ic_menu_send"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Contact Support -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Need Help?"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Our booking experts are here to help you plan the perfect Dubai experience."
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/contactSupportButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Contact Support"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".ItineraryBookingActivity">
+
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_color">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Custom Itinerary"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_background"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/circle_background_white"
+                        android:contentDescription="Itinerary Icon"
+                        android:padding="20dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:tint="@color/primary_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Custom Dubai Itinerary"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="Let us create your perfect Dubai experience tailored to your preferences"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/white"
+                        android:alpha="0.9" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Trip Details Form -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Trip Details"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <!-- Trip Duration -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Trip Duration (Days)"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/durationInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Number of Travelers -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Number of Travelers"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/travelersInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Budget Range -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Budget Range (AED)"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/budgetInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="e.g., 5000-15000" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Preferred Activities -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Preferred Activities"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/activitiesChipGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp">
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Desert Safari"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="City Tours"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shopping"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Adventure"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cultural"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Luxury"
+                            app:chipBackgroundColor="@color/surface_color"
+                            app:chipStrokeColor="@color/primary_color"
+                            app:chipStrokeWidth="1dp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <!-- Special Requirements -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:hint="Special Requirements (Optional)"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:hintTextColor="@color/primary_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/requirementsInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine"
+                            android:minLines="3" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Submit Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/submitItineraryButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Create My Itinerary"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/accent_gold"
+                        app:cornerRadius="16dp"
+                        app:icon="@android:drawable/ic_menu_send"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Contact Expert -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Need Expert Help?"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Our travel experts can help you create the perfect Dubai itinerary based on your preferences and budget."
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/contactExpertButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Contact Travel Expert"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

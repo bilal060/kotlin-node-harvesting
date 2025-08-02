@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- User Message -->
+    <LinearLayout
+        android:id="@+id/userMessageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_corner_background"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/userMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello, I need help with booking a tour"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                android:textColor="@color/text_dark" />
+
+            <TextView
+                android:id="@+id/userMessageTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="2:30 PM"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Agent Message -->
+    <LinearLayout
+        android:id="@+id/agentMessageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="top"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/circle_background_light"
+            android:contentDescription="Agent Avatar"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_help"
+            android:tint="@color/primary_color" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/surface_color"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/agentMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello! Welcome to Dubai Discoveries. I'm here to help you plan your perfect Dubai experience. What would you like to know?"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                android:textColor="@color/text_dark" />
+
+            <TextView
+                android:id="@+id/agentMessageTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="2:32 PM"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout> 

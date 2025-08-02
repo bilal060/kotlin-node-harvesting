@@ -219,7 +219,88 @@
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
-        <!-- User Profile Activity -->
+        <!-- Tours Activity -->
+        <activity
+            android:name=".ToursActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Services Activity -->
+        <activity
+            android:name=".ServicesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Bookings Activity -->
+        <activity
+            android:name=".BookingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Profile Activity -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+                   <!-- Contact Activity -->
+           <activity
+               android:name=".ContactActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Attractions Detail Activity -->
+           <activity
+               android:name=".AttractionsDetailActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Itinerary Booking Activity -->
+           <activity
+               android:name=".ItineraryBookingActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Popular Destinations Activity -->
+           <activity
+               android:name=".PopularDestinationsActivity"
+               android:exported="false"
+               android:theme="@style/Theme.DubaiDiscoveries"
+               android:screenOrientation="portrait" />
+
+           <!-- Hot Deals Activity -->
+                   <activity
+            android:name=".HotDealsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ThemeSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PackagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+           <!-- User Profile Activity -->
         <activity
             android:name=".UserProfileActivity"
             android:exported="false"

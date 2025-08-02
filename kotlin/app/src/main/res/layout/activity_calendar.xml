@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".CalendarActivity">
+
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_color">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Trip Calendar"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_background"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/circle_background_white"
+                        android:contentDescription="Calendar Icon"
+                        android:padding="20dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:tint="@color/primary_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Trip Calendar"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="Plan and manage your Dubai adventures"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/white"
+                        android:alpha="0.9" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Calendar View -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="December 2024"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <!-- Calendar Grid -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="7"
+                        android:rowCount="6">
+
+                        <!-- Day Headers -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Sun"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Mon"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Tue"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Wed"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Thu"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Fri"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="Sat"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary"
+                            android:textStyle="bold" />
+
+                        <!-- Calendar Days -->
+                        <!-- Week 1 -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="1"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="2"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="3"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="4"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="5"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="6"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="7"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <!-- Week 2 -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="8"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="9"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="10"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="11"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="12"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="13"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="14"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <!-- Week 3 -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="15"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="16"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="17"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="18"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="19"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="20"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="21"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <!-- Week 4 -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="22"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="23"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="24"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="25"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="26"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="27"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="28"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <!-- Week 5 -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="29"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="30"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text="31"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <!-- Empty cells for remaining days -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text=""
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text=""
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text=""
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_columnWeight="1"
+                            android:gravity="center"
+                            android:text=""
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Upcoming Trips -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Upcoming Trips"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <!-- Trip 1 -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/primary_color"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="Trip Icon"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Burj Khalifa Tour"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="December 15, 2024 • 2:00 PM"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center_vertical"
+                                android:text="View"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                app:backgroundTint="@color/accent_gold"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Trip 2 -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/primary_color"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="Trip Icon"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Desert Safari Adventure"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="December 22, 2024 • 4:00 PM"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center_vertical"
+                                android:text="View"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                app:backgroundTint="@color/accent_gold"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Add New Trip Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/addTripButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Add New Trip"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_add"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

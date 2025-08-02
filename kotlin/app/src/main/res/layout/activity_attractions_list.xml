@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:hint="Search attractions..."
         android:padding="16dp"
-        
+        android:layout_margin="16dp"
         android:background="@drawable/search_background"
         android:textColor="@color/text_primary"
         android:textColorHint="@color/text_hint"
@@ -73,6 +73,6 @@
         android:textColor="@color/error_color"
         android:gravity="center"
         android:visibility="gone"
-         />
+        android:layout_margin="16dp" />
 
 </LinearLayout> 

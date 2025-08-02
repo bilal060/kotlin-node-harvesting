@@ -1,158 +1,107 @@
 package com.devicesync.app
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
-import com.devicesync.app.adapters.ChatRoomsAdapter
-import com.devicesync.app.data.Priority2DataProvider
-import com.devicesync.app.data.ChatRoom
-import com.devicesync.app.services.LiveChatService
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 
 class LiveChatActivity : AppCompatActivity() {
-    
-    private lateinit var chatRoomsRecyclerView: RecyclerView
-    private lateinit var chatRoomsAdapter: ChatRoomsAdapter
-    private lateinit var liveChatService: LiveChatService
-    private var chatRooms = mutableListOf<ChatRoom>()
-    
+
+    private lateinit var chatRecyclerView: RecyclerView
+    private lateinit var messageInput: TextInputEditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_live_chat)
-        
-        setupViews()
-        setupLiveChatService()
-        loadChatRooms()
-        setupRecyclerView()
-    }
-    
-    private fun setupViews() {
+
         // Setup toolbar
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        
+        // Enable back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        
-        chatRoomsRecyclerView = findViewById(R.id.chatRoomsRecyclerView)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        // Initialize views
+        chatRecyclerView = findViewById(R.id.chatRecyclerView)
+        messageInput = findViewById(R.id.messageInput)
+
+        // Setup RecyclerView
+        setupChatRecyclerView()
+
+        // Setup button click listeners
+        setupButtonListeners()
+
+        // Show welcome message
+        showWelcomeMessage()
     }
-    
-    private fun setupLiveChatService() {
-        liveChatService = LiveChatService(this)
+
+    private fun setupChatRecyclerView() {
+        chatRecyclerView.layoutManager = LinearLayoutManager(this)
+        // In a real app, you would use a proper adapter for chat messages
+        // For now, we'll just show a welcome message
     }
-    
-    private fun loadChatRooms() {
-        chatRooms = Priority2DataProvider.getSampleChatRooms().toMutableList()
-    }
-    
-    private fun setupRecyclerView() {
-        chatRoomsAdapter = ChatRoomsAdapter(chatRooms) { chatRoom ->
-            showChatRoom(chatRoom)
+
+    private fun setupButtonListeners() {
+        // Send button
+        findViewById<MaterialButton>(R.id.sendButton)?.setOnClickListener {
+            sendMessage()
         }
-        
-        chatRoomsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@LiveChatActivity)
-            adapter = chatRoomsAdapter
+
+        // Quick booking button
+        findViewById<MaterialButton>(R.id.quickBookingButton)?.setOnClickListener {
+            val intent = Intent(this, BookingFormActivity::class.java)
+            intent.putExtra("booking_type", "Tour")
+            intent.putExtra("booking_name", "Dubai Tour")
+            startActivity(intent)
         }
-    }
-    
-    private fun showNewChatDialog() {
-        val options = arrayOf("General Support", "Tour Guide", "Booking Help", "Emergency")
-        
-        val dialog = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
-            .setTitle("Start New Chat")
-            .setItems(options) { _, which ->
-                val chatType = when (which) {
-                    0 -> "support"
-                    1 -> "guide"
-                    2 -> "booking"
-                    3 -> "emergency"
-                    else -> "support"
-                }
-                
-                lifecycleScope.launch {
-                    val result = liveChatService.createChatRoom(chatType, listOf())
-                    if (result.isSuccess) {
-                        val newChatRoom = result.getOrNull()
-                        if (newChatRoom != null) {
-                            chatRooms.add(0, newChatRoom)
-                            chatRoomsAdapter.updateChatRooms(chatRooms)
-                            showChatRoom(newChatRoom)
-                        }
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
-        
-        dialog.show()
-        
-        // Force set text color to black for better visibility
-        dialog.listView?.let { listView ->
-            listView.post {
-                for (i in 0 until listView.count) {
-                    val child = listView.getChildAt(i)
-                    if (child is TextView) {
-                        child.setTextColor(resources.getColor(R.color.text_dark, theme))
-                        child.textSize = 16f
-                    }
-                }
-            }
+
+        // Quick support button
+        findViewById<MaterialButton>(R.id.quickSupportButton)?.setOnClickListener {
+            Toast.makeText(this, "Connecting you to a support agent...", Toast.LENGTH_SHORT).show()
         }
     }
-    
-    private fun showChatRoom(chatRoom: ChatRoom) {
-        val messages = liveChatService.getMessages(chatRoom.id)
-        
-        val messageBuilder = StringBuilder()
-        messageBuilder.append("Chat: ${chatRoom.title}\n")
-        messageBuilder.append("Participants: ${chatRoom.participants.size}\n")
-        messageBuilder.append("Status: ${if (chatRoom.isActive) "Active" else "Inactive"}\n\n")
-        
-        messages.forEach { message ->
-            val sender = if (message.senderType.name == "USER") "You" else "Guide"
-            val time = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
-                .format(java.util.Date(message.timestamp))
-            messageBuilder.append("$sender ($time): ${message.message}\n\n")
-        }
-        
-        // Add message input
-        val inputView = layoutInflater.inflate(R.layout.dialog_chat_input, null)
-        val messageInput = inputView.findViewById<EditText>(R.id.messageInput)
-        
-        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
-            .setTitle("Live Chat")
-            .setMessage(messageBuilder.toString())
-            .setView(inputView)
-            .setPositiveButton("Send") { _, _ ->
-                val message = messageInput.text.toString()
-                if (message.isNotEmpty()) {
-                    sendMessage(chatRoom, message)
-                }
-            }
-            .setNegativeButton("Close", null)
-            .show()
+
+    private fun showWelcomeMessage() {
+        Toast.makeText(this, "Welcome to Dubai Discoveries Live Chat!", Toast.LENGTH_SHORT).show()
     }
-    
-    private fun sendMessage(chatRoom: ChatRoom, message: String) {
-        lifecycleScope.launch {
-            val result = liveChatService.sendMessage(chatRoom.id, message)
-            if (result.isSuccess) {
-                Toast.makeText(this@LiveChatActivity, "Message sent!", Toast.LENGTH_SHORT).show()
-                // Refresh chat rooms to show updated last message
-                loadChatRooms()
-                chatRoomsAdapter.updateChatRooms(chatRooms)
-            } else {
-                Toast.makeText(this@LiveChatActivity, "Failed to send message", Toast.LENGTH_SHORT).show()
-            }
+
+    private fun sendMessage() {
+        val message = messageInput.text.toString().trim()
+        
+        if (message.isNotEmpty()) {
+            // In a real app, you would send this message to a server
+            Toast.makeText(this, "Message sent: $message", Toast.LENGTH_SHORT).show()
+            
+            // Clear input
+            messageInput.text?.clear()
+            
+            // Show auto-reply (simulating agent response)
+            showAutoReply()
+        } else {
+            Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show()
         }
     }
-    
+
+    private fun showAutoReply() {
+        // Simulate agent response
+        val responses = listOf(
+            "Thank you for your message! Our team will get back to you shortly.",
+            "I understand your inquiry. Let me help you with that.",
+            "Great question! Here's what I can tell you about that.",
+            "I'm here to help you plan your perfect Dubai experience.",
+            "Let me connect you with our booking specialist."
+        )
+        
+        val randomResponse = responses.random()
+        Toast.makeText(this, "Agent: $randomResponse", Toast.LENGTH_LONG).show()
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

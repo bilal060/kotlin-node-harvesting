@@ -1,210 +1,637 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/background_ivory"
+    tools:context=".BuildItineraryActivity">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="@color/primary_color"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Build Your Itinerary"
-        app:titleTextColor="@color/golden_color" />
+        android:elevation="0dp">
 
-    <!-- Tab Layout -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:tabTextColor="@color/text_secondary"
-        app:tabSelectedTextColor="@color/primary_color"
-        app:tabIndicatorColor="@color/primary_color"
-        app:tabMode="fixed"
-        app:tabGravity="fill" />
-
-    <!-- Content Area -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <!-- Attractions Tab -->
-        <LinearLayout
-            android:id="@+id/attractionsContainer"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+            app:title="Build Your Itinerary"
+            app:titleTextColor="@color/white"
+            app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
 
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@color/surface_color">
+    </com.google.android.material.appbar.AppBarLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Select Attractions"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Choose the attractions you'd like to visit during your trip"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <!-- Attractions List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/attractionsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:clipToPadding="false" />
-
-        </LinearLayout>
-
-        <!-- Services Tab -->
-        <LinearLayout
-            android:id="@+id/servicesContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@color/surface_color">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Select Services"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Choose additional services to enhance your experience"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <!-- Services List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/servicesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:clipToPadding="false" />
-
-        </LinearLayout>
-
-        <!-- Itinerary Tab -->
-        <LinearLayout
-            android:id="@+id/itineraryContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@color/surface_color">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Your Itinerary"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Review and organize your selected items by day"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <!-- Itinerary List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/itineraryRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:clipToPadding="false" />
-
-        </LinearLayout>
-
-    </FrameLayout>
-
-    <!-- Bottom Action Buttons -->
-    <LinearLayout
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/white"
-        android:elevation="8dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Create Itinerary Button -->
-        <Button
-            android:id="@+id/createItineraryButton"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Itinerary (0 items)"
-            android:textColor="@color/white"
-            android:background="@drawable/button_background"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp"
-            android:enabled="false" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Save Itinerary Button -->
-        <Button
-            android:id="@+id/saveItineraryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Itinerary"
-            android:textColor="@color/primary_color"
-            android:background="@drawable/button_outline_background"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:padding="16dp" />
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
 
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_background"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-</LinearLayout> 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Build Your Itinerary"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline2"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Create your perfect Dubai adventure"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                        android:textColor="@color/white"
+                        android:textAlignment="center" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Trip Details -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Trip Details"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Trip Name -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="Trip Name"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="8dp"
+                            app:boxCornerRadiusBottomStart="8dp"
+                            app:boxCornerRadiusTopEnd="8dp"
+                            app:boxCornerRadiusTopStart="8dp"
+                            app:boxStrokeColor="@color/divider_color"
+                            app:hintTextColor="@color/text_secondary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Enter trip name"
+                                android:text="Dubai Adventure 2024"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <!-- Trip Duration -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="Start Date"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxCornerRadiusBottomEnd="8dp"
+                                app:boxCornerRadiusBottomStart="8dp"
+                                app:boxCornerRadiusTopEnd="8dp"
+                                app:boxCornerRadiusTopStart="8dp"
+                                app:boxStrokeColor="@color/divider_color"
+                                app:hintTextColor="@color/text_secondary">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Start date"
+                                    android:inputType="date"
+                                    android:text="March 15, 2024"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="End Date"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxCornerRadiusBottomEnd="8dp"
+                                app:boxCornerRadiusBottomStart="8dp"
+                                app:boxCornerRadiusTopEnd="8dp"
+                                app:boxCornerRadiusTopStart="8dp"
+                                app:boxStrokeColor="@color/divider_color"
+                                app:hintTextColor="@color/text_secondary">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="End date"
+                                    android:inputType="date"
+                                    android:text="March 20, 2024"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Number of Guests -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="Number of Guests"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                            android:textColor="@color/text_secondary" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="8dp"
+                            app:boxCornerRadiusBottomStart="8dp"
+                            app:boxCornerRadiusTopEnd="8dp"
+                            app:boxCornerRadiusTopStart="8dp"
+                            app:boxStrokeColor="@color/divider_color"
+                            app:hintTextColor="@color/text_secondary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Number of guests"
+                                android:inputType="number"
+                                android:text="2"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Select Attractions -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Select Attractions"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Choose your preferred attractions"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
+
+                    <!-- Attraction Options -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Burj Khalifa -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/rounded_corner_background"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <CheckBox
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="12dp"
+                                android:checked="true"
+                                android:buttonTint="@color/accent_gold" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Burj Khalifa"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="World's tallest building"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="AED 150"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                android:textColor="@color/accent_gold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <!-- Dubai Mall -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/rounded_corner_background"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <CheckBox
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="12dp"
+                                android:checked="true"
+                                android:buttonTint="@color/accent_gold" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Dubai Mall"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="World's largest shopping mall"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Free"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                android:textColor="@color/accent_gold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <!-- Desert Safari -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/rounded_corner_background"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <CheckBox
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="12dp"
+                                android:checked="true"
+                                android:buttonTint="@color/accent_gold" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Desert Safari"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Arabian desert adventure"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="AED 350"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                android:textColor="@color/accent_gold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Add More Attractions"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="8dp"
+                        app:icon="@android:drawable/ic_menu_add"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Total Cost -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Trip Summary"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Duration:"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="6 Days"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Attractions:"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3 Selected"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/divider_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Cost:"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AED 500"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                            android:textColor="@color/accent_gold"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Build Itinerary Button -->
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="24dp"
+                android:text="Build My Itinerary"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                app:backgroundTint="@color/accent_gold"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_menu_myplaces"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
+            <!-- Contact Support -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Need Help Building Your Itinerary?"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Our travel experts can help you create the perfect Dubai itinerary tailored to your preferences."
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Contact Expert"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

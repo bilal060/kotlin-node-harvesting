@@ -1,215 +1,87 @@
 package com.devicesync.app
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
-import java.util.*
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 
 class BookingFormActivity : AppCompatActivity() {
-    
-    private lateinit var dateButton: Button
-    private lateinit var timeButton: Button
-    private lateinit var peopleCountText: TextView
-    private lateinit var decreasePeopleButton: Button
-    private lateinit var increasePeopleButton: Button
-    private lateinit var contactNameEditText: EditText
-    private lateinit var contactEmailEditText: EditText
-    private lateinit var contactPhoneEditText: EditText
-    private lateinit var specialRequestsEditText: EditText
-    private lateinit var bookNowButton: Button
 
-    
-    private var selectedDate: Calendar? = null
-    private var selectedTime: Calendar? = null
-    private var peopleCount = 2
-    
-    private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    
-    companion object {
-        fun start(context: Context) {
-            val intent = Intent(context, BookingFormActivity::class.java)
-            context.startActivity(intent)
-        }
-    }
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_booking_form)
-        
-        initializeViews()
-        setupClickListeners()
-        updatePeopleCount()
-        
-        // Handle dates passed from main activity
-        handlePassedDates()
-    }
-    
-    private fun initializeViews() {
+
         // Setup toolbar
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+        
+        // Enable back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        // Get booking details from intent
+        val bookingType = intent.getStringExtra("booking_type") ?: "Tour"
+        val bookingName = intent.getStringExtra("booking_name") ?: "Dubai Experience"
         
-        dateButton = findViewById(R.id.dateButton)
-        timeButton = findViewById(R.id.timeButton)
-        peopleCountText = findViewById(R.id.peopleCountText)
-        decreasePeopleButton = findViewById(R.id.decreasePeopleButton)
-        increasePeopleButton = findViewById(R.id.increasePeopleButton)
-        contactNameEditText = findViewById(R.id.contactNameEditText)
-        contactEmailEditText = findViewById(R.id.contactEmailEditText)
-        contactPhoneEditText = findViewById(R.id.contactPhoneEditText)
-        specialRequestsEditText = findViewById(R.id.specialRequestsEditText)
-        bookNowButton = findViewById(R.id.bookNowButton)
+        // Update toolbar title
+        supportActionBar?.title = "Book $bookingName"
+
+        // Setup button click listeners
+        setupButtonListeners()
     }
-    
-    private fun setupClickListeners() {
-        dateButton.setOnClickListener {
-            showDatePicker()
-        }
-        
-        timeButton.setOnClickListener {
-            showTimePicker()
-        }
-        
-        decreasePeopleButton.setOnClickListener {
-            if (peopleCount > 1) {
-                peopleCount--
-                updatePeopleCount()
-            }
-        }
-        
-        increasePeopleButton.setOnClickListener {
-            if (peopleCount < 20) {
-                peopleCount++
-                updatePeopleCount()
-            }
-        }
-        
-        bookNowButton.setOnClickListener {
+
+    private fun setupButtonListeners() {
+        // Submit Booking button
+        findViewById<MaterialButton>(R.id.submitBookingButton)?.setOnClickListener {
             submitBooking()
         }
-    }
-    
-    private fun handlePassedDates() {
-        val startDateMillis = intent.getLongExtra("startDate", -1)
-        val endDateMillis = intent.getLongExtra("endDate", -1)
-        
-        if (startDateMillis != -1L && endDateMillis != -1L) {
-            val startDate = Calendar.getInstance().apply { timeInMillis = startDateMillis }
-            val endDate = Calendar.getInstance().apply { timeInMillis = endDateMillis }
-            
-            // Set the date button to show the date range
-            val dateRangeText = "${dateFormat.format(startDate.time)} - ${dateFormat.format(endDate.time)}"
-            dateButton.text = dateRangeText
-            
-            // Set selected date to start date for time picker
-            selectedDate = startDate
+
+        // Contact Support button
+        findViewById<MaterialButton>(R.id.contactSupportButton)?.setOnClickListener {
+            val intent = Intent(this, ContactActivity::class.java)
+            intent.putExtra("subject", "Booking Support Request")
+            startActivity(intent)
         }
     }
-    
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, year, month, dayOfMonth ->
-                selectedDate = Calendar.getInstance().apply {
-                    set(year, month, dayOfMonth)
-                }
-                selectedDate?.let { date ->
-                    dateButton.text = "📅 ${dateFormat.format(date.time)}"
-                }
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        
-        // Set minimum date to today
-        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-        
-        datePickerDialog.show()
-    }
-    
-    private fun showTimePicker() {
-        val calendar = Calendar.getInstance()
-        
-        val timePickerDialog = TimePickerDialog(
-            this,
-            { _, hourOfDay, minute ->
-                selectedTime = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, hourOfDay)
-                    set(Calendar.MINUTE, minute)
-                }
-                selectedTime?.let { time ->
-                    timeButton.text = "🕐 ${timeFormat.format(time.time)}"
-                }
-            },
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE),
-            true // 24-hour format
-        )
-        
-        timePickerDialog.show()
-    }
-    
-    private fun updatePeopleCount() {
-        peopleCountText.text = peopleCount.toString()
-    }
-    
+
     private fun submitBooking() {
+        // Get form data
+        val fullName = findViewById<TextInputEditText>(R.id.fullNameInput)?.text.toString()
+        val email = findViewById<TextInputEditText>(R.id.emailInput)?.text.toString()
+        val phone = findViewById<TextInputEditText>(R.id.phoneInput)?.text.toString()
+        val guests = findViewById<TextInputEditText>(R.id.guestsInput)?.text.toString()
+        val date = findViewById<TextInputEditText>(R.id.dateInput)?.text.toString()
+        val requests = findViewById<TextInputEditText>(R.id.requestsInput)?.text.toString()
+
         // Validate form
-        if (!validateForm()) {
+        if (fullName.isBlank() || email.isBlank() || phone.isBlank() || guests.isBlank() || date.isBlank()) {
+            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Validate email format
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Validate guests number
+        val guestsNumber = guests.toIntOrNull()
+        if (guestsNumber == null || guestsNumber <= 0) {
+            Toast.makeText(this, "Please enter a valid number of guests", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Submit booking (in a real app, this would send to a server)
+        Toast.makeText(this, "Booking request submitted successfully! We'll contact you within 24 hours.", Toast.LENGTH_LONG).show()
         
-        // Show success dialog
-        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
-            .setTitle("Booking Submitted")
-            .setMessage("Your booking has been submitted successfully! We will contact you soon to confirm your reservation.")
-            .setPositiveButton("OK") { _, _ ->
-                finish()
-            }
-            .setCancelable(false)
-            .show()
+        // Navigate back to previous screen
+        onBackPressed()
     }
-    
-    private fun validateForm(): Boolean {
-        if (selectedDate == null) {
-            Toast.makeText(this, "Please select a date", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        
-        if (selectedTime == null) {
-            Toast.makeText(this, "Please select a time", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        
-        if (contactNameEditText.text.isNullOrBlank()) {
-            Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        
-        if (contactEmailEditText.text.isNullOrBlank()) {
-            Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        
-        if (contactPhoneEditText.text.isNullOrBlank()) {
-            Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        
-        return true
-    }
-    
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="280dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="16dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
+    android:layout_margin="8dp"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="@color/surface_color">
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/surface_color"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Review Header -->
+        <!-- Header Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:orientation="horizontal">
 
             <!-- User Avatar -->
-            <ImageView
-                android:id="@+id/userAvatar"
+            <androidx.cardview.widget.CardView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/original_logo"
-                android:contentDescription="User Avatar"
-                android:scaleType="centerCrop"
-                android:background="@drawable/circle_background"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"
+                app:cardBackgroundColor="@color/accent_gold"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="User Avatar"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:tint="@color/white" />
+
+            </androidx.cardview.widget.CardView>
 
             <!-- User Info -->
             <LinearLayout
@@ -46,101 +55,227 @@
                     android:id="@+id/userName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/review_user_sample"
-                    android:textSize="16sp"
+                    android:text="Sarah Johnson"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Subtitle1"
+                    android:textColor="@color/text_dark"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    tools:text="Sarah Johnson" />
 
                 <TextView
                     android:id="@+id/reviewDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/review_date_sample"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                    android:text="2 days ago"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                    android:textColor="@color/text_secondary"
+                    tools:text="2 days ago" />
 
             </LinearLayout>
 
             <!-- Rating -->
+            <RatingBar
+                android:id="@+id/reviewRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:numStars="5"
+                android:progressTint="@color/accent_gold"
+                android:rating="4.5"
+                android:stepSize="0.1"
+                style="?android:attr/ratingBarStyleSmall" />
+
+        </LinearLayout>
+
+        <!-- Review Title -->
+        <TextView
+            android:id="@+id/reviewTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Amazing Experience!"
+            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+            android:textColor="@color/text_dark"
+            android:textStyle="bold"
+            tools:text="Amazing Experience!" />
+
+        <!-- Review Content -->
+        <TextView
+            android:id="@+id/reviewContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="The tour was absolutely incredible! Our guide was knowledgeable and friendly. The views from the Burj Khalifa were breathtaking. Highly recommend this experience to anyone visiting Dubai."
+            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+            android:textColor="@color/text_secondary"
+            android:lineSpacingExtra="2dp"
+            tools:text="The tour was absolutely incredible! Our guide was knowledgeable and friendly. The views from the Burj Khalifa were breathtaking. Highly recommend this experience to anyone visiting Dubai." />
+
+        <!-- Review Images (if any) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:scrollbars="none">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/ratingText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/review_rating_sample"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/accent_gold"
-                    android:layout_marginEnd="4dp" />
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_favorite_filled"
-                    android:contentDescription="Star Rating"
-                    android:tint="@color/accent_gold" />
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_corner_background"
+                    android:contentDescription="Review Image"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_corner_background"
+                    android:contentDescription="Review Image"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/rounded_corner_background"
+                    android:contentDescription="Review Image"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <!-- Review Tags -->
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:singleSelection="false">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Professional Guide"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                app:chipBackgroundColor="@color/chip_background"
+                app:chipStrokeColor="@color/accent_gold"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Great Views"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                app:chipBackgroundColor="@color/chip_background"
+                app:chipStrokeColor="@color/accent_gold"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Worth the Price"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                app:chipBackgroundColor="@color/chip_background"
+                app:chipStrokeColor="@color/accent_gold"
+                app:chipStrokeWidth="1dp" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <!-- Helpful Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@android:drawable/btn_star_big_on"
+                    android:contentDescription="Helpful"
+                    android:tint="@color/text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Helpful"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                    android:textColor="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- Reply Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@android:drawable/ic_menu_send"
+                    android:contentDescription="Reply"
+                    android:tint="@color/text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reply"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                    android:textColor="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- Share Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@android:drawable/ic_menu_share"
+                    android:contentDescription="Share"
+                    android:tint="@color/text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Share"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                    android:textColor="@color/text_secondary" />
 
             </LinearLayout>
 
         </LinearLayout>
-
-        <!-- Review Text -->
-        <TextView
-            android:id="@+id/reviewText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/review_text_sample"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:lineSpacingExtra="2dp"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Review Tags -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/review_tag_desert_safari"
-                android:textSize="12sp"
-                android:textColor="@color/primary_color"
-                android:background="@drawable/badge_background"
-                android:padding="6dp"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/review_tag_great_guide"
-                android:textSize="12sp"
-                android:textColor="@color/primary_color"
-                android:background="@drawable/badge_background"
-                android:padding="6dp" />
-
-        </LinearLayout>
-
-        <!-- Helpful Button -->
-        <Button
-            android:id="@+id/helpfulButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/review_helpful_sample"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
-            android:background="@drawable/button_outline_background"
-            android:padding="8dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            style="@style/Widget.DeviceSync.Button.Outlined" />
 
     </LinearLayout>
 

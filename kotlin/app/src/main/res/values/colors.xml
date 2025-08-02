@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dubai Discoveries Brand Colors -->
-    <color name="primary_color">#005C69</color>      <!-- Rich Teal Blue -->
-    <color name="secondary_color">#002F3F</color>    <!-- Deep Royal Blue -->
-    <color name="accent_gold">#D4AF37</color>        <!-- Metallic Gold -->
-    <color name="accent_gold_light">#FFD700</color>  <!-- Light Gold -->
-    <color name="deep_gold">#B98B2E</color>          <!-- Deep Gold -->
-    <color name="background_ivory">#F5F5F5</color>   <!-- Ivory/Off-white -->
-    <color name="text_dark">#1C1C1C</color>          <!-- Deep Charcoal -->
-    <color name="text_light">#FFFFFF</color>         <!-- Soft White -->
+    <!-- Dubai Discoveries Brand Colors (2025 Modern Theme) -->
+    <color name="primary_color">#1E3A8A</color>      <!-- Modern Blue -->
+    <color name="secondary_color">#0F172A</color>    <!-- Dark Blue -->
+    <color name="accent_gold">#F59E0B</color>        <!-- Modern Gold -->
+    <color name="accent_gold_light">#FCD34D</color>  <!-- Light Gold -->
+    <color name="deep_gold">#D97706</color>          <!-- Dark Gold -->
+    <color name="background_ivory">#F8FAFC</color>   <!-- Light Gray -->
+    <color name="text_dark">#1E293B</color>          <!-- Dark Text -->
+    <color name="text_light">#FFFFFF</color>         <!-- White Text -->
     
     <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>
@@ -28,49 +28,87 @@
     
     <!-- UI Colors -->
     <color name="surface_color">#FFFFFF</color>
-    <color name="surface_dark">#F8F9FA</color>
+    <color name="surface_dark">#F1F5F9</color>
     <color name="text_primary">@color/text_dark</color>
-    <color name="text_secondary">#666666</color>
-    <color name="text_hint">#BDBDBD</color>
-    <color name="text_disabled">#9E9E9E</color>
-    <color name="divider_color">#E0E0E0</color>
-    <color name="background_color">@color/background_ivory</color>
+    <color name="text_secondary">#64748B</color>              <!-- Modern Gray -->
+    <color name="text_hint">#94A3B8</color>                   <!-- Light Gray -->
+    <color name="text_disabled">#CBD5E1</color>               <!-- Disabled Gray -->
+    <color name="divider_color">#E2E8F0</color>
+    <color name="background_color">@color/surface_color</color>
     <color name="shadow_color">#1A000000</color>
     
     <!-- Status Colors -->
-    <color name="success_color">#4CAF50</color>
-    <color name="warning_color">#FF9800</color>
-    <color name="error_color">#F44336</color>
+    <color name="success_color">#10B981</color>              <!-- Modern Green -->
+    <color name="warning_color">#F59E0B</color>              <!-- Modern Orange -->
+    <color name="error_color">#EF4444</color>                <!-- Modern Red -->
     <color name="info_color">@color/primary_color</color>
     
-    <!-- Dark Mode Colors (default fallbacks) -->
-    <color name="background_dark">#121212</color>
-    <color name="surface_dark_color">#1E1E1E</color>
-    <color name="surface_dark_light">#2D2D2D</color>
-    <color name="text_primary_dark">#FFFFFF</color>
-    <color name="text_secondary_dark">#B3FFFFFF</color>
-    <color name="text_hint_dark">#80FFFFFF</color>
-    <color name="text_disabled_dark">#66FFFFFF</color>
-    <color name="divider_dark">#2D2D2D</color>
+    <!-- Dark Mode Colors -->
+    <color name="background_dark">#0F172A</color>
+    <color name="surface_dark_color">#1E293B</color>
+    <color name="surface_dark_light">#334155</color>
+    <color name="text_primary_dark">#F8FAFC</color>
+    <color name="text_secondary_dark">#CBD5E1</color>
+    <color name="text_hint_dark">#94A3B8</color>
+    <color name="text_disabled_dark">#64748B</color>
+    <color name="divider_dark">#334155</color>
     <color name="shadow_dark">#40000000</color>
     
     <!-- Additional colors for detail views -->
     <color name="primary">@color/primary_color</color>
-    <color name="border_light">#E0E0E0</color>
-    <color name="chip_background">#F5F5F5</color>
-    <color name="chip_text">#666666</color>
+    <color name="border_light">#E2E8F0</color>
+    <color name="chip_background">#F1F5F9</color>
+    <color name="chip_text">#64748B</color>
     
     <!-- Status colors for UI elements -->
-    <color name="success_green">#4CAF50</color>
-    <color name="warning_orange">#FF9800</color>
-    <color name="error_red">#F44336</color>
-    <color name="info_blue">#2196F3</color>
+    <color name="success_green">#10B981</color>
+    <color name="warning_orange">#F59E0B</color>
+    <color name="error_red">#EF4444</color>
+    <color name="info_blue">#3B82F6</color>
     
     <!-- Additional colors for new UI screens -->
-    <color name="gray">#666666</color>
-    <color name="light_gray">#BDBDBD</color>
+    <color name="gray">#64748B</color>
+    <color name="light_gray">#94A3B8</color>
     
     <!-- Navigation Drawer Colors -->
-    <color name="drawer_background">#2E7D32</color>  <!-- Green background -->
-    <color name="golden_color">#FFD700</color>       <!-- Golden text color -->
+    <color name="drawer_background">@color/surface_color</color>
+    <color name="golden_color">@color/accent_gold</color>
+    
+    <!-- Missing colors for chip selectors -->
+    <color name="chip_background_selected">@color/success_color</color>
+    <color name="chip_border_selected">@color/success_color</color>
+    <color name="chip_border">@color/border_light</color>
+    <color name="chip_text_selected">@color/text_light</color>
+    
+    <!-- Missing colors for text input -->
+    <color name="input_border_focused">@color/success_color</color>
+    <color name="border_medium">@color/border_light</color>
+    
+    <!-- Missing colors for backgrounds -->
+    <color name="background_primary">@color/surface_color</color>
+    
+    <!-- Consistent Button Colors -->
+    <color name="button_primary">@color/success_color</color>
+    <color name="button_secondary">#059669</color>
+    <color name="button_text">@color/text_light</color>
+    
+    <!-- Consistent Header Colors -->
+    <color name="header_background">@color/surface_color</color>
+    <color name="header_text">@color/accent_gold</color>
+    
+    <!-- Consistent Card Colors -->
+    <color name="card_background">@color/surface_color</color>
+    <color name="card_border">@color/border_light</color>
+    
+    <!-- Consistent Section Colors -->
+    <color name="section_background">@color/surface_color</color>
+    <color name="section_header">@color/accent_gold</color>
+    
+    <!-- Input Text Colors -->
+    <color name="input_text_color">@color/text_dark</color>
+    <color name="input_hint_color">@color/text_hint</color>
+    <color name="input_background">@color/surface_color</color>
+    
+    <!-- Navigation Item Colors -->
+    <color name="nav_item_color">@color/text_dark</color>
 </resources> 

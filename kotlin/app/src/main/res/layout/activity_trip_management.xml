@@ -1,251 +1,465 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color">
+    android:background="@color/background_ivory"
+    tools:context=".TripManagementActivity">
 
-    <LinearLayout
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@color/primary_color"
+        android:elevation="0dp">
 
-        <!-- Trip Header -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+            app:title="Trip Management"
+            app:titleTextColor="@color/white"
+            app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            
-            app:cardBackgroundColor="@color/surface_color">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@drawable/gradient_background">
-
-                <TextView
-                    android:id="@+id/tripTitleText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Dubai Essential Experience"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tripDateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="2024-03-14 - 2024-03-16"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    android:alpha="0.9" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Guide Information -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            
-            app:cardBackgroundColor="@android:color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <ImageView
-                    android:id="@+id/guideImage"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/circle_background"
-                    android:layout_marginEnd="16dp" />
+                android:layout_height="180dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_background"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
                     <TextView
-                        android:id="@+id/guideNameText"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ahmed Hassan"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary_color"
-                        android:layout_marginBottom="4dp" />
+                        android:text="Manage Your Trip"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline2"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/guidePhoneText"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+971 50 123 4567"
-                        android:textSize="14sp"
-                        android:textColor="@color/secondary_color"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:padding="4dp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/guideRatingText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="★ 4.8"
-                        android:textSize="14sp"
-                        android:textColor="@color/accent_gold" />
+                        android:layout_marginTop="8dp"
+                        android:text="Plan, customize, and track your Dubai adventure"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                        android:textColor="@color/white"
+                        android:textAlignment="center" />
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        </androidx.cardview.widget.CardView>
+            <!-- Current Trip Status -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Current Trip"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
 
-        <!-- Progress Section -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            
-            app:cardBackgroundColor="@android:color/white">
-
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
 
-                <TextView
-                    android:id="@+id/todayProgressText"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Today's Progress: 35%"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary_color"
-                    android:layout_marginBottom="8dp" />
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:progress="35"
-                    android:progressTint="@color/success_green"
-                    android:layout_marginBottom="12dp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/yesterdayProgressText"
+                        <ImageView
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_marginEnd="16dp"
+                            android:background="@color/accent_gold"
+                            android:contentDescription="Trip Icon"
+                            android:src="@android:drawable/ic_menu_myplaces"
+                            android:tint="@color/white" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
+                                android:text="Dubai Adventure 2024"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                android:textColor="@color/text_dark"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="March 15-20, 2024"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/price_badge_background"
+                                android:padding="8dp"
+                                android:text="ACTIVE"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/divider_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Days Left"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="5"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
+                                android:textColor="@color/accent_gold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Activities"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="8"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
+                                android:textColor="@color/primary_color"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Progress"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="60%"
+                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
+                                android:textColor="@color/accent_gold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quick Actions -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Quick Actions"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:columnCount="2"
+                android:rowCount="2">
+
+                <!-- View Itinerary -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_color"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/primary_color"
+                            android:contentDescription="Itinerary"
+                            android:src="@android:drawable/ic_menu_myplaces"
+                            android:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View Itinerary"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Modify Trip -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_color"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/accent_gold"
+                            android:contentDescription="Modify"
+                            android:src="@android:drawable/ic_menu_edit"
+                            android:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Modify Trip"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Add Activity -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_color"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/primary_color"
+                            android:contentDescription="Add Activity"
+                            android:src="@android:drawable/ic_menu_add"
+                            android:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Add Activity"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Trip Status -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_color"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/accent_gold"
+                            android:contentDescription="Status"
+                            android:src="@android:drawable/ic_menu_info_details"
+                            android:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Trip Status"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                            android:textColor="@color/text_dark"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </GridLayout>
+
+            <!-- Contact Support -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Yesterday: Completed 2 attractions"
-                    android:textSize="14sp"
-                    android:textColor="@color/success_green"
-                    android:layout_marginBottom="4dp" />
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/tomorrowPreviewText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Tomorrow: 2 attractions planned"
-                    android:textSize="14sp"
-                    android:textColor="@color/info_blue" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Need Help with Your Trip?"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark" />
 
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Our travel experts are here to help you customize and manage your Dubai adventure."
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
 
-        </androidx.cardview.widget.CardView>
+                    <com.google.android.material.button.MaterialButton
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Contact Support"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
 
-        <!-- Today's Attractions -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Today's Attractions"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="8dp" />
+                </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/attractionsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            </androidx.cardview.widget.CardView>
 
-        <!-- Today's Services -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Today's Services"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="8dp" />
+        </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/servicesRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- Booked Tickets -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Booked Tickets"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="8dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/bookedTicketsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Pending Tickets -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pending Tickets"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="8dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/pendingTicketsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Report Issue Button -->
-        <Button
-            android:id="@+id/reportIssueButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Report Issue with Guide"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_background"
-            android:textSize="16sp"
-            android:padding="16dp" />
-
-    </LinearLayout>
-
-</ScrollView> 
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

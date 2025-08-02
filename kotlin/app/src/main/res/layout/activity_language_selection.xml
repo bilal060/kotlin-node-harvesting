@@ -1,210 +1,379 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/gradient_background"
-    android:gravity="center"
-    android:padding="32dp">
+    android:background="@color/background_color"
+    tools:context=".LanguageSelectionActivity">
 
-    <!-- App Logo -->
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/placeholder_image"
-        android:background="@drawable/circular_logo_background"
-        android:padding="8dp"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="32dp"
-        android:contentDescription="Dubai Discoveries Logo" />
-
-    <!-- Welcome Title -->
-    <TextView
-        android:id="@+id/welcomeTitle"
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to Dubai Discoveries"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="sans-serif-medium" />
+        android:background="@color/primary_color">
 
-    <!-- Welcome Subtitle -->
-    <TextView
-        android:id="@+id/welcomeSubtitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Your ultimate guide to exploring the magic of Dubai"
-        android:textSize="16sp"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:alpha="0.9"
-        android:layout_marginBottom="48dp"
-        android:lineSpacingExtra="4dp" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Select Language"
+            app:titleTextColor="@color/white" />
 
-    <!-- Language Selection Card -->
-    <androidx.cardview.widget.CardView
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        
-        app:cardBackgroundColor="@color/white"
-        android:layout_marginBottom="32dp">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp">
 
-            <!-- Language Selection Title -->
-            <TextView
-                android:id="@+id/languageTitle"
+            <!-- Hero Section -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Choose Your Language"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:gravity="center"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
 
-            <!-- Language Selection Subtitle -->
-            <TextView
-                android:id="@+id/languageSubtitle"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_background"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/circle_background_white"
+                        android:contentDescription="Language Icon"
+                        android:padding="20dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:tint="@color/primary_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Choose Your Language"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="Select your preferred language for the best experience"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/white"
+                        android:alpha="0.9" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Language Options -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select your preferred language to get started"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                android:gravity="center"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
 
-            <!-- Language Dropdown -->
-            <Spinner
-                android:id="@+id/languageSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_background"
-                android:padding="16dp"
-                android:layout_marginBottom="24dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/surface_color"
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-            <!-- Continue Button -->
-            <Button
-                android:id="@+id/continueButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Continue"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/button_background"
-                android:padding="16dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="Available Languages"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
+
+                    <!-- English -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/englishCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/primary_color"
+                        app:strokeWidth="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="English Flag"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="English"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Default language"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center_vertical"
+                                android:contentDescription="Selected"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/accent_gold" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Arabic -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/arabicCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/text_secondary"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="Arabic Flag"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="العربية"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Arabic language"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- French -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/frenchCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/text_secondary"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="French Flag"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Français"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="French language"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- German -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/germanCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/text_secondary"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/surface_color"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="16dp"
+                                android:background="@drawable/circle_background_light"
+                                android:contentDescription="German Flag"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:tint="@color/primary_color" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Deutsch"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
+                                    android:textColor="@color/text_dark"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="German language"
+                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Apply Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/applyLanguageButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Apply Language"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/accent_gold"
+                        app:cornerRadius="16dp"
+                        app:icon="@android:drawable/ic_menu_myplaces"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Features Preview -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="32dp">
-
-        <!-- Feature 1 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginEnd="16dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_guide"
-                android:background="@drawable/circle_background"
-                android:padding="12dp"
-                android:tint="@color/white"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/feature1Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Expert Guides"
-                android:textSize="12sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium" />
-
-        </LinearLayout>
-
-        <!-- Feature 2 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginEnd="16dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_time"
-                android:background="@drawable/circle_background"
-                android:padding="12dp"
-                android:tint="@color/white"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/feature2Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Smart Planning"
-                android:textSize="12sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium" />
-
-        </LinearLayout>
-
-        <!-- Feature 3 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_favorite_filled"
-                android:background="@drawable/circle_background"
-                android:padding="12dp"
-                android:tint="@color/white"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/feature3Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Local Experiences"
-                android:textSize="12sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout> 
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

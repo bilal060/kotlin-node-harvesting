@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    
     app:cardCornerRadius="12dp"
-    
+    app:cardElevation="4dp"
     app:cardBackgroundColor="@color/surface_color">
 
     <RelativeLayout
@@ -28,7 +27,7 @@
             android:layout_height="32dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            
+            android:layout_margin="8dp"
             android:src="@drawable/ic_favorite_border"
             android:background="@drawable/circle_background"
             android:contentDescription="Favorite" />
