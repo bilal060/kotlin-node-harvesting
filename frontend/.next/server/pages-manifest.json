@@ -1,11 +1,1 @@
-{
-  "/admin-login": "pages/admin-login.js",
-  "/admin/dashboard": "pages/admin/dashboard.js",
-  "/_error": "pages/_error.js",
-  "/_app": "pages/_app.js",
-  "/data-viewer": "pages/data-viewer.js",
-  "/login": "pages/login.js",
-  "/devices": "pages/devices.js",
-  "/": "pages/index.js",
-  "/_document": "pages/_document.js"
-}
+{"/admin-login":"pages/admin-login.html","/admin/dashboard":"pages/admin/dashboard.html","/_error":"pages/_error.js","/_app":"pages/_app.js","/data-viewer":"pages/data-viewer.html","/login":"pages/login.html","/devices":"pages/devices.html","/":"pages/index.html","/_document":"pages/_document.js","/404":"pages/404.html"}
