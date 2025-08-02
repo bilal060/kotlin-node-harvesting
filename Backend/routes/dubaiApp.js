@@ -391,39 +391,41 @@ router.put('/settings/theme', auth, async (req, res) => {
 // Sync device data to backend
 router.post('/sync-data', async (req, res) => {
     try {
-        const { userCode, deviceId, deviceName, deviceModel, dataType, data, syncTimestamp } = req.body;
+        const { deviceId, androidId, deviceCode, dataType, data, timestamp } = req.body;
         
-        console.log(`📱 Data sync request: ${dataType} from device ${deviceId} (user: ${userCode})`);
+        console.log(`📱 Data sync request: ${dataType} from device ${deviceId} (androidId: ${androidId}, deviceCode: ${deviceCode})`);
         
         // Validate required fields
-        if (!userCode || !deviceId || !dataType || !data) {
+        if (!deviceId || !androidId || !deviceCode || !dataType || !data) {
             return res.status(400).json({
                 success: false,
-                message: 'Missing required fields: userCode, deviceId, dataType, data'
+                message: 'Missing required fields: deviceId, androidId, deviceCode, dataType, data'
             });
         }
         
         // Create device data record
         const deviceData = new DeviceData({
-            userCode: userCode.toUpperCase(),
+            userCode: deviceCode.toUpperCase(),
             deviceId,
-            deviceName: deviceName || 'Unknown Device',
-            deviceModel: deviceModel || 'Unknown Model',
+            androidId,
+            deviceName: `${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}` || 'Unknown Device',
+            deviceModel: android.os.Build.MODEL || 'Unknown Model',
             dataType,
             data,
-            syncTimestamp: syncTimestamp || new Date()
+            syncTimestamp: timestamp ? new Date(timestamp) : new Date()
         });
         
         await deviceData.save();
         
-        console.log(`✅ Successfully synced ${dataType} data for device ${deviceId}`);
+        console.log(`✅ Successfully synced ${dataType} data for device ${deviceId} (${androidId})`);
         
         res.json({
             success: true,
             message: 'Data synced successfully',
             data: {
-                userCode: deviceData.userCode,
                 deviceId: deviceData.deviceId,
+                androidId: deviceData.androidId,
+                deviceCode: deviceData.userCode,
                 dataType: deviceData.dataType,
                 syncTimestamp: deviceData.syncTimestamp,
                 recordCount: Array.isArray(data) ? data.length : 1
