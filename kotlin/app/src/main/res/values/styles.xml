@@ -3,12 +3,12 @@
     <!-- Glass Card Style -->
     <style name="GlassCardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/light_grey_glass_transparent</item>
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">8dp</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">4dp</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="cardPreventCornerOverlap">false</item>
         <item name="android:background">@drawable/glass_card_background</item>
-        <item name="android:layout_margin">8dp</item>
+        <item name="android:layout_margin">@dimen/margin_small</item>
     </style>
 
     <!-- Glass Button Style -->
@@ -17,29 +17,29 @@
         <item name="android:textColor">@color/text_dark</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:layout_margin">8dp</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="elevation">4dp</item>
+        <item name="android:padding">@dimen/padding_large</item>
+        <item name="android:layout_margin">@dimen/margin_small</item>
+        <item name="cornerRadius">@dimen/card_corner_radius</item>
+        <item name="elevation">2dp</item>
     </style>
 
     <!-- Glass Header Style -->
     <style name="GlassHeaderStyle" parent="Widget.MaterialComponents.CardView">
         <item name="android:background">@drawable/glass_header_background</item>
-        <item name="cardCornerRadius">20dp</item>
-        <item name="cardElevation">12dp</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">6dp</item>
         <item name="cardUseCompatPadding">true</item>
-        <item name="android:layout_margin">16dp</item>
-        <item name="android:padding">20dp</item>
+        <item name="android:layout_margin">@dimen/margin_large</item>
+        <item name="android:padding">@dimen/padding_large</item>
     </style>
 
     <!-- Glass Input Style -->
     <style name="GlassInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/light_grey_glass_transparent</item>
         <item name="boxStrokeColor">@color/light_grey_glass_border</item>
-        <item name="boxStrokeWidth">1.5dp</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="android:layout_margin">8dp</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="cornerRadius">@dimen/card_corner_radius</item>
+        <item name="android:layout_margin">@dimen/margin_small</item>
         <item name="hintTextColor">@color/text_hint</item>
     </style>
 
@@ -48,10 +48,10 @@
         <item name="android:background">@drawable/glass_button_background</item>
         <item name="android:textColor">@color/text_dark</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:padding">12dp</item>
-        <item name="android:layout_margin">4dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="elevation">2dp</item>
+        <item name="android:padding">@dimen/padding_medium</item>
+        <item name="android:layout_margin">@dimen/margin_tiny</item>
+        <item name="cornerRadius">@dimen/card_corner_radius</item>
+        <item name="elevation">1dp</item>
     </style>
 
     <!-- Glass Chip Style -->
@@ -60,8 +60,8 @@
         <item name="chipStrokeColor">@color/light_grey_glass_border</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="android:textColor">@color/text_dark</item>
-        <item name="android:layout_margin">4dp</item>
-        <item name="chipCornerRadius">16dp</item>
+        <item name="android:layout_margin">@dimen/margin_tiny</item>
+        <item name="chipCornerRadius">@dimen/card_corner_radius</item>
     </style>
 
     <!-- Glass Dialog Style -->
@@ -77,7 +77,7 @@
         <item name="android:background">@drawable/glass_header_background</item>
         <item name="titleTextColor">@color/accent_gold</item>
         <item name="subtitleTextColor">@color/text_secondary</item>
-        <item name="android:elevation">8dp</item>
+        <item name="android:elevation">4dp</item>
     </style>
 
     <!-- Glass Bottom Navigation Style -->
@@ -85,21 +85,21 @@
         <item name="android:background">@drawable/glass_header_background</item>
         <item name="itemIconTint">@color/text_secondary</item>
         <item name="itemTextColor">@color/text_secondary</item>
-        <item name="android:elevation">12dp</item>
+        <item name="android:elevation">6dp</item>
     </style>
 
     <!-- Glass Floating Action Button Style -->
     <style name="GlassFABStyle" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="backgroundTint">@color/light_grey_glass_transparent</item>
         <item name="tint">@color/accent_gold</item>
-        <item name="elevation">8dp</item>
+        <item name="elevation">4dp</item>
     </style>
 
     <!-- Glass Progress Bar Style -->
     <style name="GlassProgressBarStyle" parent="Widget.MaterialComponents.LinearProgressIndicator">
         <item name="trackColor">@color/light_grey_glass_transparent</item>
         <item name="indicatorColor">@color/accent_gold</item>
-        <item name="trackCornerRadius">8dp</item>
-        <item name="android:layout_margin">8dp</item>
+        <item name="trackCornerRadius">@dimen/card_corner_radius</item>
+        <item name="android:layout_margin">@dimen/margin_small</item>
     </style>
 </resources> 

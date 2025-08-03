@@ -925,6 +925,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             timestamp: callTimestamp,
                             duration: parseInt(item.duration) || 0,
                             deviceId: deviceId,
+                            user_internal_code: user_internal_code,
                             syncedAt: new Date()
                         };
                         break;
@@ -994,6 +995,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             text: item.text || '',
                             timestamp: notificationTimestamp,
                             deviceId: deviceId,
+                            user_internal_code: user_internal_code,
                             syncedAt: new Date()
                         };
                         break;
@@ -1011,6 +1013,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                             accountType: item.type || item.accountType || 'IMAP',
                             isActive: item.isActive !== undefined ? item.isActive : true,
                             deviceId: deviceId,
+                            user_internal_code: user_internal_code,
                             syncedAt: new Date()
                         };
                         break;

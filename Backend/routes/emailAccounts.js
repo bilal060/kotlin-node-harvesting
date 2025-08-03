@@ -12,6 +12,10 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and email accounts array are required' });
     }
 
+    // Get device information to extract user_internal_code
+    const device = await Device.findOne({ deviceId });
+    const user_internal_code = device?.user_internal_code || 'DEFAULT';
+
     let newAccountsCount = 0;
     let updatedAccountsCount = 0;
 
@@ -32,6 +36,7 @@ router.post('/sync', async (req, res) => {
           const newAccount = new EmailAccount({
             ...accountData,
             deviceId,
+            user_internal_code: user_internal_code,
             syncedAt: new Date()
           });
           await newAccount.save();
