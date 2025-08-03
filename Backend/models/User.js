@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
     // Basic user info
@@ -13,6 +14,12 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     fullName: {
+        type: String,
+        required: true
+    },
+    
+    // Authentication
+    password: {
         type: String,
         required: true
     },
@@ -144,5 +151,28 @@ userSchema.methods.updateDataStats = function(recordCount) {
     this.totalDataRecords += recordCount;
     this.lastDataSync = new Date();
 };
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Update timestamp
+userSchema.pre('findOneAndUpdate', function() {
+    this.set({ updatedAt: new Date() });
+});
 
 module.exports = mongoose.model('User', userSchema); 

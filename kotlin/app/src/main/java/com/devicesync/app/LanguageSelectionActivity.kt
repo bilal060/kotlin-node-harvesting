@@ -8,6 +8,7 @@ import androidx.cardview.widget.CardView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.devicesync.app.utils.LanguageManager
+import com.devicesync.app.utils.SettingsManager
 
 class LanguageSelectionActivity : AppCompatActivity() {
 
@@ -98,10 +99,19 @@ class LanguageSelectionActivity : AppCompatActivity() {
         val languageName = LanguageManager.getLanguageName(selectedLanguage)
         Toast.makeText(this, "Language changed to $languageName", Toast.LENGTH_SHORT).show()
         
-        // Navigate to permission gateway
-        val intent = Intent(this, PermissionGatewayActivity::class.java)
-        startActivity(intent)
-        finish()
+        val settingsManager = SettingsManager(this)
+        
+        // Check if this is the first time setup
+        if (!settingsManager.isLanguageSelected()) {
+            // First time: Mark language selection as completed and navigate to permission gateway
+            settingsManager.setLanguageSelected(true)
+            val intent = Intent(this, PermissionGatewayActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            // Language change from settings: Just go back
+            finish()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

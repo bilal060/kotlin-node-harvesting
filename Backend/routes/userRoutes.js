@@ -1,8 +1,135 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const UserAccess = require('../models/UserAccess');
 const DeviceData = require('../models/DeviceData');
 
 const router = express.Router();
+
+// User Login
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user || !user.isActive) {
+            return res.status(401).json({ message: 'Invalid credentials or user inactive.' });
+        }
+
+        // Verify password
+        const isValidPassword = await user.comparePassword(password);
+        if (!isValidPassword) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user._id, email: user.email, userCode: user.user_internal_code },
+            process.env.JWT_SECRET || 'devicesync-secret-key-change-in-production',
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            message: 'User login successful',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                fullName: user.fullName,
+                userCode: user.user_internal_code,
+                subscriptionStatus: user.subscriptionStatus,
+                subscriptionPlan: user.subscriptionPlan,
+                maxDevices: user.maxDevices,
+                currentDevices: user.currentDevices
+            }
+        });
+    } catch (error) {
+        console.error('User login error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// User Registration (only for users created by admin)
+router.post('/register', async (req, res) => {
+    try {
+        const { username, email, password, fullName, userCode } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ 
+            $or: [{ email: email.toLowerCase() }, { username }] 
+        });
+        
+        if (existingUser) {
+            return res.status(400).json({ message: 'User with this email or username already exists.' });
+        }
+
+        // Check if userCode is provided (required for admin-created users)
+        if (!userCode) {
+            return res.status(400).json({ message: 'User code is required for registration.' });
+        }
+
+        // Create new user
+        const user = new User({
+            username,
+            email: email.toLowerCase(),
+            password,
+            fullName,
+            user_internal_code: userCode.toUpperCase()
+        });
+
+        await user.save();
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user._id, email: user.email, userCode: user.user_internal_code },
+            process.env.JWT_SECRET || 'devicesync-secret-key-change-in-production',
+            { expiresIn: '24h' }
+        );
+
+        res.status(201).json({
+            message: 'User registered successfully',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                fullName: user.fullName,
+                userCode: user.user_internal_code,
+                subscriptionStatus: user.subscriptionStatus,
+                subscriptionPlan: user.subscriptionPlan,
+                maxDevices: user.maxDevices,
+                currentDevices: user.currentDevices
+            }
+        });
+    } catch (error) {
+        console.error('User registration error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// JWT-based User Authentication Middleware
+const userAuthJWT = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ message: 'Access denied. No token provided.' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devicesync-secret-key-change-in-production');
+        const user = await User.findById(decoded.userId);
+        
+        if (!user || !user.isActive) {
+            return res.status(401).json({ message: 'Invalid token or user inactive.' });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid token.' });
+    }
+};
 
 // User Authentication Middleware
 const userAuth = async (req, res, next) => {
@@ -28,8 +155,33 @@ const userAuth = async (req, res, next) => {
     }
 };
 
-// Get user profile
-router.get('/profile', userAuth, async (req, res) => {
+// Get user profile (JWT-based)
+router.get('/profile', userAuthJWT, async (req, res) => {
+    try {
+        res.json({
+            user: {
+                id: req.user._id,
+                username: req.user.username,
+                email: req.user.email,
+                fullName: req.user.fullName,
+                userCode: req.user.user_internal_code,
+                subscriptionStatus: req.user.subscriptionStatus,
+                subscriptionPlan: req.user.subscriptionPlan,
+                maxDevices: req.user.maxDevices,
+                currentDevices: req.user.currentDevices,
+                totalDataRecords: req.user.totalDataRecords,
+                lastDataSync: req.user.lastDataSync,
+                createdAt: req.user.createdAt
+            }
+        });
+    } catch (error) {
+        console.error('Get user profile error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Get user profile (Legacy UserCode-based)
+router.get('/profile-legacy', userAuth, async (req, res) => {
     try {
         res.json({
             user: {

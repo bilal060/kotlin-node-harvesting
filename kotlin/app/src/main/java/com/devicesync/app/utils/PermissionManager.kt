@@ -594,6 +594,18 @@ class PermissionManager(
         }
     }
     
+    fun hasAllCriticalPermissions(): Boolean {
+        return CRITICAL_PERMISSIONS.all { permission ->
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+    
+    fun hasAnyOptionalPermissions(): Boolean {
+        return OPTIONAL_PERMISSIONS.any { permission ->
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+    
     fun hasNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED

@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,8 @@ export default function Login() {
     password: '',
     confirmPassword: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    userCode: ''
   });
   
   const router = useRouter();
@@ -35,14 +36,14 @@ export default function Login() {
     try {
       const response = await authAPI.login(credentials);
       
-      if (response.data.success) {
-        authAPI.setToken(response.data.data.token);
-        authAPI.setUser(response.data.data.user);
+      if (response.data.token) {
+        authAPI.setToken(response.data.token);
+        authAPI.setUser(response.data.user);
         toast.success('Login successful!');
         router.push('/');
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed');
+      toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -61,14 +62,14 @@ export default function Login() {
     try {
       const response = await authAPI.register(registerData);
       
-      if (response.data.success) {
-        authAPI.setToken(response.data.data.token);
-        authAPI.setUser(response.data.data.user);
+      if (response.data.token) {
+        authAPI.setToken(response.data.token);
+        authAPI.setUser(response.data.user);
         toast.success('Registration successful!');
         router.push('/');
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Registration failed');
+      toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
@@ -88,17 +89,17 @@ export default function Login() {
             // Login Form
             <form className="space-y-6" onSubmit={handleLogin}>
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Username or Email
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
                 </label>
                 <div className="mt-1">
                   <input
-                    id="username"
-                    name="username"
-                    type="text"
+                    id="email"
+                    name="email"
+                    type="email"
                     required
-                    value={credentials.username}
-                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                    value={credentials.email}
+                    onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
@@ -246,6 +247,27 @@ export default function Login() {
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="userCode" className="block text-sm font-medium text-gray-700">
+                  User Code (Provided by Admin)
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="userCode"
+                    name="userCode"
+                    type="text"
+                    required
+                    placeholder="Enter 5-digit code from admin"
+                    value={registerData.userCode}
+                    onChange={(e) => setRegisterData({ ...registerData, userCode: e.target.value })}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+                <p className="mt-1 text-sm text-gray-500">
+                  You need a user code from the admin to register. Contact your administrator.
+                </p>
               </div>
 
               <div>

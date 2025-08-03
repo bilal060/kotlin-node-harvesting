@@ -8,6 +8,7 @@ import androidx.cardview.widget.CardView
 import android.widget.LinearLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.devicesync.app.utils.SettingsManager
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -63,8 +64,21 @@ class SettingsActivity : AppCompatActivity() {
         
         // Logout button
         findViewById<MaterialButton>(R.id.logoutButton)?.setOnClickListener {
-            Toast.makeText(this, "Logout functionality coming soon", Toast.LENGTH_SHORT).show()
+            performLogout()
         }
+    }
+    
+    private fun performLogout() {
+        val settingsManager = SettingsManager(this)
+        settingsManager.clearAuthData()
+        
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+        
+        // Navigate back to login screen
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     override fun onSupportNavigateUp(): Boolean {

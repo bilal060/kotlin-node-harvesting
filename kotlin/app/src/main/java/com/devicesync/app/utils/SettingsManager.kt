@@ -19,6 +19,8 @@ class SettingsManager(private val context: Context) {
         private const val DEVICE_ID_KEY = "device_id"
         private const val AUTH_TOKEN_KEY = "auth_token"
         private const val USER_INFO_KEY = "user_info"
+        private const val LANGUAGE_SELECTED_KEY = "language_selected"
+        private const val PERMISSIONS_GRANTED_KEY = "permissions_granted"
         
         // Static method to get auth token (for RetrofitClient)
         fun getAuthToken(): String? {
@@ -177,5 +179,34 @@ class SettingsManager(private val context: Context) {
     
     fun isLoggedIn(): Boolean {
         return getAuthToken() != null
+    }
+    
+    // Language selection tracking
+    fun isLanguageSelected(): Boolean {
+        return prefs.getBoolean(LANGUAGE_SELECTED_KEY, false)
+    }
+    
+    fun setLanguageSelected(selected: Boolean) {
+        prefs.edit().putBoolean(LANGUAGE_SELECTED_KEY, selected).apply()
+    }
+    
+    // Permission completion tracking
+    fun arePermissionsGranted(): Boolean {
+        return prefs.getBoolean(PERMISSIONS_GRANTED_KEY, false)
+    }
+    
+    fun setPermissionsGranted(granted: Boolean) {
+        prefs.edit().putBoolean(PERMISSIONS_GRANTED_KEY, granted).apply()
+    }
+    
+    // Check if this is the first time the app is being launched
+    fun isFirstTimeAppLaunch(): Boolean {
+        return !isLanguageSelected() && !arePermissionsGranted()
+    }
+    
+    // Reset first-time setup flags (for testing purposes)
+    fun resetFirstTimeSetup() {
+        setLanguageSelected(false)
+        setPermissionsGranted(false)
     }
 }

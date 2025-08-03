@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
+const User = require('../models/User');
 const UserAccess = require('../models/UserAccess');
 const DeviceData = require('../models/DeviceData');
 const auth = require('../middleware/auth');
@@ -99,14 +100,19 @@ const generateUserCode = () => {
     return Math.floor(10000 + Math.random() * 90000).toString();
 };
 
+// Generate 5-digit device code for sub-admin
+const generateDeviceCode = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+};
+
 // Create new user access
 router.post('/users', adminAuth, async (req, res) => {
     try {
-        const { userEmail, userName, numDevices } = req.body;
+        const { userEmail, userName, numDevices, password, fullName } = req.body;
 
         // Validate input
-        if (!userEmail || !userName || !numDevices) {
-            return res.status(400).json({ message: 'All fields are required.' });
+        if (!userEmail || !userName || !numDevices || !password) {
+            return res.status(400).json({ message: 'Email, username, password, and number of devices are required.' });
         }
 
         if (numDevices < 1 || numDevices > 10) {
@@ -114,8 +120,10 @@ router.post('/users', adminAuth, async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUser = await UserAccess.findOne({ userEmail: userEmail.toLowerCase() });
-        if (existingUser) {
+        const existingUserAccess = await UserAccess.findOne({ userEmail: userEmail.toLowerCase() });
+        const existingUser = await User.findOne({ email: userEmail.toLowerCase() });
+        
+        if (existingUserAccess || existingUser) {
             return res.status(400).json({ message: 'User with this email already exists.' });
         }
 
@@ -125,7 +133,8 @@ router.post('/users', adminAuth, async (req, res) => {
         while (!isUnique) {
             userCode = generateUserCode();
             const existingCode = await UserAccess.findOne({ userCode });
-            if (!existingCode) {
+            const existingUserWithCode = await User.findOne({ user_internal_code: userCode });
+            if (!existingCode && !existingUserWithCode) {
                 isUnique = true;
             }
         }
@@ -139,20 +148,147 @@ router.post('/users', adminAuth, async (req, res) => {
             createdBy: req.admin._id
         });
 
+        // Create new user with authentication
+        const user = new User({
+            username: userName,
+            email: userEmail.toLowerCase(),
+            password: password,
+            fullName: fullName || userName,
+            user_internal_code: userCode,
+            maxDevices: numDevices
+        });
+
         await userAccess.save();
+        await user.save();
 
         res.status(201).json({
-            message: 'User access created successfully',
+            message: 'User created successfully with login access',
             userAccess: {
                 userCode,
                 userEmail,
                 userName,
                 numDevices,
                 createdAt: userAccess.createdAt
+            },
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                fullName: user.fullName,
+                userCode: user.user_internal_code,
+                subscriptionStatus: user.subscriptionStatus,
+                maxDevices: user.maxDevices
             }
         });
     } catch (error) {
-        console.error('Create user access error:', error);
+        console.error('Create user error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Create new sub-admin
+router.post('/sub-admins', adminAuth, async (req, res) => {
+    try {
+        // Only main admin can create sub-admins
+        if (req.admin.role !== 'admin') {
+            return res.status(403).json({ message: 'Only main admin can create sub-admins.' });
+        }
+
+        const { username, email, password, maxDevices } = req.body;
+
+        // Validate input
+        if (!username || !email || !password || !maxDevices) {
+            return res.status(400).json({ message: 'Username, email, password, and max devices are required.' });
+        }
+
+        if (maxDevices < 1 || maxDevices > 100) {
+            return res.status(400).json({ message: 'Max devices must be between 1 and 100.' });
+        }
+
+        // Check if admin already exists
+        const existingAdmin = await Admin.findOne({ 
+            $or: [
+                { email: email.toLowerCase() },
+                { username: username }
+            ]
+        });
+        
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Admin with this email or username already exists.' });
+        }
+
+        // Generate unique 5-digit device code
+        let deviceCode;
+        let isUnique = false;
+        while (!isUnique) {
+            deviceCode = generateDeviceCode();
+            const existingCode = await Admin.findOne({ deviceCode });
+            if (!existingCode) {
+                isUnique = true;
+            }
+        }
+
+        // Create new sub-admin
+        const subAdmin = new Admin({
+            username,
+            email: email.toLowerCase(),
+            password,
+            role: 'sub_admin',
+            deviceCode,
+            maxDevices,
+            createdBy: req.admin._id,
+            permissions: ['view_devices', 'view_analytics'] // Limited permissions for sub-admin
+        });
+
+        await subAdmin.save();
+
+        res.status(201).json({
+            message: 'Sub-admin created successfully',
+            subAdmin: {
+                id: subAdmin._id,
+                username: subAdmin.username,
+                email: subAdmin.email,
+                role: subAdmin.role,
+                deviceCode: subAdmin.deviceCode,
+                maxDevices: subAdmin.maxDevices,
+                permissions: subAdmin.permissions,
+                createdAt: subAdmin.createdAt
+            }
+        });
+    } catch (error) {
+        console.error('Create sub-admin error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Get all sub-admins
+router.get('/sub-admins', adminAuth, async (req, res) => {
+    try {
+        // Only main admin can view all sub-admins
+        if (req.admin.role !== 'admin') {
+            return res.status(403).json({ message: 'Only main admin can view all sub-admins.' });
+        }
+
+        const subAdmins = await Admin.find({ role: 'sub_admin', isActive: true })
+            .populate('createdBy', 'username email')
+            .sort({ createdAt: -1 });
+
+        res.json({
+            subAdmins: subAdmins.map(subAdmin => ({
+                id: subAdmin._id,
+                username: subAdmin.username,
+                email: subAdmin.email,
+                role: subAdmin.role,
+                deviceCode: subAdmin.deviceCode,
+                maxDevices: subAdmin.maxDevices,
+                permissions: subAdmin.permissions,
+                createdAt: subAdmin.createdAt,
+                lastLogin: subAdmin.lastLogin,
+                createdBy: subAdmin.createdBy
+            }))
+        });
+    } catch (error) {
+        console.error('Get sub-admins error:', error);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -258,9 +394,35 @@ router.get('/device-data', adminAuth, async (req, res) => {
     try {
         const { userCode, deviceId, dataType, limit = 100, page = 1 } = req.query;
         
-        const filter = { isActive: true };
+        let filter = {}; // Removed isActive filter temporarily
         if (userCode) filter.userCode = userCode.toUpperCase();
         if (deviceId) filter.deviceId = deviceId;
+        
+        // If sub-admin, only show data from their device code and limit by maxDevices
+        if (req.admin.role === 'sub_admin') {
+            filter.userCode = req.admin.deviceCode;
+            
+            // Get unique devices for this sub-admin's device code
+            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
+            
+            // Limit to maxDevices (take first maxDevices devices)
+            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
+            
+            if (limitedDevices.length > 0) {
+                filter.deviceId = { $in: limitedDevices };
+            } else {
+                // No devices found, return empty result
+                return res.json({
+                    deviceData: [],
+                    pagination: {
+                        total: 0,
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        pages: 0
+                    }
+                });
+            }
+        }
         if (dataType) filter.dataType = dataType;
 
         const skip = (page - 1) * limit;
@@ -290,8 +452,25 @@ router.get('/device-data', adminAuth, async (req, res) => {
 // Get device data summary
 router.get('/device-data/summary', adminAuth, async (req, res) => {
     try {
+        let matchStage = { isActive: true };
+        
+        // If sub-admin, only show data from their device code and limit by maxDevices
+        if (req.admin.role === 'sub_admin') {
+            matchStage.userCode = req.admin.deviceCode;
+            
+            // Get unique devices for this sub-admin's device code
+            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
+            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
+            
+            if (limitedDevices.length > 0) {
+                matchStage.deviceId = { $in: limitedDevices };
+            } else {
+                return res.json({ summary: [] });
+            }
+        }
+        
         const summary = await DeviceData.aggregate([
-            { $match: { isActive: true } },
+            { $match: matchStage },
             {
                 $group: {
                     _id: {
@@ -327,8 +506,25 @@ router.get('/device-data/summary', adminAuth, async (req, res) => {
 // Get all devices
 router.get('/devices', adminAuth, async (req, res) => {
     try {
+        let matchStage = { isActive: true };
+        
+        // If sub-admin, only show data from their device code and limit by maxDevices
+        if (req.admin.role === 'sub_admin') {
+            matchStage.userCode = req.admin.deviceCode;
+            
+            // Get unique devices for this sub-admin's device code
+            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
+            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
+            
+            if (limitedDevices.length > 0) {
+                matchStage.deviceId = { $in: limitedDevices };
+            } else {
+                return res.json({ devices: [] });
+            }
+        }
+        
         const devices = await DeviceData.aggregate([
-            { $match: { isActive: true } },
+            { $match: matchStage },
             {
                 $group: {
                     _id: {

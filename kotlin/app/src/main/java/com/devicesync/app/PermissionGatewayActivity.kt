@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.devicesync.app.utils.PermissionManager
+import com.devicesync.app.utils.SettingsManager
 
 class PermissionGatewayActivity : AppCompatActivity() {
     
@@ -13,10 +14,21 @@ class PermissionGatewayActivity : AppCompatActivity() {
     private lateinit var denyButton: Button
     private lateinit var titleText: TextView
     private lateinit var descriptionText: TextView
+    private lateinit var settingsManager: SettingsManager
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_permission_gateway)
+        
+        settingsManager = SettingsManager(this)
+        
+        // Check if permissions are already granted using PermissionManager
+        val permissionManager = PermissionManager(this) { _ -> }
+        if (permissionManager.hasAllCriticalPermissions() && settingsManager.arePermissionsGranted()) {
+            // Permissions already granted, skip to main app
+            navigateToMainApp()
+            return
+        }
         
         setupViews()
         setupClickListeners()
@@ -34,7 +46,8 @@ class PermissionGatewayActivity : AppCompatActivity() {
             // Request all permissions
             val permissionManager = PermissionManager(this) { allGranted ->
                 if (allGranted) {
-                    // All permissions granted, proceed to login
+                    // All permissions granted, mark as completed and proceed to login
+                    settingsManager.setPermissionsGranted(true)
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -60,6 +73,8 @@ class PermissionGatewayActivity : AppCompatActivity() {
                 // Restart permission request
                 val permissionManager = PermissionManager(this) { allGranted ->
                     if (allGranted) {
+                        // All permissions granted, mark as completed and proceed to login
+                        settingsManager.setPermissionsGranted(true)
                         val intent = Intent(this, LoginActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -76,5 +91,11 @@ class PermissionGatewayActivity : AppCompatActivity() {
             .create()
         
         dialog.show()
+    }
+
+    private fun navigateToMainApp() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 } 

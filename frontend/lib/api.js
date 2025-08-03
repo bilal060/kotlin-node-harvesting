@@ -54,8 +54,8 @@ api.interceptors.response.use(
 
 // Authentication API
 export const authAPI = {
-  register: (userData) => api.post('/auth/register', userData),
-  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/user/register', userData),
+  login: (credentials) => api.post('/user/login', credentials),
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

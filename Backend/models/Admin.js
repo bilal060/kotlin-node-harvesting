@@ -21,8 +21,21 @@ const adminSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'super_admin'],
-        default: 'admin'
+        enum: ['admin', 'sub_admin'],
+        default: 'sub_admin'
+    },
+    deviceCode: {
+        type: String,
+        unique: true,
+        sparse: true, // Allow null for main admin
+        length: 5,
+        uppercase: true
+    },
+    maxDevices: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 100
     },
     isActive: {
         type: Boolean,
@@ -35,6 +48,11 @@ const adminSchema = new mongoose.Schema({
         type: String,
         enum: ['view_devices', 'manage_users', 'manage_codes', 'view_analytics', 'system_settings']
     }],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+        default: null // null for main admin
+    },
     createdAt: {
         type: Date,
         default: Date.now

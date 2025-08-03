@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
 import Link from 'next/link'
 import { deviceAPI, notificationsAPI, emailAccountsAPI, contactsAPI, callLogsAPI, messagesAPI } from '../lib/api'
 import { Smartphone, Users, Phone, Bell, MessageSquare, Mail, Database, Filter, Search, Download, RefreshCw, Eye, EyeOff, Activity } from 'lucide-react'
@@ -17,99 +16,149 @@ export default function DataViewer() {
   const [popupData, setPopupData] = useState(null) // { type: 'message'|'notification', data: {...} }
 
   // Devices data
-  const { data: devices, isLoading: devicesLoading } = useQuery(
-    'devices',
-    async () => {
-      const response = await deviceAPI.getAll()
-      return response?.data?.data || []
-    },
-    {
-      refetchInterval: 30000,
-      onSuccess: (data) => {
-        console.log('DataViewer - Devices data:', data)
-      },
-      onError: (error) => {
+  const [devices, setDevices] = useState([])
+  const [devicesLoading, setDevicesLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        setDevicesLoading(true)
+        const response = await deviceAPI.getAll()
+        const devicesData = response?.data?.data || []
+        setDevices(devicesData)
+        console.log('DataViewer - Devices data:', devicesData)
+      } catch (error) {
         toast.error('Failed to fetch devices')
         console.error('Error fetching devices:', error)
+      } finally {
+        setDevicesLoading(false)
       }
     }
-  )
+
+    fetchDevices()
+    const interval = setInterval(fetchDevices, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Contacts data with server-side filtering and pagination
-  const { data: contactsData, isLoading: contactsLoading } = useQuery(
-    ['contacts', selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage],
-    async () => {
-      if (!selectedDevice) return null
-      const response = await contactsAPI.getAll(selectedDevice.deviceId, {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        dateFilter
-      })
-      return response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } }
-    },
-    {
-      enabled: !!selectedDevice,
-      refetchInterval: 60000
+  const [contactsData, setContactsData] = useState({ data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+  const [contactsLoading, setContactsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      if (!selectedDevice) return
+      
+      try {
+        setContactsLoading(true)
+        const response = await contactsAPI.getAll(selectedDevice.deviceId, {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          dateFilter
+        })
+        setContactsData(response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+      } catch (error) {
+        console.error('Error fetching contacts:', error)
+        toast.error('Failed to fetch contacts')
+      } finally {
+        setContactsLoading(false)
+      }
     }
-  )
+
+    fetchContacts()
+    const interval = setInterval(fetchContacts, 60000)
+    return () => clearInterval(interval)
+  }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   // Call logs data with server-side filtering and pagination
-  const { data: callLogsData, isLoading: callLogsLoading } = useQuery(
-    ['callLogs', selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage],
-    async () => {
-      if (!selectedDevice) return null
-      const response = await callLogsAPI.getAll(selectedDevice.deviceId, {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        dateFilter
-      })
-      return response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } }
-    },
-    {
-      enabled: !!selectedDevice,
-      refetchInterval: 60000
+  const [callLogsData, setCallLogsData] = useState({ data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+  const [callLogsLoading, setCallLogsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchCallLogs = async () => {
+      if (!selectedDevice) return
+      
+      try {
+        setCallLogsLoading(true)
+        const response = await callLogsAPI.getAll(selectedDevice.deviceId, {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          dateFilter
+        })
+        setCallLogsData(response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+      } catch (error) {
+        console.error('Error fetching call logs:', error)
+        toast.error('Failed to fetch call logs')
+      } finally {
+        setCallLogsLoading(false)
+      }
     }
-  )
+
+    fetchCallLogs()
+    const interval = setInterval(fetchCallLogs, 60000)
+    return () => clearInterval(interval)
+  }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   // Messages data with server-side filtering and pagination
-  const { data: messagesData, isLoading: messagesLoading } = useQuery(
-    ['messages', selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage],
-    async () => {
-      if (!selectedDevice) return null
-      const response = await messagesAPI.getAll(selectedDevice.deviceId, {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        dateFilter
-      })
-      return response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } }
-    },
-    {
-      enabled: !!selectedDevice,
-      refetchInterval: 60000
+  const [messagesData, setMessagesData] = useState({ data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+  const [messagesLoading, setMessagesLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedDevice) return
+      
+      try {
+        setMessagesLoading(true)
+        const response = await messagesAPI.getAll(selectedDevice.deviceId, {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          dateFilter
+        })
+        setMessagesData(response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+      } catch (error) {
+        console.error('Error fetching messages:', error)
+        toast.error('Failed to fetch messages')
+      } finally {
+        setMessagesLoading(false)
+      }
     }
-  )
+
+    fetchMessages()
+    const interval = setInterval(fetchMessages, 60000)
+    return () => clearInterval(interval)
+  }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   // Notifications data with server-side filtering and pagination
-  const { data: notificationsData, isLoading: notificationsLoading } = useQuery(
-    ['notifications', selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage],
-    async () => {
-      if (!selectedDevice) return null
-      const response = await notificationsAPI.getAll(selectedDevice.deviceId, {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        dateFilter
-      })
-      return response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } }
-    },
-    {
-      enabled: !!selectedDevice,
-      refetchInterval: 30000
+  const [notificationsData, setNotificationsData] = useState({ data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!selectedDevice) return
+      
+      try {
+        setNotificationsLoading(true)
+        const response = await notificationsAPI.getAll(selectedDevice.deviceId, {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          dateFilter
+        })
+        setNotificationsData(response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+      } catch (error) {
+        console.error('Error fetching notifications:', error)
+        toast.error('Failed to fetch notifications')
+      } finally {
+        setNotificationsLoading(false)
+      }
     }
-  )
+
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   // Email accounts data with server-side filtering and pagination
   const { data: emailData, isLoading: emailLoading } = useQuery(

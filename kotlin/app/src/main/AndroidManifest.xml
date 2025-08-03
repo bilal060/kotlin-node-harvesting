@@ -165,6 +165,12 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".TestSetupActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".TeamActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
