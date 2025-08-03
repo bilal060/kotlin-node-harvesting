@@ -26,7 +26,7 @@ object AppConfigManager {
             Log.e(TAG, "Error loading app configuration", e)
             // Use default configuration
             config = JSONObject().apply {
-                put("backend_url", "http://localhost:5002")
+                put("backend_url", "https://kotlin-node-harvesting.onrender.com")
                 put("sync_interval", 300000)
                 put("max_retries", 3)
                 put("timeout", 30000)
@@ -35,7 +35,7 @@ object AppConfigManager {
     }
     
     fun getBackendUrl(): String {
-        return config?.optString("backend_url", "http://localhost:5002") ?: "http://localhost:5002"
+        return config?.optString("backend_url", "https://kotlin-node-harvesting.onrender.com") ?: "https://kotlin-node-harvesting.onrender.com"
     }
     
     fun getApiEndpoint(endpoint: String): String {

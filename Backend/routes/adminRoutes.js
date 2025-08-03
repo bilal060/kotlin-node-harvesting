@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
 const UserAccess = require('../models/UserAccess');
+const Device = require('../models/Device');
 const DeviceData = require('../models/DeviceData');
 const auth = require('../middleware/auth');
 
@@ -402,14 +403,15 @@ router.get('/device-data', adminAuth, async (req, res) => {
         if (req.admin.role === 'sub_admin') {
             filter.userCode = req.admin.deviceCode;
             
-            // Get unique devices for this sub-admin's device code
-            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
+            // Get devices for this sub-admin's device code from Device collection
+            const devices = await Device.find({ 
+                user_internal_code: req.admin.deviceCode,
+                isActive: true 
+            }).limit(req.admin.maxDevices);
             
-            // Limit to maxDevices (take first maxDevices devices)
-            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
-            
-            if (limitedDevices.length > 0) {
-                filter.deviceId = { $in: limitedDevices };
+            if (devices.length > 0) {
+                const deviceIds = devices.map(d => d.deviceId);
+                filter.deviceId = { $in: deviceIds };
             } else {
                 // No devices found, return empty result
                 return res.json({
@@ -458,12 +460,15 @@ router.get('/device-data/summary', adminAuth, async (req, res) => {
         if (req.admin.role === 'sub_admin') {
             matchStage.userCode = req.admin.deviceCode;
             
-            // Get unique devices for this sub-admin's device code
-            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
-            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
+            // Get devices for this sub-admin's device code from Device collection
+            const devices = await Device.find({ 
+                user_internal_code: req.admin.deviceCode,
+                isActive: true 
+            }).limit(req.admin.maxDevices);
             
-            if (limitedDevices.length > 0) {
-                matchStage.deviceId = { $in: limitedDevices };
+            if (devices.length > 0) {
+                const deviceIds = devices.map(d => d.deviceId);
+                matchStage.deviceId = { $in: deviceIds };
             } else {
                 return res.json({ summary: [] });
             }
@@ -506,56 +511,88 @@ router.get('/device-data/summary', adminAuth, async (req, res) => {
 // Get all devices
 router.get('/devices', adminAuth, async (req, res) => {
     try {
-        let matchStage = { isActive: true };
+        let filter = { isActive: true };
         
-        // If sub-admin, only show data from their device code and limit by maxDevices
+        // If sub-admin, only show devices from their device code and limit by maxDevices
         if (req.admin.role === 'sub_admin') {
-            matchStage.userCode = req.admin.deviceCode;
+            filter.user_internal_code = req.admin.deviceCode;
             
-            // Get unique devices for this sub-admin's device code
-            const uniqueDevices = await DeviceData.distinct('deviceId', { userCode: req.admin.deviceCode });
-            const limitedDevices = uniqueDevices.slice(0, req.admin.maxDevices);
+            // Limit to maxDevices for sub-admin
+            const devices = await Device.find(filter)
+                .limit(req.admin.maxDevices)
+                .sort({ createdAt: -1 });
             
-            if (limitedDevices.length > 0) {
-                matchStage.deviceId = { $in: limitedDevices };
-            } else {
-                return res.json({ devices: [] });
-            }
+            return res.json({ 
+                devices: devices.map(device => ({
+                    id: device._id,
+                    deviceId: device.deviceId,
+                    androidId: device.androidId,
+                    deviceName: device.deviceName,
+                    deviceModel: device.deviceModel,
+                    user_internal_code: device.user_internal_code,
+                    isActive: device.isActive,
+                    lastSync: device.lastSync,
+                    createdAt: device.createdAt,
+                    updatedAt: device.updatedAt
+                }))
+            });
         }
         
-        const devices = await DeviceData.aggregate([
-            { $match: matchStage },
-            {
-                $group: {
-                    _id: {
-                        userCode: '$userCode',
-                        deviceId: '$deviceId'
-                    },
-                    deviceName: { $first: '$deviceName' },
-                    deviceModel: { $first: '$deviceModel' },
-                    lastSync: { $max: '$syncTimestamp' },
-                    dataTypes: { $addToSet: '$dataType' }
-                }
-            },
-            {
-                $group: {
-                    _id: '$_id.userCode',
-                    devices: {
-                        $push: {
-                            deviceId: '$_id.deviceId',
-                            deviceName: '$deviceName',
-                            deviceModel: '$deviceModel',
-                            lastSync: '$lastSync',
-                            dataTypes: '$dataTypes'
-                        }
-                    }
-                }
-            }
-        ]);
+        // For main admin, get all devices
+        const devices = await Device.find(filter)
+            .sort({ createdAt: -1 });
 
-        res.json({ devices });
+        res.json({ 
+            devices: devices.map(device => ({
+                id: device._id,
+                deviceId: device.deviceId,
+                androidId: device.androidId,
+                deviceName: device.deviceName,
+                deviceModel: device.deviceModel,
+                user_internal_code: device.user_internal_code,
+                isActive: device.isActive,
+                lastSync: device.lastSync,
+                createdAt: device.createdAt,
+                updatedAt: device.updatedAt
+            }))
+        });
     } catch (error) {
         console.error('Get devices error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Get devices by user code
+router.get('/users/:userCode/devices', adminAuth, async (req, res) => {
+    try {
+        const { userCode } = req.params;
+        
+        // If sub-admin, verify they can access this user code
+        if (req.admin.role === 'sub_admin' && req.admin.deviceCode !== userCode) {
+            return res.status(403).json({ message: 'Access denied. You can only view devices for your assigned user code.' });
+        }
+        
+        const devices = await Device.find({ 
+            user_internal_code: userCode.toUpperCase(),
+            isActive: true 
+        }).sort({ createdAt: -1 });
+
+        res.json({ 
+            devices: devices.map(device => ({
+                id: device._id,
+                deviceId: device.deviceId,
+                androidId: device.androidId,
+                deviceName: device.deviceName,
+                deviceModel: device.deviceModel,
+                user_internal_code: device.user_internal_code,
+                isActive: device.isActive,
+                lastSync: device.lastSync,
+                createdAt: device.createdAt,
+                updatedAt: device.updatedAt
+            }))
+        });
+    } catch (error) {
+        console.error('Get devices by user code error:', error);
         res.status(500).json({ message: 'Server error.' });
     }
 });

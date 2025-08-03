@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">10.151.145.254</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">https://kotlin-node-harvesting.onrender.com</domain>
+        
     </domain-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>

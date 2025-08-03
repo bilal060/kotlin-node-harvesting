@@ -213,6 +213,24 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Sync Data Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/syncDataButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:text="Sync Data to Server"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primary_color"
+                app:cornerRadius="@dimen/card_corner_radius"
+                app:elevation="4dp"
+                app:icon="@drawable/ic_sync"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/padding_small"
+                app:iconTint="@color/text_light" />
+
             <!-- Additional Options -->
             <LinearLayout
                 android:layout_width="match_parent"
