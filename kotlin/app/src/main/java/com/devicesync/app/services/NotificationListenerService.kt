@@ -3,11 +3,14 @@ package com.devicesync.app.services
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
 import kotlinx.coroutines.*
 import com.devicesync.app.data.repository.DeviceSyncRepository
 import com.devicesync.app.utils.SettingsManager
 import com.devicesync.app.utils.DeviceInfoUtils
 import java.util.Date
+import java.io.Serializable
 
 class NotificationListenerService : NotificationListenerService() {
     
@@ -227,7 +230,83 @@ class NotificationListenerService : NotificationListenerService() {
                 packageName = packageName,
                 appName = appName,
                 title = title,
-                text = bigText ?: text
+                text = bigText ?: text,
+                metadata = mapOf(
+                    // Basic notification info
+                    "notificationId" to sbn.id.toString(),
+                    "notificationKey" to (sbn.key ?: ""),
+                    "userId" to (sbn.user?.hashCode()?.toString() ?: ""),
+                    "tag" to (sbn.tag ?: ""),
+                    "postTime" to sbn.postTime.toString(),
+                    
+                    // Notification object details
+                    "priority" to sbn.notification.priority.toString(),
+                    "channelId" to (sbn.notification.channelId ?: ""),
+                    "category" to (sbn.notification.category ?: ""),
+                    "actionsCount" to (sbn.notification.actions?.size ?: 0).toString(),
+                    "flags" to sbn.notification.flags.toString(),
+                    "when" to sbn.notification.`when`.toString(),
+                    "number" to sbn.notification.number.toString(),
+                    "tickerText" to (sbn.notification.tickerText ?: ""),
+                    "contentIntent" to (sbn.notification.contentIntent?.toString() ?: ""),
+                    "deleteIntent" to (sbn.notification.deleteIntent?.toString() ?: ""),
+                    "fullScreenIntent" to (sbn.notification.fullScreenIntent?.toString() ?: ""),
+                    
+                    // Actions information
+                    "actions" to (sbn.notification.actions?.joinToString(", ") { action ->
+                        "title=${action.title?.toString() ?: ""}, actionIntent=${action.actionIntent?.toString() ?: ""}"
+                    } ?: "[]"),
+                    
+                    // Extras - ALL notification extras
+                    "extras" to extras.toString(),
+                    
+                    // System information
+                    "systemInfo" to mapOf(
+                        "androidVersion" to android.os.Build.VERSION.RELEASE,
+                        "sdkVersion" to android.os.Build.VERSION.SDK_INT.toString(),
+                        "deviceModel" to android.os.Build.MODEL,
+                        "manufacturer" to android.os.Build.MANUFACTURER,
+                        "captureTime" to System.currentTimeMillis().toString(),
+                        "captureTimeFormatted" to Date().toString()
+                    ),
+                    
+                    // App information
+                    "appInfo" to mapOf(
+                        "packageName" to packageName,
+                        "appName" to (appName ?: ""),
+                        "appVersion" to try {
+                            packageManager.getPackageInfo(packageName, 0).versionName ?: "unknown"
+                        } catch (e: Exception) {
+                            "unknown"
+                        },
+                        "appVersionCode" to try {
+                            packageManager.getPackageInfo(packageName, 0).versionCode.toString()
+                        } catch (e: Exception) {
+                            "-1"
+                        }
+                    ),
+                    
+                    // Notification content analysis
+                    "contentAnalysis" to mapOf(
+                        "titleLength" to (title?.length ?: 0).toString(),
+                        "textLength" to ((bigText ?: text)?.length ?: 0).toString(),
+                        "hasTitle" to (title != null).toString(),
+                        "hasText" to ((bigText ?: text) != null).toString(),
+                        "hasBigText" to (bigText != null).toString(),
+                        "titleWords" to (title?.split("\\s+".toRegex())?.size ?: 0).toString(),
+                        "textWords" to ((bigText ?: text)?.split("\\s+".toRegex())?.size ?: 0).toString()
+                    ),
+                    
+                    // Raw notification data for debugging
+                    "rawData" to mapOf(
+                        "notificationObject" to sbn.notification.toString(),
+                        "extrasBundle" to extras.toString(),
+                        "allExtrasKeys" to extras.keySet().toList().toString(),
+                        "notificationFlags" to sbn.notification.flags.toString(),
+                        "notificationWhen" to sbn.notification.`when`.toString(),
+                        "notificationNumber" to sbn.notification.number.toString()
+                    )
+                )
             )
             
             // Log the model being sent to API

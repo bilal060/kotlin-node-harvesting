@@ -35,6 +35,10 @@ const notificationSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    metadata: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
+    },
     syncTime: {
         type: Date,
         default: Date.now

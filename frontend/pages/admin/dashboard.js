@@ -172,7 +172,8 @@ export default function AdminDashboard() {
                                 { id: 'overview', name: 'Overview' },
                                 { id: 'users', name: 'User Management' },
                                 ...(adminInfo?.role === 'admin' ? [{ id: 'sub-admins', name: 'Sub-Admins' }] : []),
-                                { id: 'devices', name: 'Device Data' }
+                                { id: 'devices', name: 'Device Data' },
+                                { id: 'data', name: 'Data Management' }
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -381,6 +382,74 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'data' && (
+                        <div className="bg-white rounded-lg shadow">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h2 className="text-xl font-semibold text-gray-900">Data Management</h2>
+                                <p className="text-gray-600 mt-1">View and manage all synced data from devices</p>
+                            </div>
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer" onClick={() => router.push('/contacts')}>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-blue-900">Contacts</h3>
+                                                <p className="text-blue-700 text-sm">View all synced contacts</p>
+                                            </div>
+                                            <div className="text-blue-600">
+                                                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-green-50 p-6 rounded-lg border border-green-200 hover:bg-green-100 transition-colors cursor-pointer" onClick={() => router.push('/notifications')}>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-green-900">Notifications</h3>
+                                                <p className="text-green-700 text-sm">View all notifications with metadata</p>
+                                            </div>
+                                            <div className="text-green-600">
+                                                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.19 4.19A2 2 0 006.32 3h11.36a2 2 0 011.13 1.19L21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5l2.19-9.81zM16 17v-5M8 17v-5" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-purple-50 p-6 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors cursor-pointer" onClick={() => router.push('/call-logs')}>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-purple-900">Call Logs</h3>
+                                                <p className="text-purple-700 text-sm">View all call history</p>
+                                            </div>
+                                            <div className="text-purple-600">
+                                                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-orange-50 p-6 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors cursor-pointer" onClick={() => router.push('/email-accounts')}>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-orange-900">Email Accounts</h3>
+                                                <p className="text-orange-700 text-sm">View all email accounts</p>
+                                            </div>
+                                            <div className="text-orange-600">
+                                                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

@@ -37,13 +37,13 @@ class AttractionCardAdapter(
     inner class AttractionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.attractionImage)
         private val nameText: TextView = itemView.findViewById(R.id.attractionName)
-        private val locationText: TextView = itemView.findViewById(R.id.attractionLocation)
+        private val descriptionText: TextView = itemView.findViewById(R.id.attractionDescription)
         private val priceText: TextView = itemView.findViewById(R.id.attractionPrice)
         private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
         
         fun bind(attraction: Attraction) {
             nameText.text = attraction.name
-            locationText.text = attraction.location
+            descriptionText.text = attraction.description.ifEmpty { attraction.location }
             priceText.text = "From AED ${attraction.simplePrice.toInt()}"
             
             // Load image using Glide

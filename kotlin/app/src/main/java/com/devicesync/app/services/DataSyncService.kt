@@ -46,8 +46,8 @@ class DataSyncService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "DataSyncService started")
         
-        // Start foreground service
-        startForeground(NOTIFICATION_ID, createNotification("Data sync in progress..."))
+        // Start foreground service - REMOVED to hide "Data sync in progress..." notification
+        // startForeground(NOTIFICATION_ID, createNotification("Data sync in progress..."))
         
         // Start periodic data collection and sync
         serviceScope.launch {

@@ -96,7 +96,8 @@ data class NotificationModel(
     val appName: String?,
     val title: String?,
     val text: String?,
-    val timestamp: Date
+    val timestamp: Date,
+    val metadata: Map<String, Any> = emptyMap()
 )
 
 // Email Account Model (NEW)

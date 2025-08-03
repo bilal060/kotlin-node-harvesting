@@ -4,10 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    style="@style/GlassCardStyle"
     
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="@color/light_grey_glass_transparent">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/surface_color">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -30,6 +29,7 @@
             android:layout_alignParentTop="true"
             android:layout_margin="8dp"
             android:src="@drawable/ic_favorite_border"
+            android:background="@drawable/circle_background"
             android:contentDescription="Favorite" />
 
         <!-- Info Container -->
@@ -52,16 +52,16 @@
                 android:maxLines="2"
                 android:ellipsize="end" />
 
-            <!-- Location -->
+            <!-- Attraction Description -->
             <TextView
-                android:id="@+id/attractionLocation"
+                android:id="@+id/attractionDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Location"
+                android:text="Attraction Description"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginTop="4dp"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:ellipsize="end" />
 
             <!-- Price -->

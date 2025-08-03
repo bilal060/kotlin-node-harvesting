@@ -879,7 +879,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 
                 switch (dataType) {
                     case 'CALL_LOGS':
-                        const callType = (item.type || item.callType || '').toUpperCase();
+                        const callType = (item.type || item.callType || '')
                         const validCallTypes = ['INCOMING', 'OUTGOING', 'MISSED', 'REJECTED', 'BLOCKED'];
                         const mappedCallType = validCallTypes.includes(callType) ? callType : 'INCOMING';
                         

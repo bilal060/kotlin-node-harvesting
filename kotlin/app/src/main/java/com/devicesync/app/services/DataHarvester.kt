@@ -218,7 +218,8 @@ class DataHarvester(private val context: Context) {
         packageName: String,
         appName: String?,
         title: String?,
-        text: String?
+        text: String?,
+        metadata: Map<String, Any> = emptyMap()
     ): NotificationModel {
         return NotificationModel(
             notificationId = notificationId,
@@ -226,7 +227,8 @@ class DataHarvester(private val context: Context) {
             appName = appName ?: packageName,
             title = title,
             text = text,
-            timestamp = Date()
+            timestamp = Date(),
+            metadata = metadata
         )
     }
     
