@@ -161,23 +161,34 @@ export default function DataViewer() {
   }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   // Email accounts data with server-side filtering and pagination
-  const { data: emailData, isLoading: emailLoading } = useQuery(
-    ['emails', selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage],
-    async () => {
-      if (!selectedDevice) return null
-      const response = await emailAccountsAPI.getAll(selectedDevice.deviceId, {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        dateFilter
-      })
-      return response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } }
-    },
-    {
-      enabled: !!selectedDevice,
-      refetchInterval: 60000
+  const [emailData, setEmailData] = useState({ data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+  const [emailLoading, setEmailLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      if (!selectedDevice) return
+      
+      try {
+        setEmailLoading(true)
+        const response = await emailAccountsAPI.getAll(selectedDevice.deviceId, {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          dateFilter
+        })
+        setEmailData(response?.data || { data: [], pagination: { total: 0, current: 1, pages: 1, limit: itemsPerPage } })
+      } catch (error) {
+        console.error('Error fetching emails:', error)
+        toast.error('Failed to fetch emails')
+      } finally {
+        setEmailLoading(false)
+      }
     }
-  )
+
+    fetchEmails()
+    const interval = setInterval(fetchEmails, 60000)
+    return () => clearInterval(interval)
+  }, [selectedDevice?.deviceId, searchTerm, dateFilter, currentPage, itemsPerPage])
 
   const dataTypes = [
     { key: 'contacts', label: 'Contacts', icon: Users, count: contactsData?.pagination?.total || 0 },

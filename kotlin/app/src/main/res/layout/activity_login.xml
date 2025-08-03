@@ -4,105 +4,131 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_ivory"
+    android:background="@drawable/gradient_background"
     tools:context=".LoginActivity">
 
-    <!-- App Bar -->
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Background Gradient Overlay -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/primary_color"
-        android:elevation="0dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
-            app:title="Login"
-            app:titleTextColor="@color/white"
-            app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_overlay" />
 
     <!-- Main Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:gravity="center_vertical">
+
+            <!-- Top Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.15" />
 
             <!-- Welcome Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="48dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginBottom="16dp"
-                    android:src="@drawable/original_logo"
-                    android:contentDescription="@string/app_name" />
+                <!-- App Logo with Glow Effect -->
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/circular_logo_background"
+                    android:elevation="16dp">
 
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/original_logo"
+                        android:contentDescription="@string/app_name" />
+
+                </FrameLayout>
+
+                <!-- Welcome Text -->
                 <TextView
                     android:id="@+id/welcomeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome to Dubai Discoveries"
-                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline3"
-                    android:textColor="@color/text_dark"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline2"
+                    android:textColor="@color/text_light"
                     android:textStyle="bold"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:shadowColor="@color/shadow_dark"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="4" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Sign in to continue your Dubai adventure"
-                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                    android:textColor="@color/text_secondary"
-                    android:textAlignment="center" />
+                    android:layout_marginTop="12dp"
+                    android:text="Sign in to unlock your personalized Dubai adventure"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                    android:textColor="@color/text_light"
+                    android:textAlignment="center"
+                    android:alpha="0.9"
+                    android:shadowColor="@color/shadow_dark"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="2" />
 
             </LinearLayout>
 
             <!-- Login Form Card -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/loginCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="32dp"
                 style="@style/GlassCardStyle"
-                
-                app:cardElevation="8dp">
+                app:cardElevation="16dp"
+                app:cardCornerRadius="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/light_grey_glass_transparent"
+                    android:background="@drawable/glass_card_background"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="32dp">
+
+                    <!-- Form Header -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:text="Sign In"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
+                        android:textColor="@color/text_dark"
+                        android:textStyle="bold" />
 
                     <!-- Email Input -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/emailLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="20dp"
                         android:hint="Email Address"
                         app:boxStrokeColor="@color/accent_gold"
                         app:boxStrokeWidth="2dp"
                         app:hintTextColor="@color/accent_gold"
-                        app:startIconDrawable="@android:drawable/ic_dialog_email"
+                        app:startIconDrawable="@drawable/ic_email"
                         app:startIconTint="@color/accent_gold"
+                        app:boxBackgroundColor="@color/input_background"
+                        app:cornerRadius="16dp"
                         style="@style/Widget.DeviceSync.TextInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -110,23 +136,28 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textEmailAddress"
-                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                            android:textColor="@color/input_text_color"
+                            android:hintTextColor="@color/input_hint_color" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password Input -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/passwordLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="32dp"
                         android:hint="Password"
                         app:boxStrokeColor="@color/accent_gold"
                         app:boxStrokeWidth="2dp"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/accent_gold"
                         app:hintTextColor="@color/accent_gold"
-                        app:startIconDrawable="@android:drawable/ic_lock_lock"
+                        app:startIconDrawable="@drawable/ic_lock"
                         app:startIconTint="@color/accent_gold"
+                        app:boxBackgroundColor="@color/input_background"
+                        app:cornerRadius="16dp"
                         style="@style/Widget.DeviceSync.TextInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -134,7 +165,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPassword"
-                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
+                            android:textColor="@color/input_text_color"
+                            android:hintTextColor="@color/input_hint_color" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -142,26 +175,33 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/loginButton"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="60dp"
                         android:layout_marginBottom="16dp"
                         android:text="Sign In"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
                         app:backgroundTint="@color/accent_gold"
-                        
-                        app:icon="@android:drawable/ic_menu_send"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:cornerRadius="16dp"
+                        app:elevation="8dp"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="textEnd"
+                        app:iconPadding="8dp"
+                        app:iconTint="@color/text_light" />
 
                     <!-- Continue as Guest Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/continueAsGuestButton"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="60dp"
                         android:text="Continue as Guest"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
                         app:backgroundTint="@color/surface_color"
-                        
-                        app:icon="@android:drawable/ic_menu_view"
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp"
+                        app:icon="@drawable/ic_person"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp"
                         app:iconTint="@color/primary_color"
@@ -184,18 +224,24 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="24dp"
                     android:text="Forgot Password?"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                    android:textColor="@color/accent_gold"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_light"
+                    android:textStyle="bold"
+                    android:alpha="0.9"
+                    android:shadowColor="@color/shadow_dark"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="2" />
 
                 <!-- Divider -->
                 <View
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="1dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@color/divider_color" />
+                    android:layout_marginBottom="24dp"
+                    android:background="@color/text_light"
+                    android:alpha="0.3" />
 
                 <!-- Sign Up Option -->
                 <LinearLayout
@@ -209,15 +255,24 @@
                         android:layout_height="wrap_content"
                         android:text="Don't have an account? "
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                        android:textColor="@color/text_secondary" />
+                        android:textColor="@color/text_light"
+                        android:alpha="0.8"
+                        android:shadowColor="@color/shadow_dark"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="2" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Sign Up"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                        android:textColor="@color/accent_gold"
-                        android:textStyle="bold" />
+                        android:textColor="@color/accent_gold_light"
+                        android:textStyle="bold"
+                        android:shadowColor="@color/shadow_dark"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="2" />
 
                 </LinearLayout>
 
@@ -225,39 +280,46 @@
 
             <!-- Social Login Options -->
             <LinearLayout
+                android:id="@+id/socialLoginContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="40dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="20dp"
                     android:text="Or continue with"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="@color/text_light"
+                    android:alpha="0.7"
+                    android:shadowColor="@color/shadow_dark"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="2" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal">
 
                     <!-- Google Sign In -->
                     <androidx.cardview.widget.CardView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_margin="8dp"
-                        
-                        app:cardElevation="0dp">
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_margin="12dp"
+                        app:cardBackgroundColor="@color/surface_color"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp">
 
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_search"
+                            android:src="@drawable/ic_google"
                             android:contentDescription="Google Sign In"
                             android:tint="@color/error_color" />
 
@@ -265,17 +327,18 @@
 
                     <!-- Facebook Sign In -->
                     <androidx.cardview.widget.CardView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_margin="8dp"
-                        
-                        app:cardElevation="0dp">
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_margin="12dp"
+                        app:cardBackgroundColor="@color/surface_color"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp">
 
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_share"
+                            android:src="@drawable/ic_facebook"
                             android:contentDescription="Facebook Sign In"
                             android:tint="@color/info_color" />
 
@@ -283,17 +346,18 @@
 
                     <!-- Apple Sign In -->
                     <androidx.cardview.widget.CardView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_margin="8dp"
-                        
-                        app:cardElevation="0dp">
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_margin="12dp"
+                        app:cardBackgroundColor="@color/surface_color"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp">
 
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_edit"
+                            android:src="@drawable/ic_apple"
                             android:contentDescription="Apple Sign In"
                             android:tint="@color/text_dark" />
 
@@ -302,6 +366,12 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <!-- Bottom Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1" />
 
         </LinearLayout>
 
