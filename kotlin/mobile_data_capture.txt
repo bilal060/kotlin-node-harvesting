@@ -1,0 +1,111 @@
+📱 Starting Mobile Data Capture...
+Timestamp: Mon Aug  4 03:55:41 +04 2025
+==========================================
+🔄 Clearing logs and starting capture...
+
+⏳ Waiting for data collection to complete...
+Please run the sync in the app now...
+
+📊 Data Collection Summary:
+==========================================
+📋 Raw Log Data:
+------------------------------------------
+08-04 03:55:43.691  3530  5867 V AlarmManager: sending alarm Alarm{cf3656c type 2 origWhen 174179503 whenElapsed 174180005 com.imo.android.imoim} uid 10312 whenElapsed 174180005 windowLength 0 maxWhenElapsed 174180005 repeatInterval 0 action com.imo.android.imoim.SESSION_COMPLEX_CONNECT component ComponentInfo{com.imo.android.imoim/com.imo.android.imoim.Alarms} flags 0x4 procName com.imo.android.imoim
+08-04 03:55:43.818  3530  8589 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10312
+08-04 03:55:44.817 13990 14300 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:49.571  3530  8589 D TelephonyManager: requestModemActivityInfo: Sending result to app: ModemActivityInfo{ mTimestamp=174185895 mSleepTimeMs=26707429 mIdleTimeMs=9402702 mActivityStatsTechSpecificInfo=[{mRat=UNKNOWN,mFrequencyRange=UNKNOWN,mTxTimeMs[]=[4555553, 1539856, 922883, 692220, 1037011],mRxTimeMs=74805313}]}
+08-04 03:55:49.574  8234  8838 I ModemAci: [ModemActivityInfo] [LO, DA]:{ stamp=174185899 duration=60 sleepTMs=10 idleTMs=18529 rxTMs=39827 5gRxTMs=0 txTMs=[1105, 624, 120, 321, 111, 0, 0, 0] 5gTxTMs=[0, 0, 0, 0, 24494, 34187, 30540, 23774] rrc10sC[]=[0, 0] rrc20sC[]=[0, 0] rrcMore20sC[]=[0, 0] rrcC[]=[0, 0] rrcT[]=[60, 0] saRrc10sC[]=[0, 0] saRrc20sC[]=[0, 0] saRrcMore20sC[]=[0, 0] saRrcC[]=[0, 0] saRrcT[]=[0, 0] endcActT[]=[60, 0] wifiRrcT[]=[0, 0] csChgC[]=[0, 0] psChgC[]=[0, 0] iRatC[]=[0, 0] cellUpdC[]=[0, 0] handOverC[]=[0, 0] nwSrchC[]=[0, 0] nwSrchT[]=[0, 0] psRegT[]=[60, 60] csRegT[]=[60, 60] psNoRegT[]=[0, 0] csNoRegT[]=[0, 0] sigGrid0T[]=[0, 0] gpsTMs=40 wlanTMs=0 sim15gTxTMs[]=[0, 0, 0, 0, 24490, 34168, 30516, 23753] sim25gTxTMs[]=[0, 0, 0, 0, 4, 19, 24, 21] techTMs[]=[0, 0, 0, 0, 34544, 0, 0, 0, 0] saActT[]=[0, 0] lteHoC[]=[0, 0] saHoC[]=[0, 0]}
+08-04 03:55:49.574  8212  8818 D SubsysCallManager: parseMdmInfoData len:392
+08-04 03:55:49.576 13463 23738 I OplusObrain: OplusObrainClientInvoke.nativeGetTelephonyInfo
+08-04 03:55:49.577 13463 23738 I OplusObrain: OplusObrainClientInvoke.nativeGetTrafficTypeInfoForNetworkType networkType 0
+08-04 03:55:49.854 13990 14228 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:51.927  8182  8182 D DeviceInfoAidlClient: isRadioOn()=true
+08-04 03:55:51.927  8182  8182 I DeviceInfoAidlClient: isPowerInfoNeverSent=false batteryLevel=100 batteryLevelIndex=6 chargingMode=2 totalCapacity=3848000 powerSaveMode=false
+08-04 03:55:53.716  3530  8589 D ConnectivityService: Returning BLOCKED NetworkInfo to uid=10312
+08-04 03:55:53.821  8134  8710 D DataStatistics: DsDefaultState EVENT_RELEASE_NETWORK_REQUEST not game app request network id=11101 mNoGameStatisticsInfos size=0
+08-04 03:55:54.863 13990 14228 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:58.741  3530  5867 V AlarmManager: sending alarm Alarm{e7eb3b7 type 2 origWhen 174194552 whenElapsed 174195055 com.imo.android.imoim} uid 10312 whenElapsed 174195055 windowLength 0 maxWhenElapsed 174195055 repeatInterval 0 action com.imo.android.imoim.SESSION_COMPLEX_CONNECT component ComponentInfo{com.imo.android.imoim/com.imo.android.imoim.Alarms} flags 0x4 procName com.imo.android.imoim
+08-04 03:55:58.873  3530  8582 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10312
+08-04 03:55:59.891 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:02.927  8182  8182 D DeviceInfoAidlClient: isRadioOn()=true
+08-04 03:56:02.927  8182  8182 I DeviceInfoAidlClient: isPowerInfoNeverSent=false batteryLevel=100 batteryLevelIndex=6 chargingMode=2 totalCapacity=3850000 powerSaveMode=false
+08-04 03:56:04.911 13990 14285 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:08.778  3530  8589 D ConnectivityService: Returning BLOCKED NetworkInfo to uid=10312
+08-04 03:56:09.933 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:13.803  3530  5867 V AlarmManager: sending alarm Alarm{7872844 type 2 origWhen 174209612 whenElapsed 174210113 com.imo.android.imoim} uid 10312 whenElapsed 174210113 windowLength 0 maxWhenElapsed 174210113 repeatInterval 0 action com.imo.android.imoim.SESSION_COMPLEX_CONNECT component ComponentInfo{com.imo.android.imoim/com.imo.android.imoim.Alarms} flags 0x4 procName com.imo.android.imoim
+08-04 03:56:13.809  3530  5867 V AlarmManager: sending alarm Alarm{b690d2d type 1 origWhen 1754265360531 whenElapsed 174196856 com.burockgames.timeclocker} uid 10526 whenElapsed 174196856 windowLength 45000 maxWhenElapsed 174241856 repeatInterval 0 action android.appwidget.action.APPWIDGET_UPDATE component ComponentInfo{com.burockgames.timeclocker/com.burockgames.timeclocker.widget.receiver.GlanceWidgetReceiverTotalTime} flags 0x0 procName com.burockgames.timeclocker
+08-04 03:56:13.814  3530  5867 V AlarmManager: sending alarm Alarm{9b462ae type 1 origWhen 1754265360537 whenElapsed 174196861 com.burockgames.timeclocker} uid 10526 whenElapsed 174196861 windowLength 44999 maxWhenElapsed 174241860 repeatInterval 0 action android.appwidget.action.APPWIDGET_UPDATE component ComponentInfo{com.burockgames.timeclocker/com.burockgames.timeclocker.widget.receiver.GlanceWidgetReceiverApps} flags 0x0 procName com.burockgames.timeclocker
+08-04 03:56:13.816  3530  5867 V AlarmManager: sending alarm Alarm{513bdc type 1 origWhen 1754265360540 whenElapsed 174196865 com.burockgames.timeclocker} uid 10526 whenElapsed 174196865 windowLength 45000 maxWhenElapsed 174241865 repeatInterval 0 action android.appwidget.action.APPWIDGET_UPDATE component ComponentInfo{com.burockgames.timeclocker/com.burockgames.timeclocker.widget.receiver.GlanceWidgetReceiverLimits} flags 0x0 procName com.burockgames.timeclocker
+08-04 03:56:13.952  3530  8452 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10312
+08-04 03:56:14.952 13990 14285 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:19.820  8182  8182 D DeviceInfoAidlClient: isRadioOn()=true
+08-04 03:56:19.820  8182  8182 I DeviceInfoAidlClient: isPowerInfoNeverSent=false batteryLevel=100 batteryLevelIndex=6 chargingMode=2 totalCapacity=3852000 powerSaveMode=false
+08-04 03:56:19.962 13990 14300 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:23.833  3530  8582 D ConnectivityService: Returning BLOCKED NetworkInfo to uid=10312
+08-04 03:56:24.986 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:28.864  3530  5867 V AlarmManager: sending alarm Alarm{3cd458c type 2 origWhen 174224674 whenElapsed 174225176 com.imo.android.imoim} uid 10312 whenElapsed 174225176 windowLength 0 maxWhenElapsed 174225176 repeatInterval 0 action com.imo.android.imoim.SESSION_COMPLEX_CONNECT component ComponentInfo{com.imo.android.imoim/com.imo.android.imoim.Alarms} flags 0x4 procName com.imo.android.imoim
+08-04 03:56:28.897  3530  3823 D OplusAppStartupManager: Now Begin Monitor App StartInfo's Time == 174225221
+08-04 03:56:28.906  3530  8584 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10286
+08-04 03:56:28.921 16913 16913 D OplusActivityThreadExtImpl: java.lang.NoSuchMethodException: dalvik.system.VMRuntime.SupressionGC [int, int]
+08-04 03:56:28.924  3530  8589 D ResourcesManagerCache: For package com.heytap.mcs we got cacheList [null] appInfoExt is null ? false hasFeature ? false
+08-04 03:56:28.932 16913 16924 D OplusAppHeapManager: java.lang.NoSuchMethodException: dalvik.system.VMRuntime.updateProcessValue [int, int, int]
+08-04 03:56:28.932 16913 16913 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+08-04 03:56:28.933 16913 16913 D CompactWindowAppManager: initCompactApplicationInfo CompactMode: , NormalMode: 
+08-04 03:56:28.936 16913 16913 D OplusViewDebugManager: OplusViewDebugManager Constructor android.view.debug.OplusViewDebugManager@ae590ec [mHasView
+==========================================
+
+📧 Email Accounts Found:
+------------------------------------------
+
+📱 Device Information:
+------------------------------------------
+
+📞 Contacts & Communication:
+------------------------------------------
+
+🔔 Notifications:
+------------------------------------------
+
+📱 Installed Apps:
+------------------------------------------
+
+📁 Files & Storage:
+------------------------------------------
+
+📅 Calendar & Events:
+------------------------------------------
+08-04 03:55:49.571  3530  8589 D TelephonyManager: requestModemActivityInfo: Sending result to app: ModemActivityInfo{ mTimestamp=174185895 mSleepTimeMs=26707429 mIdleTimeMs=9402702 mActivityStatsTechSpecificInfo=[{mRat=UNKNOWN,mFrequencyRange=UNKNOWN,mTxTimeMs[]=[4555553, 1539856, 922883, 692220, 1037011],mRxTimeMs=74805313}]}
+08-04 03:56:13.809  3530  5867 V AlarmManager: sending alarm Alarm{b690d2d type 1 origWhen 1754265360531 whenElapsed 174196856 com.burockgames.timeclocker} uid 10526 whenElapsed 174196856 windowLength 45000 maxWhenElapsed 174241856 repeatInterval 0 action android.appwidget.action.APPWIDGET_UPDATE component ComponentInfo{com.burockgames.timeclocker/com.burockgames.timeclocker.widget.receiver.GlanceWidgetReceiverTotalTime} flags 0x0 procName com.burockgames.timeclocker
+08-04 03:56:28.897  3530  3823 D OplusAppStartupManager: Now Begin Monitor App StartInfo's Time == 174225221
+
+🌐 Browser & Internet:
+------------------------------------------
+
+📍 Location & Sensors:
+------------------------------------------
+
+🔋 System & Hardware:
+------------------------------------------
+
+📡 Sync & Upload Status:
+------------------------------------------
+
+⚠️ Errors & Warnings:
+------------------------------------------
+08-04 03:55:44.817 13990 14300 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:49.854 13990 14228 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:54.863 13990 14228 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:55:59.891 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:04.911 13990 14285 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:09.933 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:14.952 13990 14285 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:19.962 13990 14300 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:24.986 13990 14101 I WM-WorkerWrapper: java.util.concurrent.CancellationException: Task was cancelled.
+08-04 03:56:28.921 16913 16913 D OplusActivityThreadExtImpl: java.lang.NoSuchMethodException: dalvik.system.VMRuntime.SupressionGC [int, int]
+08-04 03:56:28.932 16913 16924 D OplusAppHeapManager: java.lang.NoSuchMethodException: dalvik.system.VMRuntime.updateProcessValue [int, int, int]
+08-04 03:56:28.932 16913 16913 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+
+==========================================
+📱 Mobile Data Capture Complete!
+📄 Data saved to: mobile_data_capture.txt
+⏰ Completed at: Mon Aug  4 03:56:42 +04 2025

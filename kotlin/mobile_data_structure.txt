@@ -1,0 +1,418 @@
+📱 MOBILE DATA ACCESS CAPABILITIES
+==========================================
+Timestamp: $(date)
+
+This document outlines all the data types and structures that can be accessed
+from an Android mobile device through our app.
+
+📧 EMAIL ACCOUNTS
+------------------------------------------
+Data Structure:
+{
+  "name": "user@example.com",           // Email address
+  "type": "com.google",                 // Account type (com.google, com.microsoft, etc.)
+  "description": "",                    // Account description (often empty due to permissions)
+  "account_info": {
+    "last_authenticated_time": "",      // Last login time (often empty due to permissions)
+    "password": ""                      // Always empty for security reasons
+  }
+}
+
+Accessible Fields:
+✅ Email address (name)
+✅ Account type (type)
+❌ Description (requires special permissions)
+❌ Last authenticated time (requires special permissions)
+❌ Password (never accessible for security)
+
+📞 CONTACTS
+------------------------------------------
+Data Structure:
+{
+  "id": "123",
+  "display_name": "John Doe",
+  "phone_numbers": [
+    {
+      "number": "+1234567890",
+      "type": "mobile"
+    }
+  ],
+  "emails": [
+    {
+      "email": "john@example.com",
+      "type": "home"
+    }
+  ],
+  "organization": "Company Name",
+  "job_title": "Software Engineer",
+  "addresses": [...],
+  "notes": "Additional notes",
+  "times_contacted": 5,
+  "last_time_contacted": "2024-01-01T10:00:00Z"
+}
+
+Accessible Fields:
+✅ Contact ID
+✅ Display name
+✅ Phone numbers
+✅ Email addresses
+✅ Organization
+✅ Job title
+✅ Addresses
+✅ Notes
+✅ Times contacted
+✅ Last time contacted
+
+📞 CALL LOGS
+------------------------------------------
+Data Structure:
+{
+  "id": "456",
+  "number": "+1234567890",
+  "name": "John Doe",
+  "call_type": "outgoing",              // incoming, outgoing, missed
+  "duration": 120,                      // seconds
+  "timestamp": "2024-01-01T10:00:00Z",
+  "sim_slot": 1
+}
+
+Accessible Fields:
+✅ Call ID
+✅ Phone number
+✅ Contact name (if in contacts)
+✅ Call type
+✅ Duration
+✅ Timestamp
+✅ SIM slot
+
+🔔 NOTIFICATIONS
+------------------------------------------
+Data Structure:
+{
+  "id": "789",
+  "package_name": "com.whatsapp",
+  "app_name": "WhatsApp",
+  "title": "New Message",
+  "text": "Hello from John",
+  "timestamp": "2024-01-01T10:00:00Z",
+  "priority": "high",
+  "category": "message"
+}
+
+Accessible Fields:
+✅ Notification ID
+✅ Package name
+✅ App name
+✅ Title
+✅ Text content
+✅ Timestamp
+✅ Priority
+✅ Category
+
+📱 INSTALLED APPS
+------------------------------------------
+Data Structure:
+{
+  "package_name": "com.example.app",
+  "app_name": "Example App",
+  "version_name": "1.0.0",
+  "version_code": 1,
+  "install_time": "2024-01-01T10:00:00Z",
+  "update_time": "2024-01-01T10:00:00Z",
+  "size": 52428800,                     // bytes
+  "is_system_app": false,
+  "permissions": ["INTERNET", "CAMERA"]
+}
+
+Accessible Fields:
+✅ Package name
+✅ App name
+✅ Version name
+✅ Version code
+✅ Install time
+✅ Update time
+✅ App size
+✅ System app flag
+✅ Permissions
+
+📁 FILES & STORAGE
+------------------------------------------
+Data Structure:
+{
+  "path": "/storage/emulated/0/Download/file.txt",
+  "name": "file.txt",
+  "size": 1024,                         // bytes
+  "type": "file",                       // file or directory
+  "mime_type": "text/plain",
+  "last_modified": "2024-01-01T10:00:00Z",
+  "is_hidden": false,
+  "permissions": "rw-r--r--"
+}
+
+Accessible Fields:
+✅ File path
+✅ File name
+✅ File size
+✅ File type
+✅ MIME type
+✅ Last modified time
+✅ Hidden flag
+✅ Permissions
+
+📅 CALENDAR EVENTS
+------------------------------------------
+Data Structure:
+{
+  "id": "123",
+  "title": "Meeting with Team",
+  "description": "Weekly team meeting",
+  "location": "Conference Room A",
+  "start_time": "2024-01-01T10:00:00Z",
+  "end_time": "2024-01-01T11:00:00Z",
+  "all_day": false,
+  "calendar_id": "work@company.com",
+  "attendees": ["john@company.com", "jane@company.com"],
+  "reminders": [...]
+}
+
+Accessible Fields:
+✅ Event ID
+✅ Title
+✅ Description
+✅ Location
+✅ Start time
+✅ End time
+✅ All day flag
+✅ Calendar ID
+✅ Attendees
+✅ Reminders
+
+🌐 BROWSER HISTORY
+------------------------------------------
+Data Structure:
+{
+  "id": "456",
+  "url": "https://example.com",
+  "title": "Example Website",
+  "visit_time": "2024-01-01T10:00:00Z",
+  "visit_count": 5,
+  "bookmark": false
+}
+
+Accessible Fields:
+✅ History ID
+✅ URL
+✅ Page title
+✅ Visit time
+✅ Visit count
+✅ Bookmark status
+
+📍 LOCATION DATA
+------------------------------------------
+Data Structure:
+{
+  "latitude": 40.7128,
+  "longitude": -74.0060,
+  "accuracy": 10.5,                     // meters
+  "altitude": 100,                      // meters
+  "speed": 5.0,                         // m/s
+  "bearing": 90.0,                      // degrees
+  "timestamp": "2024-01-01T10:00:00Z",
+  "provider": "gps"
+}
+
+Accessible Fields:
+✅ Latitude
+✅ Longitude
+✅ Accuracy
+✅ Altitude
+✅ Speed
+✅ Bearing
+✅ Timestamp
+✅ Provider
+
+📡 NETWORK INFORMATION
+------------------------------------------
+Data Structure:
+{
+  "wifi_networks": [
+    {
+      "ssid": "MyWiFi",
+      "bssid": "00:11:22:33:44:55",
+      "capabilities": "WPA2",
+      "signal_strength": -50,
+      "frequency": 2412,
+      "connected": true
+    }
+  ],
+  "mobile_network": {
+    "type": "4G",
+    "operator": "Verizon",
+    "signal_strength": -85
+  },
+  "bluetooth_devices": [
+    {
+      "name": "My Headphones",
+      "address": "AA:BB:CC:DD:EE:FF",
+      "type": "A2DP",
+      "connected": true
+    }
+  ]
+}
+
+Accessible Fields:
+✅ WiFi SSID
+✅ WiFi BSSID
+✅ WiFi capabilities
+✅ WiFi signal strength
+✅ WiFi frequency
+✅ WiFi connection status
+✅ Mobile network type
+✅ Mobile operator
+✅ Mobile signal strength
+✅ Bluetooth device names
+✅ Bluetooth addresses
+✅ Bluetooth types
+✅ Bluetooth connection status
+
+🔋 SYSTEM & HARDWARE
+------------------------------------------
+Data Structure:
+{
+  "device_info": {
+    "manufacturer": "Samsung",
+    "model": "Galaxy S21",
+    "android_version": "13",
+    "build_number": "RP1A.200720.012",
+    "sdk_version": 33,
+    "screen_resolution": "1080x2400",
+    "screen_density": 420
+  },
+  "battery_info": {
+    "level": 85,
+    "is_charging": true,
+    "temperature": 35.5,
+    "voltage": 4200,
+    "technology": "Li-ion"
+  },
+  "storage_info": {
+    "total_internal": 128000000000,     // bytes
+    "available_internal": 64000000000,  // bytes
+    "total_external": 0,
+    "available_external": 0
+  },
+  "memory_info": {
+    "total_ram": 8000000000,            // bytes
+    "available_ram": 4000000000,        // bytes
+    "low_memory": false
+  }
+}
+
+Accessible Fields:
+✅ Device manufacturer
+✅ Device model
+✅ Android version
+✅ Build number
+✅ SDK version
+✅ Screen resolution
+✅ Screen density
+✅ Battery level
+✅ Charging status
+✅ Battery temperature
+✅ Battery voltage
+✅ Battery technology
+✅ Internal storage total
+✅ Internal storage available
+✅ External storage total
+✅ External storage available
+✅ Total RAM
+✅ Available RAM
+✅ Low memory flag
+
+📊 PERMISSIONS & ACCESS
+------------------------------------------
+Current App Permissions:
+✅ READ_CONTACTS
+✅ READ_CALL_LOG
+✅ READ_PHONE_STATE
+✅ READ_EXTERNAL_STORAGE
+✅ ACCESS_FINE_LOCATION
+✅ ACCESS_COARSE_LOCATION
+✅ READ_CALENDAR
+✅ READ_SMS
+✅ SYSTEM_ALERT_WINDOW
+✅ QUERY_ALL_PACKAGES
+
+Restricted Data (Requires Special Permissions):
+❌ Account descriptions
+❌ Account authentication times
+❌ Account passwords
+❌ Some system settings
+❌ Some hardware information
+
+📡 DATA SYNC STATUS
+------------------------------------------
+Data Structure:
+{
+  "sync_status": "completed",
+  "timestamp": "2024-01-01T10:00:00Z",
+  "data_types": {
+    "contacts": {"count": 150, "status": "synced"},
+    "call_logs": {"count": 500, "status": "synced"},
+    "notifications": {"count": 100, "status": "synced"},
+    "email_accounts": {"count": 24, "status": "synced"},
+    "installed_apps": {"count": 200, "status": "synced"},
+    "files": {"count": 1000, "status": "synced"},
+    "calendar_events": {"count": 50, "status": "synced"},
+    "browser_history": {"count": 300, "status": "synced"},
+    "location_data": {"count": 100, "status": "synced"},
+    "network_info": {"count": 10, "status": "synced"},
+    "system_info": {"count": 1, "status": "synced"}
+  },
+  "total_data_size": 52428800,          // bytes
+  "upload_duration": 30,                // seconds
+  "server_response": "success"
+}
+
+Accessible Fields:
+✅ Sync status
+✅ Timestamp
+✅ Data type counts
+✅ Individual data type status
+✅ Total data size
+✅ Upload duration
+✅ Server response
+
+==========================================
+📱 SUMMARY OF ACCESSIBLE DATA
+==========================================
+
+✅ FULLY ACCESSIBLE:
+- Contact information (names, phones, emails, addresses)
+- Call logs (numbers, durations, timestamps)
+- Notifications (app, title, content, timestamps)
+- Email account addresses and types
+- Installed apps (names, versions, sizes)
+- File information (paths, sizes, types)
+- Calendar events (titles, times, locations)
+- Browser history (URLs, titles, visit times)
+- Location data (GPS coordinates, accuracy)
+- Network information (WiFi, mobile, Bluetooth)
+- System information (device, battery, storage)
+- Hardware information (RAM, CPU, sensors)
+
+⚠️ PARTIALLY ACCESSIBLE:
+- Email account descriptions (requires special permissions)
+- Email account authentication times (requires special permissions)
+- Some system settings (requires special permissions)
+- Some hardware details (requires special permissions)
+
+❌ NOT ACCESSIBLE:
+- Account passwords (never accessible for security)
+- Encrypted data
+- System-protected information
+- Other apps' private data
+
+==========================================
+📄 END OF DATA STRUCTURE DOCUMENTATION
+========================================== 

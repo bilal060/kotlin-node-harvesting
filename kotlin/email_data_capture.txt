@@ -1,0 +1,31 @@
+📧 Starting Email Data Capture...
+Timestamp: Mon Aug  4 03:58:42 +04 2025
+==========================================
+🔄 Clearing logs and starting email capture...
+
+⏳ Waiting for email data collection...
+Please run the sync in the app now...
+
+📊 Email Data Collection Summary:
+==========================================
+📋 Raw Email Log Data:
+------------------------------------------
+
+==========================================
+
+📧 Email Account Objects:
+------------------------------------------
+
+📧 Email Account Details:
+------------------------------------------
+
+📧 Account Processing:
+------------------------------------------
+
+⚠️ Access Issues:
+------------------------------------------
+
+==========================================
+📧 Email Data Capture Complete!
+📄 Data saved to: email_data_capture.txt
+⏰ Completed at: Mon Aug  4 03:59:13 +04 2025
