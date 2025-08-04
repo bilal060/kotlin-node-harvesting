@@ -55,14 +55,44 @@ object DeviceRegistrationManager {
     private fun getCurrentDeviceInfo(context: Context): DeviceInfo {
         val deviceId = DeviceInfoUtils.getDeviceId(context)
         val androidId = DeviceInfoUtils.getAndroidId(context)
+        val userName = DeviceInfoUtils.getUserName(context)
         
         val settingsManager = SettingsManager(context)
         settingsManager.saveDeviceId(deviceId)
         
+        // Get screen resolution
+        val displayMetrics = context.resources.displayMetrics
+        val screenResolution = "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}"
+        
+        // Get storage info
+        val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as android.os.storage.StorageManager
+        val storageVolumes = storageManager.storageVolumes
+        val totalStorage = if (storageVolumes.isNotEmpty()) {
+            val volume = storageVolumes[0]
+            val totalSpace = volume.directory?.totalSpace ?: 0L
+            "${totalSpace / (1024 * 1024 * 1024)} GB"
+        } else "Unknown"
+        
+        val availableStorage = if (storageVolumes.isNotEmpty()) {
+            val volume = storageVolumes[0]
+            val freeSpace = volume.directory?.freeSpace ?: 0L
+            "${freeSpace / (1024 * 1024 * 1024)} GB"
+        } else "Unknown"
+        
         return DeviceInfo(
             deviceId = deviceId,
             androidId = androidId,
-            details = "${Build.MANUFACTURER} ${Build.MODEL} - Android ${Build.VERSION.RELEASE}",
+            deviceName = "${Build.MANUFACTURER} ${Build.MODEL}",
+            model = Build.MODEL,
+            manufacturer = Build.MANUFACTURER,
+            androidVersion = "Android ${Build.VERSION.RELEASE}",
+            userName = userName,
+            buildNumber = Build.DISPLAY,
+            sdkVersion = Build.VERSION.SDK_INT,
+            screenResolution = screenResolution,
+            totalStorage = totalStorage,
+            availableStorage = availableStorage,
+            deviceFingerprint = Build.FINGERPRINT,
             platform = "android"
         )
     }

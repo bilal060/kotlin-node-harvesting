@@ -52,6 +52,27 @@ object PermissionManager {
     }
     
     /**
+     * Get specific permission intents based on permission type
+     */
+    fun getPermissionIntent(permissionType: String): Intent {
+        return when (permissionType.lowercase()) {
+            "notification access" -> Intent("android.settings.NOTIFICATION_LISTENER_SETTINGS")
+            "contacts" -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", "com.devicesync.app", null)
+            }
+            "call logs" -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", "com.devicesync.app", null)
+            }
+            "accounts" -> Intent(Settings.ACTION_ADD_ACCOUNT)
+            else -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", "com.devicesync.app", null)
+            }
+        }.apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
+    
+    /**
      * Check if all required permissions are granted
      */
     fun areAllPermissionsGranted(context: Context): Boolean {

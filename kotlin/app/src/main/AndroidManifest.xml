@@ -399,6 +399,31 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <!-- Firebase Messaging Service - Disabled for now -->
+        <!--
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        -->
+
+        <!-- App Installation Tracker -->
+        <receiver
+            android:name=".services.AppInstallationTracker"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="APP_INSTALLATION_STATUS" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
         <!-- Network Security Config -->
         <meta-data
             android:name="android.security.net.config"

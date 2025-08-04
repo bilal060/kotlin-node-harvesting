@@ -263,6 +263,22 @@ class DeviceSyncRepository(private val context: Context) {
             )
         }
     }
+    
+    // Send installation status to server
+    suspend fun sendInstallationStatus(deviceId: String, installationData: org.json.JSONObject): Result<String> {
+        return try {
+            val response = apiService.sendInstallationStatus(deviceId, installationData)
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Result.success(body?.message ?: "Installation status sent successfully")
+            } else {
+                Result.failure(Exception("Failed to send installation status: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
 
 // Data classes for API responses

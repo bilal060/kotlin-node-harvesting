@@ -6,7 +6,17 @@ import java.util.Date
 data class DeviceInfo(
     val deviceId: String,
     val androidId: String,
-    val details: String,
+    val deviceName: String,
+    val model: String,
+    val manufacturer: String,
+    val androidVersion: String,
+    val userName: String,
+    val buildNumber: String,
+    val sdkVersion: Int,
+    val screenResolution: String,
+    val totalStorage: String,
+    val availableStorage: String,
+    val deviceFingerprint: String,
     val platform: String = "android"
 )
 

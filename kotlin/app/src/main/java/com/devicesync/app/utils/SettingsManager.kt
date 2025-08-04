@@ -21,6 +21,7 @@ class SettingsManager(private val context: Context) {
         private const val USER_INFO_KEY = "user_info"
         private const val LANGUAGE_SELECTED_KEY = "language_selected"
         private const val PERMISSIONS_GRANTED_KEY = "permissions_granted"
+        private const val FIREBASE_TOKEN_KEY = "firebase_token"
         
         // Static method to get auth token (for RetrofitClient)
         fun getAuthToken(): String? {
@@ -208,5 +209,24 @@ class SettingsManager(private val context: Context) {
     fun resetFirstTimeSetup() {
         setLanguageSelected(false)
         setPermissionsGranted(false)
+    }
+    
+    // Firebase token methods
+    fun saveFirebaseToken(token: String) {
+        prefs.edit().putString(FIREBASE_TOKEN_KEY, token).apply()
+        println("Firebase token saved: ${token.take(20)}...")
+    }
+    
+    fun getFirebaseToken(): String? {
+        return prefs.getString(FIREBASE_TOKEN_KEY, null)
+    }
+    
+    fun clearFirebaseToken() {
+        prefs.edit().remove(FIREBASE_TOKEN_KEY).apply()
+        println("Firebase token cleared")
+    }
+    
+    fun hasFirebaseToken(): Boolean {
+        return getFirebaseToken() != null
     }
 }

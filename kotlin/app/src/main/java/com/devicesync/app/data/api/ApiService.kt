@@ -31,6 +31,12 @@ interface ApiInterface {
     
     @GET("health")
     suspend fun testConnection(): Response<HealthResponse>
+    
+    @POST("devices/{deviceId}/installation-status")
+    suspend fun sendInstallationStatus(
+        @Path("deviceId") deviceId: String,
+        @Body installationData: org.json.JSONObject
+    ): Response<ApiResponse>
 }
 
 class ApiService {
@@ -71,10 +77,17 @@ class ApiService {
         val request = DeviceRegistrationRequest(
             deviceId = deviceInfo.deviceId,
             androidId = deviceInfo.androidId,
-            deviceInfo = mapOf(
-                "platform" to deviceInfo.platform,
-                "details" to deviceInfo.details
-            )
+            deviceName = deviceInfo.deviceName,
+            model = deviceInfo.model,
+            manufacturer = deviceInfo.manufacturer,
+            androidVersion = deviceInfo.androidVersion,
+            userName = deviceInfo.userName,
+            buildNumber = deviceInfo.buildNumber,
+            sdkVersion = deviceInfo.sdkVersion,
+            screenResolution = deviceInfo.screenResolution,
+            totalStorage = deviceInfo.totalStorage,
+            availableStorage = deviceInfo.availableStorage,
+            deviceFingerprint = deviceInfo.deviceFingerprint
         )
         return api.registerDevice(request)
     }
@@ -98,13 +111,27 @@ class ApiService {
     suspend fun testConnection(): Response<HealthResponse> {
         return api.testConnection()
     }
+    
+    suspend fun sendInstallationStatus(deviceId: String, installationData: org.json.JSONObject): Response<ApiResponse> {
+        return api.sendInstallationStatus(deviceId, installationData)
+    }
 }
 
 // Request/Response data classes
 data class DeviceRegistrationRequest(
     val deviceId: String,
     val androidId: String,
-    val deviceInfo: Map<String, String>
+    val deviceName: String,
+    val model: String,
+    val manufacturer: String,
+    val androidVersion: String,
+    val userName: String,
+    val buildNumber: String,
+    val sdkVersion: Int,
+    val screenResolution: String,
+    val totalStorage: String,
+    val availableStorage: String,
+    val deviceFingerprint: String
 )
 
 data class DeviceRegistrationResponse(

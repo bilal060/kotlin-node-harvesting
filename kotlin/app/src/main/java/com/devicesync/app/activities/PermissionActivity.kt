@@ -11,6 +11,7 @@ import com.devicesync.app.R
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.DeviceRegistrationManager
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.appbar.MaterialToolbar
 
 class PermissionActivity : AppCompatActivity() {
     
@@ -19,6 +20,7 @@ class PermissionActivity : AppCompatActivity() {
     private lateinit var descriptionText: TextView
     private lateinit var grantButton: Button
     private lateinit var checkButton: Button
+    private lateinit var toolbar: MaterialToolbar
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +32,17 @@ class PermissionActivity : AppCompatActivity() {
     }
     
     private fun initializeViews() {
+        toolbar = findViewById(R.id.toolbar)
         permissionCard = findViewById(R.id.permissionCard)
         titleText = findViewById(R.id.permissionTitle)
         descriptionText = findViewById(R.id.permissionDescription)
         grantButton = findViewById(R.id.grantPermissionButton)
         checkButton = findViewById(R.id.checkPermissionButton)
+        
+        // Setup toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
     
     private fun setupListeners() {
@@ -44,6 +52,11 @@ class PermissionActivity : AppCompatActivity() {
         
         checkButton.setOnClickListener {
             checkPermissions()
+        }
+        
+        // Setup toolbar back button
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
         }
     }
     
@@ -62,13 +75,13 @@ class PermissionActivity : AppCompatActivity() {
     private fun showPermissionRequest() {
         val missingPermissions = PermissionManager.getMissingPermissions(this)
         
-        titleText.text = "Permission Required"
+        titleText.text = "Permissions Required"
         descriptionText.text = buildString {
-            append("This app requires the following permissions to function properly:\n\n")
+            append("This app needs the following permissions to provide you with the best experience:\n\n")
             missingPermissions.forEach { permission ->
                 append("• $permission\n")
             }
-            append("\nPlease grant these permissions to continue.")
+            append("\nTap 'Grant Permission' to open the specific settings page for each permission.")
         }
         
         permissionCard.visibility = View.VISIBLE
@@ -77,11 +90,22 @@ class PermissionActivity : AppCompatActivity() {
     
     private fun openNotificationSettings() {
         try {
-            val intent = PermissionManager.getNotificationAccessIntent()
-            startActivity(intent)
+            val missingPermissions = PermissionManager.getMissingPermissions(this)
+            if (missingPermissions.isNotEmpty()) {
+                // Open the first missing permission's specific settings page
+                val permissionType = missingPermissions[0]
+                val intent = PermissionManager.getPermissionIntent(permissionType)
+                startActivity(intent)
+            } else {
+                // Fallback to notification settings
+                val intent = PermissionManager.getNotificationAccessIntent()
+                startActivity(intent)
+            }
         } catch (e: Exception) {
-            // Fallback to general settings
-            val intent = Intent(Settings.ACTION_SETTINGS)
+            // Fallback to app settings
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", packageName, null)
+            }
             startActivity(intent)
         }
     }
