@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { api } from '../lib/api';
+import api from '../lib/api';
 
 export default function Contacts() {
     const router = useRouter();

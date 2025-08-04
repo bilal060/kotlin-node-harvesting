@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.devicesync.app.utils.SettingsManager
 import com.devicesync.app.utils.PermissionManager
+import com.devicesync.app.utils.DeviceRegistrationManager
 
 class SplashActivity : AppCompatActivity() {
 
@@ -25,6 +26,9 @@ class SplashActivity : AppCompatActivity() {
         
         // Log permission status for debugging
         PermissionManager.logPermissionStatus(this)
+        
+        // Register device safely after splash screen (for testing purposes)
+        DeviceRegistrationManager.registerDeviceSafely(this)
         
         if (!settingsManager.isLanguageSelected()) {
             // First time: Navigate to language selection

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.devicesync.app.R
 import com.devicesync.app.utils.PermissionManager
+import com.devicesync.app.utils.DeviceRegistrationManager
 import com.google.android.material.card.MaterialCardView
 
 class PermissionActivity : AppCompatActivity() {

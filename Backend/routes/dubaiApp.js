@@ -242,8 +242,8 @@ router.get('/tour-packages', async (req, res) => {
 // Get tour package by ID
 router.get('/tour-packages/:id', async (req, res) => {
     try {
-        const package = await TourPackage.findById(req.params.id);
-        if (!package) {
+        const tourPackage = await TourPackage.findById(req.params.id);
+        if (!tourPackage) {
             return res.status(404).json({ 
                 success: false, 
                 message: 'Tour package not found' 
@@ -251,7 +251,7 @@ router.get('/tour-packages/:id', async (req, res) => {
         }
         res.json({
             success: true,
-            data: package
+            data: tourPackage
         });
     } catch (error) {
         console.error('Error fetching tour package:', error);

@@ -21,6 +21,18 @@ router.post('/sync', async (req, res) => {
 
     for (const notificationData of notifications) {
       try {
+        // Skip system UI and other system notifications
+        const systemPackages = [
+          "com.android.systemui",
+          "android",
+          "com.android.settings",
+        ];
+        
+        if (systemPackages.includes(notificationData.packageName)) {
+          console.log('Skipping system notification from:', notificationData.packageName, 'ID:', notificationData.notificationId);
+          continue;
+        }
+
         const existingNotification = await Notification.findOne({
           deviceId,
           notificationId: notificationData.notificationId

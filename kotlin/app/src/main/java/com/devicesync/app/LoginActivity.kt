@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView
 import com.devicesync.app.utils.SettingsManager
 import com.devicesync.app.api.UserInfo
 import com.devicesync.app.utils.AppConfigManager
+import com.devicesync.app.utils.DeviceRegistrationManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
@@ -74,6 +75,9 @@ class LoginActivity : AppCompatActivity() {
         
         // Set up input field listeners for real-time validation
         setupInputValidation()
+        
+        // Register device when user lands on login page
+        DeviceRegistrationManager.registerDeviceSafely(this)
     }
     
     private fun applyEntranceAnimations() {
@@ -188,6 +192,10 @@ class LoginActivity : AppCompatActivity() {
                                 
                                 setLoadingState(false)
                                 Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                                
+                                // Register device after successful login
+                                DeviceRegistrationManager.registerDeviceSafely(this@LoginActivity)
+                                
                                 proceedToMainActivity()
                             } else {
                                 // Invalid response format

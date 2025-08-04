@@ -9,11 +9,11 @@
     <!-- App Logo/Icon -->
     <ImageView
         android:id="@+id/appIcon"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="60dp"
-        android:src="@drawable/ic_launcher_foreground"
-        android:contentDescription="App Icon"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/original_logo"
+        android:contentDescription="Dubai Discoveries Logo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -23,12 +23,43 @@
         android:id="@+id/appTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="DeviceSync"
-        android:textSize="28sp"
+        android:layout_marginTop="20dp"
+        android:text="Dubai Discoveries"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_color"
+        app:layout_constraintTop_toBottomOf="@id/appIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Permission Title -->
+    <TextView
+        android:id="@+id/permissionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Permission Required"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
-        app:layout_constraintTop_toBottomOf="@id/appIcon"
+        app:layout_constraintTop_toBottomOf="@id/appTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Permission Description -->
+    <TextView
+        android:id="@+id/permissionDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="This app requires notification access to function properly. Please grant the required permissions to continue."
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        app:layout_constraintTop_toBottomOf="@id/permissionTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -37,12 +68,12 @@
         android:id="@+id/permissionCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
         android:visibility="visible"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/card_background"
-        app:layout_constraintTop_toBottomOf="@id/appTitle"
+        app:layout_constraintTop_toBottomOf="@id/permissionDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -60,31 +91,7 @@
                 android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_notification"
                 android:contentDescription="Notification Permission"
-                android:tint="@color/accent_color" />
-
-            <!-- Permission Title -->
-            <TextView
-                android:id="@+id/permissionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Permission Required"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:gravity="center" />
-
-            <!-- Permission Description -->
-            <TextView
-                android:id="@+id/permissionDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="This app requires notification access to function properly. Please grant the required permissions to continue."
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
-                android:gravity="center"
-                android:lineSpacingExtra="4dp" />
+                android:tint="@color/accent_gold" />
 
             <!-- Grant Permission Button -->
             <com.google.android.material.button.MaterialButton
@@ -96,7 +103,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="28dp"
-                app:backgroundTint="@color/accent_color" />
+                app:backgroundTint="@color/accent_gold" />
 
             <!-- Check Permission Button -->
             <com.google.android.material.button.MaterialButton
@@ -107,8 +114,8 @@
                 android:textSize="14sp"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 app:cornerRadius="24dp"
-                app:strokeColor="@color/accent_color"
-                android:textColor="@color/accent_color" />
+                app:strokeColor="@color/accent_gold"
+                android:textColor="@color/accent_gold" />
 
         </LinearLayout>
 
@@ -130,7 +137,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:text="DeviceSync - Data Collection App"
+        android:text="Dubai Discoveries - Your Gateway to Dubai"
         android:textSize="12sp"
         android:textColor="@color/text_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
