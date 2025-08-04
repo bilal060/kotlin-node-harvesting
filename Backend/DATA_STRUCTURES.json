@@ -1,0 +1,168 @@
+{
+  "sliders": [
+    {
+      "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
+      "title": "Palm Jumeirah - Iconic Island",
+      "description": "Experience the world's largest man-made island with luxury resorts and stunning beaches",
+      "imageUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200",
+      "imageType": "url",
+      "order": 1,
+      "isActive": true,
+      "category": "hero",
+      "actionType": "attraction",
+      "tags": ["palm", "island", "luxury", "beach"]
+    }
+  ],
+  "attractions": [
+    {
+      "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
+      "name": "Burj Khalifa (At The Top)",
+      "description": "Experience the amazing Burj Khalifa (At The Top) in Downtown Dubai.",
+      "shortDescription": "Burj Khalifa (At The Top)",
+      "category": "landmark",
+      "location": {
+        "address": "Downtown Dubai",
+        "area": "Downtown Dubai"
+      },
+      "images": [
+        {
+          "url": "https://www.burjkhalifa.ae/en/wp-content/uploads/2018/10/The-Burj-Khalifa-Exterior.jpg",
+          "isPrimary": true
+        }
+      ],
+      "ticketPrices": {
+        "adult": 170,
+        "child": 102,
+        "currency": "AED"
+      },
+      "ratings": {
+        "average": 4.5,
+        "totalReviews": 1000
+      },
+      "isPopular": true,
+      "isFeatured": true,
+      "tags": ["dubai", "attraction"]
+    }
+  ],
+  "services": [
+    {
+      "_id": "64f8a1b2c3d4e5f6a7b8c9d5",
+      "name": "Hotel Booking",
+      "description": "Reservation services for luxury hotels, resorts, and boutique accommodations in Dubai.",
+      "shortDescription": "Hotel Booking",
+      "category": "accommodation",
+      "subcategory": "hotel",
+      "location": {
+        "address": "Dubai, UAE",
+        "area": "Dubai",
+        "isMobile": false
+      },
+      "images": [
+        {
+          "url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+          "isPrimary": true
+        }
+      ],
+      "pricing": {
+        "basePrice": 1000,
+        "currency": "AED",
+        "pricingType": "per_day"
+      },
+      "availability": {
+        "isAvailable": true,
+        "duration": 1440,
+        "maxCapacity": 10,
+        "requiresBooking": true
+      },
+      "provider": {
+        "name": "Dubai Discoveries",
+        "rating": 4.5,
+        "totalReviews": 500
+      },
+      "ratings": {
+        "average": 4.5,
+        "totalReviews": 500
+      },
+      "isPopular": true,
+      "isFeatured": true,
+      "tags": ["dubai", "service"]
+    }
+  ],
+  "tourPackages": [
+    {
+      "_id": "64f8a1b2c3d4e5f6a7b8c9d7",
+      "name": "Dubai Essential Experience",
+      "description": "Complete Dubai experience with iconic attractions",
+      "shortDescription": "Essential Dubai tour",
+      "category": "essential",
+      "duration": {
+        "days": 3,
+        "nights": 2
+      },
+      "images": [
+        {
+          "url": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800",
+          "isPrimary": true
+        }
+      ],
+      "pricing": {
+        "adult": 1200,
+        "child": 800,
+        "currency": "AED"
+      },
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival & City Orientation",
+          "activities": [
+            {
+              "time": "14:00",
+              "activity": "Hotel check-in",
+              "location": "Hotel",
+              "duration": 30,
+              "type": "hotel"
+            },
+            {
+              "time": "16:00",
+              "activity": "City tour",
+              "location": "Dubai",
+              "duration": 180,
+              "type": "attraction"
+            }
+          ],
+          "meals": {
+            "breakfast": false,
+            "lunch": false,
+            "dinner": true
+          }
+        }
+      ],
+      "provider": {
+        "name": "Dubai Discoveries Tours",
+        "rating": 4.6,
+        "totalReviews": 890
+      },
+      "ratings": {
+        "average": 4.6,
+        "totalReviews": 890
+      },
+      "isPopular": true,
+      "isFeatured": true,
+      "tags": ["dubai", "package", "essential"]
+    }
+  ],
+  "mobileBundle": {
+    "sliders": [],
+    "attractions": [],
+    "services": [],
+    "tourPackages": [],
+    "metadata": {
+      "timestamp": "2024-01-15T10:30:00.000Z",
+      "version": "1.0.0",
+      "totalSliders": 10,
+      "totalAttractions": 11,
+      "totalServices": 9,
+      "totalTourPackages": 1
+    }
+  }
+} 

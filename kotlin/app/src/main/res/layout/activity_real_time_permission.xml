@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔐 Real-Time Permission Manager"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Permission Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Permission Status"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/permissionStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading permission status..."
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/card_background"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="monospace" />
+
+        <!-- Request All Permissions Button -->
+        <Button
+            android:id="@+id/requestAllPermissionsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚀 Request All Permissions"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Individual Permission Buttons -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Request Individual Permissions"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/requestContactsButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="👥 Contacts"
+                android:textSize="12sp"
+                android:background="@drawable/button_outline_background"
+                android:textColor="@color/black"
+                android:padding="12dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/requestBluetoothButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📶 Bluetooth"
+                android:textSize="12sp"
+                android:background="@drawable/button_outline_background"
+                android:textColor="@color/black"
+                android:padding="12dp"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/requestLocationButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📍 Location"
+                android:textSize="12sp"
+                android:background="@drawable/button_outline_background"
+                android:textColor="@color/black"
+                android:padding="12dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/requestStorageButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💾 Storage"
+                android:textSize="12sp"
+                android:background="@drawable/button_outline_background"
+                android:textColor="@color/black"
+                android:padding="12dp"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <!-- Settings Button -->
+        <Button
+            android:id="@+id/openSettingsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚙️ Open App Settings"
+            android:textSize="16sp"
+            android:background="@drawable/button_skip_background"
+            android:textColor="@color/black"
+            android:padding="16dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Instructions -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ℹ️ Instructions:\n\n• Tap 'Request All Permissions' to show Android's default permission popups\n• Use individual buttons to request specific permission categories\n• The status will update automatically after granting/denying permissions\n• Use 'Open App Settings' to manually manage permissions"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/card_background"
+            android:padding="16dp"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+
+</ScrollView> 

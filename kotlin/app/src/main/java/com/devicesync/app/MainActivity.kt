@@ -16,7 +16,12 @@ import com.devicesync.app.utils.DeviceConfigManager
 import com.devicesync.app.utils.AppConfigManager
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.adapters.HeroSliderAdapter
+import com.devicesync.app.repository.DataSyncRepository
+import com.devicesync.app.repository.SyncResult
+import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.adapters.HeroImageAdapter
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -234,12 +239,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var dataSyncRepository: DataSyncRepository
+    private lateinit var heroAdapter: HeroSliderAdapter
+
     private fun setupHeroSlider() {
         val viewPager = findViewById<ViewPager2>(R.id.heroViewPager)
         
+        // Initialize data sync repository
+        dataSyncRepository = DataSyncRepository(this, RetrofitClient.apiService as com.devicesync.app.api.SliderApiService)
+        
         // Set up the hero slider adapter
-        val heroAdapter = HeroSliderAdapter()
+        heroAdapter = HeroSliderAdapter()
         viewPager.adapter = heroAdapter
+        
+        // Load sliders from local storage or sync from backend
+        loadHeroSliders()
         
         // Auto-scroll hero images every 3 seconds
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -256,5 +270,39 @@ class MainActivity : AppCompatActivity() {
         
         // Start auto-scrolling
         handler.postDelayed(runnable, 3000)
+    }
+    
+    private fun loadHeroSliders() {
+        // First, try to load from local storage
+        val localSliders = dataSyncRepository.getHeroSliders()
+        if (localSliders.isNotEmpty()) {
+            heroAdapter.updateSliders(localSliders)
+        }
+        
+        // Then sync from backend if needed
+        if (dataSyncRepository.needsSync()) {
+            syncDataFromBackend()
+        }
+    }
+    
+    private fun syncDataFromBackend() {
+        lifecycleScope.launch {
+            try {
+                val result = dataSyncRepository.syncAllData()
+                when (result) {
+                    is SyncResult.Success -> {
+                        // Update UI with fresh data
+                        val freshSliders = dataSyncRepository.getHeroSliders()
+                        heroAdapter.updateSliders(freshSliders)
+                    }
+                    is SyncResult.Error -> {
+                        // Handle error (could show a toast or log)
+                        android.util.Log.e("MainActivity", "Sync error: ${result.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Sync exception: ${e.message}", e)
+            }
+        }
     }
 }

@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Contact = require('../models/Contact');
 const Device = require('../models/Device');
+const { queueMiddleware } = require('../middleware/queueMiddleware');
+const colors = require('colors');
 
-// Sync contacts
-router.post('/sync', async (req, res) => {
+// Sync contacts with queue middleware
+router.post('/sync', queueMiddleware('contacts'), async (req, res) => {
   try {
     const { deviceId, contacts } = req.body;
 
@@ -12,8 +14,11 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and contacts array are required' });
     }
 
+    console.log(colors.blue(`📞 Processing ${contacts.length} contacts for device ${deviceId}`));
+
     let newContactsCount = 0;
     let updatedContactsCount = 0;
+    let errorCount = 0;
 
     for (const contactData of contacts) {
       try {
@@ -38,7 +43,8 @@ router.post('/sync', async (req, res) => {
           newContactsCount++;
         }
       } catch (contactError) {
-        console.error('Error processing contact:', contactError);
+        console.error(colors.red('Error processing contact:', contactError));
+        errorCount++;
         // Continue with other contacts
       }
     }
@@ -54,14 +60,21 @@ router.post('/sync', async (req, res) => {
     );
 
     res.json({
+      success: true,
       message: 'Contacts synced successfully',
       newContacts: newContactsCount,
       updatedContacts: updatedContactsCount,
-      totalProcessed: contacts.length
+      errorCount: errorCount,
+      totalProcessed: contacts.length,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Contacts sync error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(colors.red('Contacts sync error:', error));
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

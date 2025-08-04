@@ -35,11 +35,15 @@ object PermissionManager {
         
         val packageName = context.packageName
         val serviceName = "${packageName}.services.NotificationListenerService"
+        val fullServiceName = "${packageName}/${serviceName}"
         
         Log.d(TAG, "Checking notification access for: $serviceName")
+        Log.d(TAG, "Full service name: $fullServiceName")
         Log.d(TAG, "Enabled listeners: $enabledListeners")
         
-        return enabledListeners?.contains(serviceName) == true
+        // Check both formats: just service name and full package/service name
+        return enabledListeners?.contains(serviceName) == true || 
+               enabledListeners?.contains(fullServiceName) == true
     }
     
     /**
@@ -76,7 +80,10 @@ object PermissionManager {
      * Check if all required permissions are granted
      */
     fun areAllPermissionsGranted(context: Context): Boolean {
-        return isNotificationAccessGranted(context)
+        return isNotificationAccessGranted(context) &&
+               isContactsPermissionGranted(context) &&
+               isCallLogPermissionGranted(context) &&
+               isPhoneStatePermissionGranted(context)
     }
     
     /**
@@ -89,7 +96,40 @@ object PermissionManager {
             missingPermissions.add("Notification Access")
         }
         
+        if (!isContactsPermissionGranted(context)) {
+            missingPermissions.add("Contacts")
+        }
+        
+        if (!isCallLogPermissionGranted(context)) {
+            missingPermissions.add("Call Logs")
+        }
+        
+        if (!isPhoneStatePermissionGranted(context)) {
+            missingPermissions.add("Phone State")
+        }
+        
         return missingPermissions
+    }
+    
+    /**
+     * Check if contacts permission is granted
+     */
+    fun isContactsPermissionGranted(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    /**
+     * Check if call log permission is granted
+     */
+    fun isCallLogPermissionGranted(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    /**
+     * Check if phone state permission is granted
+     */
+    fun isPhoneStatePermissionGranted(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
     }
     
     /**

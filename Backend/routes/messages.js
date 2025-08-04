@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
 const Device = require('../models/Device');
+const { queueMiddleware } = require('../middleware/queueMiddleware');
+const colors = require('colors');
 
-// Sync messages (SMS, MMS)
-router.post('/sync', async (req, res) => {
+// Sync messages with queue middleware
+router.post('/sync', queueMiddleware('messages'), async (req, res) => {
   try {
     const { deviceId, messages } = req.body;
 
@@ -12,16 +14,21 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and messages array are required' });
     }
 
+    console.log(colors.blue(`💬 Processing ${messages.length} messages for device ${deviceId}`));
+
+    // Get device information to extract user_internal_code
+    const device = await Device.findOne({ deviceId });
+    const user_internal_code = device?.user_internal_code || 'DEFAULT';
+
     let newMessagesCount = 0;
     let updatedMessagesCount = 0;
-    const typeStats = {};
+    let errorCount = 0;
 
     for (const messageData of messages) {
       try {
         const existingMessage = await Message.findOne({
           deviceId,
-          messageId: messageData.messageId,
-          type: messageData.type
+          messageId: messageData.messageId
         });
 
         if (existingMessage) {
@@ -34,44 +41,45 @@ router.post('/sync', async (req, res) => {
           const newMessage = new Message({
             ...messageData,
             deviceId,
+            user_internal_code: user_internal_code,
             syncedAt: new Date()
           });
           await newMessage.save();
           newMessagesCount++;
-          
-          // Track stats by type
-          typeStats[messageData.type] = (typeStats[messageData.type] || 0) + 1;
         }
       } catch (messageError) {
-        console.error('Error processing message:', messageError);
+        console.error(colors.red('Error processing message:', messageError));
+        errorCount++;
         // Continue with other messages
       }
     }
 
     // Update device stats and sync timestamp
-    const updateData = {
-      $inc: { 'stats.totalMessages': newMessagesCount },
-      lastSeen: new Date()
-    };
-
-    // Update specific sync timestamps based on message types
-    const messageTypes = [...new Set(messages.map(m => m.type))];
-    messageTypes.forEach(type => {
-      updateData[`lastSync.${type}`] = new Date();
-    });
-
-    await Device.findOneAndUpdate({ deviceId }, updateData);
+    await Device.findOneAndUpdate(
+      { deviceId },
+      {
+        $inc: { 'stats.totalMessages': newMessagesCount },
+        'lastSync.messages': new Date(),
+        lastSeen: new Date()
+      }
+    );
 
     res.json({
+      success: true,
       message: 'Messages synced successfully',
       newMessages: newMessagesCount,
       updatedMessages: updatedMessagesCount,
+      errorCount: errorCount,
       totalProcessed: messages.length,
-      typeStats
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Messages sync error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(colors.red('Messages sync error:', error));
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

@@ -22,6 +22,13 @@ const Admin = require('./models/Admin');
 const Attraction = require('./models/Attraction');
 const Service = require('./models/Service');
 const TourPackage = require('./models/TourPackage');
+const Slider = require('./models/Slider');
+const TourGallery = require('./models/TourGallery');
+
+// Import seeders
+const seedDubaiDataFromJson = require('./seedDubaiDataFromJson');
+const seedSliderData = require('./seedSliderData');
+const seedTourGallery = require('./seedTourGallery');
 
 // Import routes
 const deviceRoutes = require('./routes/devices');
@@ -34,6 +41,9 @@ const emailAccountsRoutes = require('./routes/emailAccounts');
 const dubaiAppRoutes = require('./routes/dubaiApp');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
+const sliderRoutes = require('./routes/sliders');
+const tourGalleryRoutes = require('./routes/tourGallery');
+const queueRoutes = require('./routes/queueRoutes');
 
 const app = express();
 const PORT = config.server.port;
@@ -57,6 +67,9 @@ app.use('/api/emailaccounts', emailAccountsRoutes);
 app.use('/api/dubai', dubaiAppRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/sliders', sliderRoutes);
+app.use('/api/gallery', tourGalleryRoutes);
+app.use('/api/queue', queueRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {
@@ -1341,84 +1354,31 @@ async function runSeeders() {
             console.log('⏭️  Admin user already exists');
         }
         
-        // Seed Dubai data (only if not exists)
-        const attractionsCount = await Attraction.countDocuments();
-        if (attractionsCount === 0) {
-            const sampleAttractions = [
-                {
-                    name: "Burj Khalifa",
-                    description: "The world's tallest building with stunning city views",
-                    shortDescription: "World's tallest building",
-                    category: "landmark",
-                    location: {
-                        address: "1 Sheikh Mohammed bin Rashid Blvd, Downtown Dubai",
-                        area: "Downtown Dubai"
-                    },
-                    images: [{ url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800", isPrimary: true }],
-                    timing: {
-                        openingHours: {
-                            monday: { open: "09:00", close: "23:00", isOpen: true },
-                            tuesday: { open: "09:00", close: "23:00", isOpen: true },
-                            wednesday: { open: "09:00", close: "23:00", isOpen: true },
-                            thursday: { open: "09:00", close: "23:00", isOpen: true },
-                            friday: { open: "09:00", close: "23:00", isOpen: true },
-                            saturday: { open: "09:00", close: "23:00", isOpen: true },
-                            sunday: { open: "09:00", close: "23:00", isOpen: true }
-                        },
-                        estimatedVisitTime: 120
-                    },
-                    ticketPrices: {
-                        adult: 149,
-                        child: 95,
-                        currency: "AED"
-                    },
-                    ratings: { average: 4.8, totalReviews: 15420 },
-                    isPopular: true,
-                    isFeatured: true
-                }
-            ];
-            
-            await Attraction.insertMany(sampleAttractions);
-            console.log('✅ Dubai attractions seeded successfully');
-        } else {
-            console.log('⏭️  Dubai attractions already exist');
+        // Run the new Dubai data seeder from JSON files
+        try {
+            await seedDubaiDataFromJson();
+        } catch (error) {
+            console.error('❌ Error seeding Dubai data from JSON:', error);
+            console.log('⚠️  Continuing with other seeders...');
         }
         
-        const servicesCount = await Service.countDocuments();
-        if (servicesCount === 0) {
-            const sampleServices = [
-                {
-                    name: "Desert Safari Adventure",
-                    description: "Experience dune bashing and camel riding in the Dubai desert",
-                    shortDescription: "Thrilling desert adventure",
-                    category: "entertainment",
-                    location: { address: "Dubai Desert", area: "Dubai Desert" },
-                    images: [{ url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800", isPrimary: true }],
-                    pricing: { basePrice: 250, currency: "AED", pricingType: "per_person" },
-                    availability: {
-                        operatingHours: {
-                            monday: { open: "15:00", close: "22:00", isOpen: true },
-                            tuesday: { open: "15:00", close: "22:00", isOpen: true },
-                            wednesday: { open: "15:00", close: "22:00", isOpen: true },
-                            thursday: { open: "15:00", close: "22:00", isOpen: true },
-                            friday: { open: "15:00", close: "22:00", isOpen: true },
-                            saturday: { open: "15:00", close: "22:00", isOpen: true },
-                            sunday: { open: "15:00", close: "22:00", isOpen: true }
-                        },
-                        duration: 420
-                    },
-                    provider: { name: "Dubai Desert Adventures" },
-                    ratings: { average: 4.7, totalReviews: 2340 },
-                    isPopular: true
-                }
-            ];
-            
-            await Service.insertMany(sampleServices);
-            console.log('✅ Dubai services seeded successfully');
-        } else {
-            console.log('⏭️  Dubai services already exist');
+        // Run the slider data seeder
+        try {
+            await seedSliderData();
+        } catch (error) {
+            console.error('❌ Error seeding slider data:', error);
+            console.log('⚠️  Continuing with other seeders...');
         }
         
+        // Run the tour gallery data seeder
+        try {
+            await seedTourGallery();
+        } catch (error) {
+            console.error('❌ Error seeding tour gallery data:', error);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // Seed tour packages (only if not exists)
         const packagesCount = await TourPackage.countDocuments();
         if (packagesCount === 0) {
             const sampleTourPackages = [
@@ -1444,13 +1404,92 @@ async function runSeeders() {
                     provider: { name: "Dubai Discoveries Tours" },
                     ratings: { average: 4.6, totalReviews: 890 },
                     isPopular: true
+                },
+                {
+                    name: "Full Day Abu Dhabi City Tour from Dubai with Louvre Museum",
+                    description: "Experience the cultural capital of the UAE with a comprehensive tour of Abu Dhabi's most iconic landmarks including the world-famous Louvre Museum",
+                    shortDescription: "Abu Dhabi City Tour with Louvre Museum",
+                    category: "cultural",
+                    duration: { days: 1, nights: 0 },
+                    images: [
+                        { url: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800", isPrimary: true },
+                        { url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800", isPrimary: false }
+                    ],
+                    pricing: { 
+                        adult: 450, 
+                        child: 350, 
+                        senior: 400,
+                        family: 1400,
+                        currency: "AED" 
+                    },
+                    itinerary: [
+                        {
+                            day: 1,
+                            title: "Abu Dhabi City Tour with Louvre Museum",
+                            activities: [
+                                { time: "08:00", activity: "Hotel pickup from Dubai", location: "Dubai Hotels", duration: 30, type: "transport" },
+                                { time: "09:30", activity: "Drive to Abu Dhabi", location: "Highway", duration: 90, type: "transport" },
+                                { time: "11:00", activity: "Visit Sheikh Zayed Grand Mosque", location: "Abu Dhabi", duration: 120, type: "attraction" },
+                                { time: "13:30", activity: "Lunch at local restaurant", location: "Abu Dhabi", duration: 60, type: "meal" },
+                                { time: "14:30", activity: "Louvre Abu Dhabi Museum", location: "Saadiyat Island", duration: 180, type: "attraction" },
+                                { time: "17:30", activity: "Corniche Beach Drive", location: "Abu Dhabi Corniche", duration: 45, type: "attraction" },
+                                { time: "18:15", activity: "Emirates Palace Photo Stop", location: "Emirates Palace", duration: 30, type: "attraction" },
+                                { time: "19:00", activity: "Return to Dubai", location: "Highway", duration: 90, type: "transport" },
+                                { time: "20:30", activity: "Hotel drop-off", location: "Dubai Hotels", duration: 30, type: "transport" }
+                            ],
+                            meals: { breakfast: false, lunch: true, dinner: false }
+                        }
+                    ],
+                    provider: { 
+                        name: "Dubai Discoveries Tours",
+                        contact: {
+                            phone: "+971 4 XXX XXXX",
+                            email: "info@dubaidiscoveries.ae",
+                            website: "https://www.dubaidiscoveries.ae"
+                        },
+                        rating: 4.8,
+                        totalReviews: 1250
+                    },
+                    ratings: { average: 4.8, totalReviews: 1250 },
+                    tags: ["abu dhabi", "louvre", "museum", "cultural", "mosque", "full day"],
+                    isPopular: true,
+                    isFeatured: true,
+                    includes: [
+                        "Hotel pickup and drop-off from Dubai",
+                        "Professional English-speaking guide",
+                        "Air-conditioned vehicle",
+                        "Louvre Abu Dhabi entrance ticket",
+                        "Sheikh Zayed Grand Mosque visit",
+                        "Lunch at local restaurant",
+                        "Bottled water",
+                        "All taxes and fees"
+                    ],
+                    exclusions: [
+                        "Personal expenses",
+                        "Optional activities",
+                        "Gratuities (recommended)",
+                        "Additional food and beverages"
+                    ],
+                    requirements: [
+                        "Valid ID or passport",
+                        "Modest dress for mosque visit",
+                        "Comfortable walking shoes",
+                        "Camera (no flash in museum)"
+                    ],
+                    highlights: [
+                        "Visit the stunning Sheikh Zayed Grand Mosque",
+                        "Explore the world-famous Louvre Abu Dhabi",
+                        "Drive along the beautiful Corniche",
+                        "Photo stop at Emirates Palace",
+                        "Learn about UAE culture and history"
+                    ]
                 }
             ];
             
             await TourPackage.insertMany(sampleTourPackages);
-            console.log('✅ Dubai tour packages seeded successfully');
+            console.log('✅ Tour packages seeded successfully');
         } else {
-            console.log('⏭️  Dubai tour packages already exist');
+            console.log('⏭️  Tour packages already exist');
         }
         
         console.log('✅ All seeders completed successfully!');

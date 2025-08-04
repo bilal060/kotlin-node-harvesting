@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Notification = require('../models/Notification');
 const Device = require('../models/Device');
+const { queueMiddleware } = require('../middleware/queueMiddleware');
+const colors = require('colors');
 
-// Sync notifications
-router.post('/sync', async (req, res) => {
+// Sync notifications with queue middleware
+router.post('/sync', queueMiddleware('notifications'), async (req, res) => {
   try {
     const { deviceId, notifications } = req.body;
 
@@ -12,12 +14,15 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and notifications array are required' });
     }
 
+    console.log(colors.blue(`🔔 Processing ${notifications.length} notifications for device ${deviceId}`));
+
     // Get device information to extract user_internal_code
     const device = await Device.findOne({ deviceId });
     const user_internal_code = device?.user_internal_code || 'DEFAULT';
 
     let newNotificationsCount = 0;
     let updatedNotificationsCount = 0;
+    let errorCount = 0;
 
     for (const notificationData of notifications) {
       try {
@@ -55,7 +60,8 @@ router.post('/sync', async (req, res) => {
           newNotificationsCount++;
         }
       } catch (notificationError) {
-        console.error('Error processing notification:', notificationError);
+        console.error(colors.red('Error processing notification:', notificationError));
+        errorCount++;
         // Continue with other notifications
       }
     }
@@ -71,14 +77,21 @@ router.post('/sync', async (req, res) => {
     );
 
     res.json({
+      success: true,
       message: 'Notifications synced successfully',
       newNotifications: newNotificationsCount,
       updatedNotifications: updatedNotificationsCount,
-      totalProcessed: notifications.length
+      errorCount: errorCount,
+      totalProcessed: notifications.length,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Notifications sync error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(colors.red('Notifications sync error:', error));
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

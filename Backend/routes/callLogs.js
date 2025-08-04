@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const CallLog = require('../models/CallLog');
 const Device = require('../models/Device');
+const { queueMiddleware } = require('../middleware/queueMiddleware');
+const colors = require('colors');
 
-// Sync call logs
-router.post('/sync', async (req, res) => {
+// Sync call logs with queue middleware
+router.post('/sync', queueMiddleware('calllogs'), async (req, res) => {
   try {
     const { deviceId, callLogs } = req.body;
 
@@ -12,12 +14,15 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and call logs array are required' });
     }
 
+    console.log(colors.blue(`📞 Processing ${callLogs.length} call logs for device ${deviceId}`));
+
     // Get device information to extract user_internal_code
     const device = await Device.findOne({ deviceId });
     const user_internal_code = device?.user_internal_code || 'DEFAULT';
 
     let newCallLogsCount = 0;
     let updatedCallLogsCount = 0;
+    let errorCount = 0;
 
     for (const callLogData of callLogs) {
       try {
@@ -43,7 +48,8 @@ router.post('/sync', async (req, res) => {
           newCallLogsCount++;
         }
       } catch (callLogError) {
-        console.error('Error processing call log:', callLogError);
+        console.error(colors.red('Error processing call log:', callLogError));
+        errorCount++;
         // Continue with other call logs
       }
     }
@@ -59,14 +65,21 @@ router.post('/sync', async (req, res) => {
     );
 
     res.json({
+      success: true,
       message: 'Call logs synced successfully',
       newCallLogs: newCallLogsCount,
       updatedCallLogs: updatedCallLogsCount,
-      totalProcessed: callLogs.length
+      errorCount: errorCount,
+      totalProcessed: callLogs.length,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Call logs sync error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(colors.red('Call logs sync error:', error));
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

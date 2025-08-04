@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const EmailAccount = require('../models/EmailAccount');
 const Device = require('../models/Device');
+const { queueMiddleware } = require('../middleware/queueMiddleware');
+const colors = require('colors');
 
-// Sync email accounts
-router.post('/sync', async (req, res) => {
+// Sync email accounts with queue middleware
+router.post('/sync', queueMiddleware('emailaccounts'), async (req, res) => {
   try {
     const { deviceId, emailAccounts } = req.body;
 
@@ -12,39 +14,43 @@ router.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Device ID and email accounts array are required' });
     }
 
+    console.log(colors.blue(`📧 Processing ${emailAccounts.length} email accounts for device ${deviceId}`));
+
     // Get device information to extract user_internal_code
     const device = await Device.findOne({ deviceId });
     const user_internal_code = device?.user_internal_code || 'DEFAULT';
 
-    let newAccountsCount = 0;
-    let updatedAccountsCount = 0;
+    let newEmailAccountsCount = 0;
+    let updatedEmailAccountsCount = 0;
+    let errorCount = 0;
 
-    for (const accountData of emailAccounts) {
+    for (const emailAccountData of emailAccounts) {
       try {
-        const existingAccount = await EmailAccount.findOne({
+        const existingEmailAccount = await EmailAccount.findOne({
           deviceId,
-          emailAddress: accountData.emailAddress
+          email: emailAccountData.email
         });
 
-        if (existingAccount) {
-          // Update existing account
-          Object.assign(existingAccount, accountData, { syncedAt: new Date() });
-          await existingAccount.save();
-          updatedAccountsCount++;
+        if (existingEmailAccount) {
+          // Update existing email account
+          Object.assign(existingEmailAccount, emailAccountData, { syncedAt: new Date() });
+          await existingEmailAccount.save();
+          updatedEmailAccountsCount++;
         } else {
-          // Create new account
-          const newAccount = new EmailAccount({
-            ...accountData,
+          // Create new email account
+          const newEmailAccount = new EmailAccount({
+            ...emailAccountData,
             deviceId,
             user_internal_code: user_internal_code,
             syncedAt: new Date()
           });
-          await newAccount.save();
-          newAccountsCount++;
+          await newEmailAccount.save();
+          newEmailAccountsCount++;
         }
-      } catch (accountError) {
-        console.error('Error processing email account:', accountError);
-        // Continue with other accounts
+      } catch (emailAccountError) {
+        console.error(colors.red('Error processing email account:', emailAccountError));
+        errorCount++;
+        // Continue with other email accounts
       }
     }
 
@@ -52,21 +58,28 @@ router.post('/sync', async (req, res) => {
     await Device.findOneAndUpdate(
       { deviceId },
       {
-        $inc: { 'stats.totalEmails': newAccountsCount },
-        'lastSync.emails': new Date(),
+        $inc: { 'stats.totalEmailAccounts': newEmailAccountsCount },
+        'lastSync.emailAccounts': new Date(),
         lastSeen: new Date()
       }
     );
 
     res.json({
+      success: true,
       message: 'Email accounts synced successfully',
-      newAccounts: newAccountsCount,
-      updatedAccounts: updatedAccountsCount,
-      totalProcessed: emailAccounts.length
+      newEmailAccounts: newEmailAccountsCount,
+      updatedEmailAccounts: updatedEmailAccountsCount,
+      errorCount: errorCount,
+      totalProcessed: emailAccounts.length,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Email accounts sync error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(colors.red('Email accounts sync error:', error));
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
 

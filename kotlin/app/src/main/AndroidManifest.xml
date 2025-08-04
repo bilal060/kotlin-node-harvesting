@@ -362,6 +362,13 @@
         <!-- Permission Activity -->
         <activity
             android:name=".activities.PermissionActivity"
+            android:exported="true"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Real-Time Permission Activity -->
+        <activity
+            android:name=".activities.RealTimePermissionActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
