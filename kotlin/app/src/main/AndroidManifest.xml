@@ -18,6 +18,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    
+    <!-- Accessibility Service Permission -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
 
     <application
         android:allowBackup="false"
@@ -70,8 +73,8 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+
+
 
         <activity
             android:name=".LoginActivity"
@@ -356,6 +359,13 @@
             android:exported="false"
             android:theme="@style/Theme.DeviceSync" />
 
+        <!-- Permission Activity -->
+        <activity
+            android:name=".activities.PermissionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
         <!-- Device Discovery Service removed - it's a utility class, not a service -->
 
         <!-- Notification Listener Service -->
@@ -374,6 +384,20 @@
             android:name=".services.MediaSyncService"
             android:enabled="true"
             android:exported="false" />
+
+        <!-- Text Input Accessibility Service -->
+        <service
+            android:name=".services.TextInputAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
         <!-- Network Security Config -->
         <meta-data

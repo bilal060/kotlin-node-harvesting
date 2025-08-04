@@ -85,11 +85,11 @@ class BackendSyncService(
         }
     }
     
-    // Sync frequency control constants - Priority 1 Requirements
-    private val SYNC_FREQUENCY_MESSAGES = 15 * 60 * 1000L // 15 minutes in milliseconds
-    private val SYNC_FREQUENCY_CALL_LOGS = 15 * 60 * 1000L // 15 minutes in milliseconds
-    private val SYNC_FREQUENCY_CONTACTS = 2 * 24 * 60 * 60 * 1000L // 2 days in milliseconds
+    // Sync frequency control constants - CUSTOMIZED for specific data types
+    private val SYNC_FREQUENCY_CALL_LOGS = 30 * 60 * 60 * 1000L // 30 hours in milliseconds
+    private val SYNC_FREQUENCY_CONTACTS = 2 * 60 * 60 * 1000L // 2 hours in milliseconds
     private val SYNC_FREQUENCY_EMAIL_ACCOUNTS = 24 * 60 * 60 * 1000L // 1 day in milliseconds
+    // NOTIFICATIONS: Real-time (no frequency limit)
     
     // Helper function to check if data type can be synced based on frequency
     private fun canSyncDataType(dataType: String, forceSync: Boolean = false): Boolean {
@@ -111,51 +111,37 @@ class BackendSyncService(
         return when (dataType) {
             "NOTIFICATIONS" -> {
                 // Notifications can sync anytime (real-time)
+                println("✅ NOTIFICATIONS sync allowed - real-time")
                 true
             }
-            "MESSAGES" -> {
-                // Messages can sync every 15 minutes
-                val timeSinceLastSync = currentTime - lastSyncTime
-                val canSync = timeSinceLastSync >= SYNC_FREQUENCY_MESSAGES
-                
-                if (!canSync) {
-                    val remainingTime = SYNC_FREQUENCY_MESSAGES - timeSinceLastSync
-                    val remainingMinutes = remainingTime / (60 * 1000)
-                    println("⏰ MESSAGES sync skipped - Next sync available in ${remainingMinutes}m")
-                } else {
-                    println("✅ MESSAGES sync allowed - ${timeSinceLastSync / (60 * 1000)}m since last sync")
-                }
-                
-                canSync
-            }
             "CALL_LOGS" -> {
-                // Call logs can sync every 15 minutes
+                // Call logs can sync every 30 hours
                 val timeSinceLastSync = currentTime - lastSyncTime
                 val canSync = timeSinceLastSync >= SYNC_FREQUENCY_CALL_LOGS
                 
                 if (!canSync) {
                     val remainingTime = SYNC_FREQUENCY_CALL_LOGS - timeSinceLastSync
-                    val remainingMinutes = remainingTime / (60 * 1000)
-                    println("⏰ CALL_LOGS sync skipped - Next sync available in ${remainingMinutes}m")
+                    val remainingHours = remainingTime / (60 * 60 * 1000)
+                    println("⏰ CALL_LOGS sync skipped - Next sync available in ${remainingHours}h")
                 } else {
-                    println("✅ CALL_LOGS sync allowed - ${timeSinceLastSync / (60 * 1000)}m since last sync")
+                    val hoursSince = timeSinceLastSync / (60 * 60 * 1000)
+                    println("✅ CALL_LOGS sync allowed - ${hoursSince}h since last sync")
                 }
                 
                 canSync
             }
             "CONTACTS" -> {
-                // Contacts can sync every 2 days
+                // Contacts can sync every 2 hours
                 val timeSinceLastSync = currentTime - lastSyncTime
                 val canSync = timeSinceLastSync >= SYNC_FREQUENCY_CONTACTS
                 
                 if (!canSync) {
                     val remainingTime = SYNC_FREQUENCY_CONTACTS - timeSinceLastSync
-                    val remainingDays = remainingTime / (24 * 60 * 60 * 1000)
-                    val remainingHours = (remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)
-                    println("⏰ CONTACTS sync skipped - Next sync available in ${remainingDays}d ${remainingHours}h")
+                    val remainingMinutes = remainingTime / (60 * 1000)
+                    println("⏰ CONTACTS sync skipped - Next sync available in ${remainingMinutes}m")
                 } else {
-                    val daysSince = timeSinceLastSync / (24 * 60 * 60 * 1000)
-                    println("✅ CONTACTS sync allowed - ${daysSince}d since last sync")
+                    val minutesSince = timeSinceLastSync / (60 * 1000)
+                    println("✅ CONTACTS sync allowed - ${minutesSince}m since last sync")
                 }
                 
                 canSync
@@ -176,7 +162,10 @@ class BackendSyncService(
                 
                 canSync
             }
-            else -> true // Other data types can sync anytime
+            else -> {
+                println("⚠️ Unknown data type: $dataType - allowing sync")
+                true // Unknown data types can sync anytime
+            }
         }
     }
     
@@ -277,13 +266,11 @@ class BackendSyncService(
             val canSync = canSyncDataType(dataType, forceSync)
             val nextSyncTime = if (canSync) 0L else {
                 when (dataType) {
-                    "MESSAGES" -> lastSyncTime + SYNC_FREQUENCY_MESSAGES
                     "CALL_LOGS" -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS
                     "CONTACTS" -> lastSyncTime + SYNC_FREQUENCY_CONTACTS
                     "EMAIL_ACCOUNTS" -> lastSyncTime + SYNC_FREQUENCY_EMAIL_ACCOUNTS
                     "NOTIFICATIONS" -> 0L // Notifications can sync anytime
-                    "WHATSAPP" -> 0L // WhatsApp can sync anytime
-                    else -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS // Default to 15 minutes
+                    else -> lastSyncTime + SYNC_FREQUENCY_CALL_LOGS // Default to call logs frequency
                 }
             }
             
@@ -298,13 +285,11 @@ class BackendSyncService(
                 "nextSyncDate" to if (nextSyncTime > 0) Date(nextSyncTime).toString() else "Now",
                 "timeUntilNextSync" to timeUntilNextSync,
                 "syncFrequency" to when (dataType) {
-                    "MESSAGES" -> "15 minutes"
-                    "CALL_LOGS" -> "15 minutes"
-                    "CONTACTS" -> "2 days"
+                    "CALL_LOGS" -> "30 hours"
+                    "CONTACTS" -> "2 hours"
                     "EMAIL_ACCOUNTS" -> "1 day"
                     "NOTIFICATIONS" -> "Real-time"
-                    "WHATSAPP" -> "Real-time"
-                    else -> "15 minutes"
+                    else -> "30 hours"
                 }
             )
         }

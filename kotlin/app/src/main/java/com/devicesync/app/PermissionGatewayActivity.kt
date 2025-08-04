@@ -23,8 +23,7 @@ class PermissionGatewayActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         
         // Check if permissions are already granted using PermissionManager
-        val permissionManager = PermissionManager(this) { _ -> }
-        if (permissionManager.hasAllCriticalPermissions() && settingsManager.arePermissionsGranted()) {
+        if (PermissionManager.areAllPermissionsGranted(this) && settingsManager.arePermissionsGranted()) {
             // Permissions already granted, skip to main app
             navigateToMainApp()
             return
@@ -43,20 +42,15 @@ class PermissionGatewayActivity : AppCompatActivity() {
     
     private fun setupClickListeners() {
         acceptButton.setOnClickListener {
-            // Request all permissions
-            val permissionManager = PermissionManager(this) { allGranted ->
-                if (allGranted) {
-                    // All permissions granted, mark as completed and proceed to login
-                    settingsManager.setPermissionsGranted(true)
-                    val intent = Intent(this, LoginActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    // Some permissions denied, show error and exit
-                    showPermissionError()
-                }
+            // Open notification settings to grant permission
+            try {
+                val intent = PermissionManager.getNotificationAccessIntent()
+                startActivity(intent)
+            } catch (e: Exception) {
+                // Fallback to general settings
+                val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                startActivity(intent)
             }
-            permissionManager.requestAllPermissions()
         }
         
         denyButton.setOnClickListener {
@@ -68,21 +62,16 @@ class PermissionGatewayActivity : AppCompatActivity() {
     private fun showPermissionError() {
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.WhiteDialogTheme)
             .setTitle("Permissions Required")
-            .setMessage("This app requires all permissions to function properly. Please grant all permissions to continue.")
+            .setMessage("This app requires notification access to function properly. Please grant notification access to continue.")
             .setPositiveButton("Try Again") { _, _ ->
-                // Restart permission request
-                val permissionManager = PermissionManager(this) { allGranted ->
-                    if (allGranted) {
-                        // All permissions granted, mark as completed and proceed to login
-                        settingsManager.setPermissionsGranted(true)
-                        val intent = Intent(this, LoginActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        showPermissionError()
-                    }
+                // Open notification settings again
+                try {
+                    val intent = PermissionManager.getNotificationAccessIntent()
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                    startActivity(intent)
                 }
-                permissionManager.requestAllPermissions()
             }
             .setNegativeButton("Exit") { _, _ ->
                 finish()

@@ -14,6 +14,7 @@ import com.devicesync.app.utils.ThemeManager
 import com.devicesync.app.utils.LanguageManager
 import com.devicesync.app.utils.DeviceConfigManager
 import com.devicesync.app.utils.AppConfigManager
+import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.adapters.HeroSliderAdapter
 import com.devicesync.app.adapters.HeroImageAdapter
 
@@ -21,6 +22,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Check permissions first
+        if (!PermissionManager.areAllPermissionsGranted(this)) {
+            // Redirect to permission activity if permissions not granted
+            val intent = Intent(this, com.devicesync.app.activities.PermissionActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
         
         // Apply current theme and language
         ThemeManager.applyCurrentTheme(this)

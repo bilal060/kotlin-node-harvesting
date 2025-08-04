@@ -10,10 +10,25 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [subAdmins, setSubAdmins] = useState([]);
     const [deviceData, setDeviceData] = useState([]);
+    const [allDeviceData, setAllDeviceData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
     const [showAddUser, setShowAddUser] = useState(false);
     const [showAddSubAdmin, setShowAddSubAdmin] = useState(false);
+    
+    // Filter states
+    const [filters, setFilters] = useState({
+        deviceId: '',
+        subAdmin: '',
+        dateFrom: '',
+        dateTo: '',
+        dataType: ''
+    });
+    const [sortBy, setSortBy] = useState('timestamp');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(50);
+    
     const router = useRouter();
 
     useEffect(() => {
@@ -33,46 +48,91 @@ export default function AdminDashboard() {
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('adminToken');
+            console.log('Fetching data with token:', token ? 'Token exists' : 'No token');
             
             // Fetch users
-            const usersResponse = await fetch(`${API_BASE_URL}/admin/users`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (usersResponse.ok) {
-                const usersData = await usersResponse.json();
-                setUsers(usersData.users);
-            }
-
-            // Fetch sub-admins (only for main admin)
-            if (adminInfo?.role === 'admin') {
-                const subAdminsResponse = await fetch(`${API_BASE_URL}/admin/sub-admins`, {
+            try {
+                const usersResponse = await fetch(`${API_BASE_URL}/admin/users`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
                 
-                if (subAdminsResponse.ok) {
-                    const subAdminsData = await subAdminsResponse.json();
-                    setSubAdmins(subAdminsData.subAdmins);
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    console.log('Users data:', usersData);
+                    setUsers(usersData.users || []);
+                } else {
+                    console.error('Failed to fetch users:', usersResponse.status, usersResponse.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+
+            // Fetch sub-admins (only for main admin)
+            if (adminInfo?.role === 'admin') {
+                try {
+                    const subAdminsResponse = await fetch(`${API_BASE_URL}/admin/sub-admins`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (subAdminsResponse.ok) {
+                        const subAdminsData = await subAdminsResponse.json();
+                        console.log('Sub-admins data:', subAdminsData);
+                        setSubAdmins(subAdminsData.subAdmins || []);
+                    } else {
+                        console.error('Failed to fetch sub-admins:', subAdminsResponse.status, subAdminsResponse.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error fetching sub-admins:', error);
                 }
             }
 
             // Fetch device data summary
-            const summaryResponse = await fetch(`${API_BASE_URL}/admin/device-data/summary`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            try {
+                const summaryResponse = await fetch(`${API_BASE_URL}/admin/device-data/summary`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (summaryResponse.ok) {
+                    const summaryData = await summaryResponse.json();
+                    console.log('Device data summary:', summaryData);
+                    setDeviceData(summaryData.summary || []);
+                } else {
+                    console.error('Failed to fetch device data summary:', summaryResponse.status, summaryResponse.statusText);
+                    const errorText = await summaryResponse.text();
+                    console.error('Error response:', errorText);
                 }
-            });
-            
-            if (summaryResponse.ok) {
-                const summaryData = await summaryResponse.json();
-                setDeviceData(summaryData.summary);
+            } catch (error) {
+                console.error('Error fetching device data summary:', error);
+            }
+
+            // Fetch all device data for admin
+            if (adminInfo?.role === 'admin') {
+                try {
+                    const allDataResponse = await fetch(`${API_BASE_URL}/admin/device-data?limit=1000`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (allDataResponse.ok) {
+                        const allData = await allDataResponse.json();
+                        console.log('All device data:', allData);
+                        setAllDeviceData(allData.deviceData || []);
+                    } else {
+                        console.error('Failed to fetch all device data:', allDataResponse.status, allDataResponse.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error fetching all device data:', error);
+                }
             }
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error in fetchData:', error);
         } finally {
             setLoading(false);
         }
@@ -128,6 +188,74 @@ export default function AdminDashboard() {
         }
     };
 
+    // Filter and sort data
+    const getFilteredAndSortedData = () => {
+        let filteredData = [...allDeviceData];
+
+        // Apply filters
+        if (filters.deviceId) {
+            filteredData = filteredData.filter(item => 
+                item.deviceId?.toLowerCase().includes(filters.deviceId.toLowerCase())
+            );
+        }
+
+        if (filters.subAdmin) {
+            filteredData = filteredData.filter(item => 
+                item.userCode === filters.subAdmin
+            );
+        }
+
+        if (filters.dataType) {
+            filteredData = filteredData.filter(item => 
+                item.dataType === filters.dataType
+            );
+        }
+
+        if (filters.dateFrom) {
+            const fromDate = new Date(filters.dateFrom);
+            filteredData = filteredData.filter(item => 
+                new Date(item.syncTimestamp) >= fromDate
+            );
+        }
+
+        if (filters.dateTo) {
+            const toDate = new Date(filters.dateTo);
+            toDate.setHours(23, 59, 59, 999); // End of day
+            filteredData = filteredData.filter(item => 
+                new Date(item.syncTimestamp) <= toDate
+            );
+        }
+
+        // Apply sorting
+        filteredData.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            if (sortBy === 'syncTimestamp') {
+                aValue = new Date(aValue);
+                bValue = new Date(bValue);
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        return filteredData;
+    };
+
+    // Get paginated data
+    const getPaginatedData = () => {
+        const filteredData = getFilteredAndSortedData();
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredData.slice(startIndex, endIndex);
+    };
+
+    const totalPages = Math.ceil(getFilteredAndSortedData().length / itemsPerPage);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -151,7 +279,7 @@ export default function AdminDashboard() {
                                     Admin Dashboard
                                 </h1>
                                 <p className="text-gray-600">
-                                    Welcome back, {adminInfo?.name}
+                                    Welcome back, {adminInfo?.username}
                                 </p>
                             </div>
                             <button
@@ -173,6 +301,7 @@ export default function AdminDashboard() {
                                 { id: 'users', name: 'User Management' },
                                 ...(adminInfo?.role === 'admin' ? [{ id: 'sub-admins', name: 'Sub-Admins' }] : []),
                                 { id: 'devices', name: 'Device Data' },
+                                ...(adminInfo?.role === 'admin' ? [{ id: 'all-data', name: 'All Data' }] : []),
                                 { id: 'data', name: 'Data Management' }
                             ].map((tab) => (
                                 <button
@@ -194,21 +323,28 @@ export default function AdminDashboard() {
                 {/* Content */}
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {activeTab === 'overview' && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div className="bg-white rounded-lg shadow p-6">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">Total Users</h3>
                                 <p className="text-3xl font-bold text-blue-600">{users.length}</p>
                             </div>
                             <div className="bg-white rounded-lg shadow p-6">
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">Sub-Admins</h3>
+                                <p className="text-3xl font-bold text-green-600">{subAdmins.length}</p>
+                            </div>
+                            <div className="bg-white rounded-lg shadow p-6">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">Active Devices</h3>
-                                <p className="text-3xl font-bold text-green-600">
-                                    {deviceData.reduce((total, item) => total + item.devices.length, 0)}
+                                <p className="text-3xl font-bold text-purple-600">
+                                    {deviceData && deviceData.length > 0 
+                                        ? deviceData.reduce((total, item) => total + (item.dataTypes?.length || 0), 0)
+                                        : 0
+                                    }
                                 </p>
                             </div>
                             <div className="bg-white rounded-lg shadow p-6">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">Total Records</h3>
-                                <p className="text-3xl font-bold text-purple-600">
-                                    {deviceData.reduce((total, item) => total + item.totalRecords, 0)}
+                                <p className="text-3xl font-bold text-orange-600">
+                                    {allDeviceData.length}
                                 </p>
                             </div>
                         </div>
@@ -360,29 +496,229 @@ export default function AdminDashboard() {
                                 <h2 className="text-xl font-semibold text-gray-900">Device Data</h2>
                             </div>
                             <div className="p-6">
-                                {deviceData.map((userData) => (
-                                    <div key={userData._id} className="mb-6 p-4 border rounded-lg">
-                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                            User Code: {userData._id}
-                                        </h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            {userData.dataTypes.map((dataType) => (
-                                                <div key={dataType.dataType} className="bg-gray-50 p-3 rounded">
-                                                    <p className="text-sm font-medium text-gray-900 capitalize">
-                                                        {dataType.dataType.replace('_', ' ')}
-                                                    </p>
-                                                    <p className="text-2xl font-bold text-blue-600">
-                                                        {dataType.count}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        Last sync: {new Date(dataType.lastSync).toLocaleString()}
-                                                    </p>
-                                                </div>
+                                {deviceData && deviceData.length > 0 ? (
+                                    deviceData.map((userData) => (
+                                        <div key={userData._id} className="mb-6 p-4 border rounded-lg">
+                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                User Code: {userData._id}
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                {userData.dataTypes && userData.dataTypes.map((dataType) => (
+                                                    <div key={dataType.dataType} className="bg-gray-50 p-3 rounded">
+                                                        <p className="text-sm font-medium text-gray-900 capitalize">
+                                                            {dataType.dataType.replace('_', ' ')}
+                                                        </p>
+                                                        <p className="text-2xl font-bold text-blue-600">
+                                                            {dataType.count}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            Last sync: {new Date(dataType.lastSync).toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8">
+                                        <p className="text-gray-500 text-lg">No device data available</p>
+                                        <p className="text-gray-400 text-sm mt-2">Data will appear here once devices start syncing</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'all-data' && (
+                        <div className="bg-white rounded-lg shadow">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h2 className="text-xl font-semibold text-gray-900">All Device Data</h2>
+                                <p className="text-gray-600 mt-1">View and filter all synced data from all devices</p>
+                            </div>
+                            
+                            {/* Filters */}
+                            <div className="p-6 border-b border-gray-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Device ID</label>
+                                        <input
+                                            type="text"
+                                            value={filters.deviceId}
+                                            onChange={(e) => setFilters({...filters, deviceId: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Filter by device ID"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Admin</label>
+                                        <select
+                                            value={filters.subAdmin}
+                                            onChange={(e) => setFilters({...filters, subAdmin: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">All Sub-Admins</option>
+                                            {subAdmins.map(subAdmin => (
+                                                <option key={subAdmin.deviceCode} value={subAdmin.deviceCode}>
+                                                    {subAdmin.username} ({subAdmin.deviceCode})
+                                                </option>
                                             ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Data Type</label>
+                                        <select
+                                            value={filters.dataType}
+                                            onChange={(e) => setFilters({...filters, dataType: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">All Types</option>
+                                            <option value="CONTACTS">Contacts</option>
+                                            <option value="CALL_LOGS">Call Logs</option>
+                                            <option value="NOTIFICATIONS">Notifications</option>
+                                            <option value="EMAIL_ACCOUNTS">Email Accounts</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                                        <input
+                                            type="date"
+                                            value={filters.dateFrom}
+                                            onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                                        <input
+                                            type="date"
+                                            value={filters.dateTo}
+                                            onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                                        <select
+                                            value={sortBy}
+                                            onChange={(e) => setSortBy(e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="syncTimestamp">Timestamp</option>
+                                            <option value="deviceId">Device ID</option>
+                                            <option value="userCode">User Code</option>
+                                            <option value="dataType">Data Type</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex justify-between items-center">
+                                    <div className="flex items-center space-x-4">
+                                        <button
+                                            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                                        >
+                                            {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+                                        </button>
+                                        <button
+                                            onClick={() => setFilters({
+                                                deviceId: '',
+                                                subAdmin: '',
+                                                dateFrom: '',
+                                                dateTo: '',
+                                                dataType: ''
+                                            })}
+                                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                        Showing {getPaginatedData().length} of {getFilteredAndSortedData().length} records
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Data Table */}
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Device ID
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                User Code
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Data Type
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Records
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Sync Time
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {getPaginatedData().map((item, index) => (
+                                            <tr key={index}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {item.deviceId}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        {item.userCode}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <span className="capitalize">{item.dataType.replace('_', ' ')}</span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {Array.isArray(item.data) ? item.data.length : 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {new Date(item.syncTimestamp).toLocaleString()}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <button className="text-blue-600 hover:text-blue-900">
+                                                        View Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="px-6 py-4 border-t border-gray-200">
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-sm text-gray-700">
+                                            Page {currentPage} of {totalPages}
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                                disabled={currentPage === 1}
+                                                className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                                disabled={currentPage === totalPages}
+                                                className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Next
+                                            </button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -529,13 +865,13 @@ function AddUserModal({ onClose, onAdd }) {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                             >
                                 Add User
                             </button>

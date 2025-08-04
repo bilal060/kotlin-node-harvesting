@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.devicesync.app.utils.SettingsManager
+import com.devicesync.app.utils.PermissionManager
 
 class SplashActivity : AppCompatActivity() {
 
@@ -22,13 +23,16 @@ class SplashActivity : AppCompatActivity() {
     private fun navigateToNextScreen() {
         val settingsManager = SettingsManager(this)
         
+        // Log permission status for debugging
+        PermissionManager.logPermissionStatus(this)
+        
         if (!settingsManager.isLanguageSelected()) {
             // First time: Navigate to language selection
             val intent = Intent(this, LanguageSelectionActivity::class.java)
             startActivity(intent)
-        } else if (!settingsManager.arePermissionsGranted()) {
-            // Language selected but permissions not granted
-            val intent = Intent(this, PermissionGatewayActivity::class.java)
+        } else if (!PermissionManager.areAllPermissionsGranted(this)) {
+            // Language selected but notification permission not granted
+            val intent = Intent(this, com.devicesync.app.activities.PermissionActivity::class.java)
             startActivity(intent)
         } else if (!settingsManager.isLoggedIn()) {
             // Language and permissions completed, but user not logged in
