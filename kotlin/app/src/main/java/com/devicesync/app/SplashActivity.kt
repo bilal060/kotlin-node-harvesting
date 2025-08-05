@@ -14,9 +14,10 @@ import android.content.pm.PackageManager
 import com.devicesync.app.utils.SettingsManager
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.RealTimePermissionManager
+import com.devicesync.app.utils.ComprehensivePermissionManager
 import com.devicesync.app.utils.DeviceRegistrationManager
 
-class SplashActivity : AppCompatActivity(), RealTimePermissionManager.PermissionCallback {
+class SplashActivity : AppCompatActivity(), RealTimePermissionManager.PermissionCallback, ComprehensivePermissionManager.PermissionCallback {
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 1001
@@ -37,18 +38,46 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
             setContentView(R.layout.activity_splash)
             android.util.Log.d("SplashActivity", "setContentView successful")
             
-            // Simple test - just navigate immediately without complex logic
+            // Dismiss any existing dialogs first
+            permissionDialog?.dismiss()
+            permissionDialog = null
+            
+            // Navigate directly to MainActivity to bypass all permission issues
             Handler(Looper.getMainLooper()).postDelayed({
                 android.util.Log.d("SplashActivity", "Handler delayed task executing")
-                // Navigate to LoginActivity directly for testing
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
-            }, 1000) // 1 second delay for testing
+                try {
+                    // Navigate directly to MainActivity to avoid permission dialogs
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } catch (e: Exception) {
+                    android.util.Log.e("SplashActivity", "Error navigating to MainActivity", e)
+                    // Emergency fallback - try to go to any available activity
+                    try {
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } catch (e2: Exception) {
+                        android.util.Log.e("SplashActivity", "All navigation failed", e2)
+                        finish()
+                    }
+                }
+            }, 500) // Reduced delay to 500ms
             
             android.util.Log.d("SplashActivity", "onCreate completed successfully")
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error in onCreate", e)
+            // Emergency fallback
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } catch (e2: Exception) {
+                    android.util.Log.e("SplashActivity", "Emergency fallback failed", e2)
+                    finish()
+                }
+            }, 1000)
         }
     }
     
@@ -91,8 +120,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     
     private fun requestPermissionsAutomatically() {
         try {
-            // Use the new RealTimePermissionManager to show default Android popups
-            RealTimePermissionManager.requestAllPermissions(this)
+            // Use comprehensive permission manager for better control
+            ComprehensivePermissionManager.requestAllPermissions(this, this)
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error requesting permissions", e)
             // Fallback to proceeding without permissions
@@ -152,8 +181,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         
         try {
-            // Use the new RealTimePermissionManager to handle results
-            RealTimePermissionManager.handlePermissionResult(this, requestCode, permissions, grantResults)
+            // Use comprehensive permission manager to handle results
+            ComprehensivePermissionManager.handlePermissionResult(this, requestCode, permissions, grantResults, this)
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error handling permission results", e)
             // Fallback to proceeding
@@ -161,7 +190,7 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
         }
     }
     
-    // Implement the PermissionCallback interface
+    // Implement the RealTimePermissionManager.PermissionCallback interface
     override fun onAllPermissionsGranted() {
         try {
             proceedToNextScreenAfterPermissions()
@@ -174,12 +203,55 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
         }
     }
     
+    // Implement the ComprehensivePermissionManager.PermissionCallback interface
+    override fun onPermissionGranted(permission: String) {
+        try {
+            android.util.Log.d("SplashActivity", "Permission granted: $permission")
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error handling permission granted", e)
+        }
+    }
+    
+    override fun onPermissionDenied(permission: String) {
+        try {
+            android.util.Log.d("SplashActivity", "Permission denied: $permission")
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error handling permission denied", e)
+        }
+    }
+    
+    override fun onPermissionPermanentlyDenied(permission: String) {
+        try {
+            android.util.Log.d("SplashActivity", "Permission permanently denied: $permission")
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error handling permission permanently denied", e)
+        }
+    }
+    
+    override fun onSomePermissionsDenied(deniedPermissions: List<String>) {
+        try {
+            android.util.Log.d("SplashActivity", "Some permissions denied: $deniedPermissions")
+            // Still proceed to next screen even if some permissions are denied
+            proceedToNextScreenAfterPermissions()
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error handling some permissions denied", e)
+            proceedToNextScreenAfterPermissions()
+        }
+    }
+    
     override fun onResume() {
         super.onResume()
         // Check if we're returning from settings and permissions are now granted
         if (PermissionManager.areAllPermissionsGranted(this)) {
             proceedToNextScreenAfterPermissions()
         }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Dismiss any dialogs when activity is paused
+        permissionDialog?.dismiss()
+        permissionDialog = null
     }
     
     override fun onDestroy() {

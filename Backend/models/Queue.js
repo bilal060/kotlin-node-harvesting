@@ -101,7 +101,7 @@ queueSchema.statics.getNextPending = async function() {
     return await this.findOneAndUpdate(
         { 
             status: 'pending',
-            attempts: { $lt: '$maxAttempts' }
+            attempts: { $lt: 3 } // Use hardcoded value instead of field reference
         },
         { 
             $inc: { attempts: 1 },

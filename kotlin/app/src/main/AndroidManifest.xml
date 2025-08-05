@@ -21,6 +21,35 @@
     
     <!-- Accessibility Service Permission -->
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
+    
+    <!-- Bluetooth Permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    
+    <!-- Location Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <!-- Storage Permissions (Android 13+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    
+    <!-- Storage Permissions (Android 12 and below) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Camera & Microphone Permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
+    <!-- Media Location Permission -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    
+    <!-- Manage External Storage Permission -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="false"
@@ -369,6 +398,13 @@
         <!-- Real-Time Permission Activity -->
         <activity
             android:name=".activities.RealTimePermissionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Comprehensive Permission Activity -->
+        <activity
+            android:name=".activities.ComprehensivePermissionActivity"
             android:exported="false"
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />

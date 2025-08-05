@@ -134,4 +134,10 @@
     
     <!-- Navigation Item Colors -->
     <!-- nav_item_color is defined in color/nav_item_color.xml as a selector -->
+    
+    <!-- Missing colors for comprehensive permission activity -->
+    <color name="background_light">@color/background_ivory</color>
+    <color name="accent">@color/accent_gold</color>
+    <color name="secondary">@color/secondary_color</color>
+    <color name="success">@color/success_color</color>
 </resources> 
