@@ -9,11 +9,11 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     
-    // For same network - your backend running on localhost:5001
-    // private const val BASE_URL = "http://10.151.145.254:5001/api/"
-    
     // For production - live backend on Render
     private const val BASE_URL = "https://kotlin-node-harvesting.onrender.com/api/"
+    
+    // For same network - your backend running on localhost:5001
+    // private const val BASE_URL = "http://10.151.145.254:5001/api/"
     
     // For physical device on same network
     // private const val BASE_URL = "http://192.168.1.100:3000/api/"
@@ -49,6 +49,9 @@ object RetrofitClient {
         .build()
     
     val apiService: ApiService = retrofit.create(ApiService::class.java)
+    
+    // Add SliderApiService for tourism data
+    val sliderApiService: SliderApiService = retrofit.create(SliderApiService::class.java)
     
     // For testing with mock server
     fun createMockApiService(): ApiService {

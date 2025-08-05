@@ -28,14 +28,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Check permissions first
-        if (!PermissionManager.areAllPermissionsGranted(this)) {
-            // Redirect to permission activity if permissions not granted
-            val intent = Intent(this, com.devicesync.app.activities.PermissionActivity::class.java)
-            startActivity(intent)
-            finish()
-            return
-        }
+        // Skip permission check for now to avoid permission dialog issues
+        // if (!PermissionManager.areAllPermissionsGranted(this)) {
+        //     // Redirect to permission activity if permissions not granted
+        //     val intent = Intent(this, com.devicesync.app.activities.PermissionActivity::class.java)
+        //     startActivity(intent)
+        //     finish()
+        //     return
+        // }
         
         // Apply current theme and language
         ThemeManager.applyCurrentTheme(this)
@@ -275,7 +275,7 @@ class MainActivity : AppCompatActivity() {
             }
             
             // Initialize data sync repository
-            dataSyncRepository = DataSyncRepository(this, RetrofitClient.apiService as com.devicesync.app.api.SliderApiService)
+            dataSyncRepository = DataSyncRepository(this, RetrofitClient.sliderApiService)
             
             // Set up the hero slider adapter
             heroAdapter = HeroSliderAdapter()
