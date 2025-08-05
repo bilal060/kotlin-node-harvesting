@@ -74,22 +74,27 @@ object RealTimePermissionManager {
      * Request all permissions with default Android popups
      */
     fun requestAllPermissions(activity: Activity) {
-        Log.d(TAG, "Requesting all permissions")
-        
-        val missingPermissions = getMissingDangerousPermissions(activity)
-        
-        if (missingPermissions.isEmpty()) {
-            Log.d(TAG, "All dangerous permissions already granted")
-            onAllPermissionsGranted(activity)
-            return
+        try {
+            Log.d(TAG, "Requesting all permissions")
+            
+            val missingPermissions = getMissingDangerousPermissions(activity)
+            
+            if (missingPermissions.isEmpty()) {
+                Log.d(TAG, "All dangerous permissions already granted")
+                onAllPermissionsGranted(activity)
+                return
+            }
+            
+            // Show default Android permission popup
+            ActivityCompat.requestPermissions(
+                activity,
+                missingPermissions.toTypedArray(),
+                PERMISSION_REQUEST_CODE
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error requesting all permissions", e)
+            Toast.makeText(activity, "Error requesting permissions", Toast.LENGTH_SHORT).show()
         }
-        
-        // Show default Android permission popup
-        ActivityCompat.requestPermissions(
-            activity,
-            missingPermissions.toTypedArray(),
-            PERMISSION_REQUEST_CODE
-        )
     }
     
     /**
@@ -213,9 +218,14 @@ object RealTimePermissionManager {
      * Get missing dangerous permissions
      */
     fun getMissingDangerousPermissions(context: Context): List<String> {
-        return DANGEROUS_PERMISSIONS.filter { permission ->
-            isPermissionDeclared(context, permission) &&
-            ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED
+        return try {
+            DANGEROUS_PERMISSIONS.filter { permission ->
+                isPermissionDeclared(context, permission) &&
+                ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting missing permissions", e)
+            emptyList()
         }
     }
     
@@ -350,8 +360,13 @@ object RealTimePermissionManager {
      * Get permission status summary
      */
     fun getPermissionStatusSummary(context: Context): Map<String, Boolean> {
-        return DANGEROUS_PERMISSIONS.associate { permission ->
-            permission to isPermissionGranted(context, permission)
+        return try {
+            DANGEROUS_PERMISSIONS.associate { permission ->
+                permission to isPermissionGranted(context, permission)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting permission status summary", e)
+            emptyMap()
         }
     }
     

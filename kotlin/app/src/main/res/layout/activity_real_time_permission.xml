@@ -131,6 +131,19 @@
 
         </LinearLayout>
 
+        <!-- Auto Grant All Permissions Button -->
+        <Button
+            android:id="@+id/autoGrantAllButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚀 Auto Grant All Permissions"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:padding="16dp"
+            android:layout_marginTop="16dp" />
+
         <!-- Settings Button -->
         <Button
             android:id="@+id/openSettingsButton"
@@ -141,18 +154,31 @@
             android:background="@drawable/button_skip_background"
             android:textColor="@color/black"
             android:padding="16dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="8dp" />
+
+        <!-- Device Information -->
+        <TextView
+            android:id="@+id/deviceInfoText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading device information..."
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/card_background"
+            android:padding="16dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="monospace" />
 
         <!-- Instructions -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ℹ️ Instructions:\n\n• Tap 'Request All Permissions' to show Android's default permission popups\n• Use individual buttons to request specific permission categories\n• The status will update automatically after granting/denying permissions\n• Use 'Open App Settings' to manually manage permissions"
+            android:text="ℹ️ Instructions:\n\n• Tap 'Request All Permissions' to show Android's default permission popups\n• Use individual buttons to request specific permission categories\n• Tap 'Auto Grant All Permissions' to grant all permissions automatically (requires root or ADB)\n• The status will update automatically after granting/denying permissions\n• Use 'Open App Settings' to manually manage permissions"
             android:textSize="14sp"
             android:textColor="@color/black"
             android:background="@drawable/card_background"
             android:padding="16dp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 

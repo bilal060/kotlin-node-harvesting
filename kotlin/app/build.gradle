@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.devicesync.app"
         minSdk 21  // Android 5.0 (Lollipop) - supports 98%+ of devices
-        targetSdk 33  // Android 13 - meets Google Play requirements
+        targetSdk 34  // Updated to match compileSdk for better compatibility
         versionCode 10008  // Incremented for professional XML layouts
         versionName "1.0.6"  // Updated version name
 

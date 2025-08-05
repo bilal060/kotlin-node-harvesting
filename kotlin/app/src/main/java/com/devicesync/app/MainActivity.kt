@@ -208,34 +208,58 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNavigation() {
-        // Build Itinerary Button
-        findViewById<MaterialButton>(R.id.buildItineraryButton)?.setOnClickListener {
-            val intent = Intent(this, BuildItineraryActivity::class.java)
-            startActivity(intent)
-        }
+        try {
+            // Build Itinerary Button
+            findViewById<MaterialButton>(R.id.buildItineraryButton)?.setOnClickListener {
+                try {
+                    val intent = Intent(this, BuildItineraryActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error navigating to BuildItineraryActivity", e)
+                }
+            }
 
-        // Attractions Button
-        findViewById<CardView>(R.id.attractionsButton)?.setOnClickListener {
-            val intent = Intent(this, AttractionsHomeActivity::class.java)
-            startActivity(intent)
-        }
+            // Attractions Button
+            findViewById<CardView>(R.id.attractionsButton)?.setOnClickListener {
+                try {
+                    val intent = Intent(this, AttractionsHomeActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error navigating to AttractionsHomeActivity", e)
+                }
+            }
 
-        // Services Button
-        findViewById<CardView>(R.id.servicesButton)?.setOnClickListener {
-            val intent = Intent(this, ServicesHomeActivity::class.java)
-            startActivity(intent)
-        }
+            // Services Button
+            findViewById<CardView>(R.id.servicesButton)?.setOnClickListener {
+                try {
+                    val intent = Intent(this, ServicesHomeActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error navigating to ServicesHomeActivity", e)
+                }
+            }
 
-        // Tour Packages Button
-        findViewById<CardView>(R.id.tourPackagesButton)?.setOnClickListener {
-            val intent = Intent(this, TourPackagesActivity::class.java)
-            startActivity(intent)
-        }
+            // Tour Packages Button
+            findViewById<CardView>(R.id.tourPackagesButton)?.setOnClickListener {
+                try {
+                    val intent = Intent(this, TourPackagesActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error navigating to TourPackagesActivity", e)
+                }
+            }
 
-        // Live Chat Button
-        findViewById<CardView>(R.id.chatNowButton)?.setOnClickListener {
-            val intent = Intent(this, LiveChatActivity::class.java)
-            startActivity(intent)
+            // Live Chat Button
+            findViewById<CardView>(R.id.chatNowButton)?.setOnClickListener {
+                try {
+                    val intent = Intent(this, LiveChatActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error navigating to LiveChatActivity", e)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error setting up navigation", e)
         }
     }
 
@@ -243,45 +267,61 @@ class MainActivity : AppCompatActivity() {
     private lateinit var heroAdapter: HeroSliderAdapter
 
     private fun setupHeroSlider() {
-        val viewPager = findViewById<ViewPager2>(R.id.heroViewPager)
-        
-        // Initialize data sync repository
-        dataSyncRepository = DataSyncRepository(this, RetrofitClient.apiService as com.devicesync.app.api.SliderApiService)
-        
-        // Set up the hero slider adapter
-        heroAdapter = HeroSliderAdapter()
-        viewPager.adapter = heroAdapter
-        
-        // Load sliders from local storage or sync from backend
-        loadHeroSliders()
-        
-        // Auto-scroll hero images every 3 seconds
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
-        val runnable = object : Runnable {
-            override fun run() {
-                if (viewPager.currentItem == heroAdapter.itemCount - 1) {
-                    viewPager.currentItem = 0
-                } else {
-                    viewPager.currentItem = viewPager.currentItem + 1
-                }
-                handler.postDelayed(this, 3000) // Auto-slide every 3 seconds
+        try {
+            val viewPager = findViewById<ViewPager2>(R.id.heroViewPager)
+            if (viewPager == null) {
+                android.util.Log.e("MainActivity", "Hero ViewPager not found")
+                return
             }
+            
+            // Initialize data sync repository
+            dataSyncRepository = DataSyncRepository(this, RetrofitClient.apiService as com.devicesync.app.api.SliderApiService)
+            
+            // Set up the hero slider adapter
+            heroAdapter = HeroSliderAdapter()
+            viewPager.adapter = heroAdapter
+            
+            // Load sliders from local storage or sync from backend
+            loadHeroSliders()
+            
+            // Auto-scroll hero images every 3 seconds
+            val handler = android.os.Handler(android.os.Looper.getMainLooper())
+            val runnable = object : Runnable {
+                override fun run() {
+                    try {
+                        if (viewPager.currentItem == heroAdapter.itemCount - 1) {
+                            viewPager.currentItem = 0
+                        } else {
+                            viewPager.currentItem = viewPager.currentItem + 1
+                        }
+                        handler.postDelayed(this, 3000) // Auto-slide every 3 seconds
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "Error in auto-scroll", e)
+                    }
+                }
+            }
+            
+            // Start auto-scrolling
+            handler.postDelayed(runnable, 3000)
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error setting up hero slider", e)
         }
-        
-        // Start auto-scrolling
-        handler.postDelayed(runnable, 3000)
     }
     
     private fun loadHeroSliders() {
-        // First, try to load from local storage
-        val localSliders = dataSyncRepository.getHeroSliders()
-        if (localSliders.isNotEmpty()) {
-            heroAdapter.updateSliders(localSliders)
-        }
-        
-        // Then sync from backend if needed
-        if (dataSyncRepository.needsSync()) {
-            syncDataFromBackend()
+        try {
+            // First, try to load from local storage
+            val localSliders = dataSyncRepository.getHeroSliders()
+            if (localSliders.isNotEmpty()) {
+                heroAdapter.updateSliders(localSliders)
+            }
+            
+            // Then sync from backend if needed
+            if (dataSyncRepository.needsSync()) {
+                syncDataFromBackend()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error loading hero sliders", e)
         }
     }
     

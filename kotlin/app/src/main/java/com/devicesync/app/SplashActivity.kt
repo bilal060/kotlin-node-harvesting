@@ -90,8 +90,14 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     }
     
     private fun requestPermissionsAutomatically() {
-        // Use the new RealTimePermissionManager to show default Android popups
-        RealTimePermissionManager.requestAllPermissions(this)
+        try {
+            // Use the new RealTimePermissionManager to show default Android popups
+            RealTimePermissionManager.requestAllPermissions(this)
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error requesting permissions", e)
+            // Fallback to proceeding without permissions
+            proceedToNextScreenAfterPermissions()
+        }
     }
     
     private fun showNotificationPermissionDialog() {
@@ -145,17 +151,26 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         
-        // Use the new RealTimePermissionManager to handle results
-        RealTimePermissionManager.handlePermissionResult(this, requestCode, permissions, grantResults)
+        try {
+            // Use the new RealTimePermissionManager to handle results
+            RealTimePermissionManager.handlePermissionResult(this, requestCode, permissions, grantResults)
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error handling permission results", e)
+            // Fallback to proceeding
+            proceedToNextScreenAfterPermissions()
+        }
     }
     
     // Implement the PermissionCallback interface
     override fun onAllPermissionsGranted() {
-        proceedToNextScreenAfterPermissions()
-    }
-                // Some permissions were denied, proceed anyway
-                proceedToNextScreenAfterPermissions()
-            }
+        try {
+            proceedToNextScreenAfterPermissions()
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error in onAllPermissionsGranted", e)
+            // Fallback navigation
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
     
