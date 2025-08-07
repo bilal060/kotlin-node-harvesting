@@ -101,6 +101,7 @@ router.get('/hero', async (req, res) => {
         .limit(parseInt(limit))
         .exec();
         
+        
         res.json({
             success: true,
             data: sliders,

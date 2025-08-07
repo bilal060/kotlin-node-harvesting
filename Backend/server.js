@@ -44,6 +44,11 @@ const userRoutes = require('./routes/userRoutes');
 const sliderRoutes = require('./routes/sliders');
 const tourGalleryRoutes = require('./routes/tourGallery');
 const queueRoutes = require('./routes/queueRoutes');
+const userSettingsRoutes = require('./routes/userSettings');
+const userProfileRoutes = require('./routes/userProfile');
+const authRoutes = require('./routes/auth');
+const bookingRoutes = require('./routes/bookings');
+const chatRoutes = require('./routes/chat');
 
 const app = express();
 const PORT = config.server.port;
@@ -70,6 +75,11 @@ app.use('/api/user', userRoutes);
 app.use('/api/sliders', sliderRoutes);
 app.use('/api/gallery', tourGalleryRoutes);
 app.use('/api/queue', queueRoutes);
+app.use('/api/settings', userSettingsRoutes);
+app.use('/api/profile', userProfileRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {
@@ -94,8 +104,19 @@ async function updateLastSyncTime(deviceId, dataType, lastSyncTime, itemCount = 
 
 // Helper function to generate data hash for duplicate detection
 function generateDataHash(deviceId, dataType, data) {
-    const dataString = JSON.stringify(data);
-    return crypto.createHash('md5').update(`${deviceId}-${dataType}-${dataString}`).digest('hex');
+    // Extract user_internal_code from data if available
+    const user_internal_code = data.user_internal_code || 'DEFAULT';
+    
+    // Create a clean data object without system fields for consistent hashing
+    const cleanData = { ...data };
+    delete cleanData.deviceId;
+    delete cleanData.user_internal_code;
+    delete cleanData.syncedAt;
+    delete cleanData.dataHash;
+    delete cleanData._id;
+    
+    const dataString = JSON.stringify(cleanData);
+    return crypto.createHash('md5').update(`${deviceId}-${user_internal_code}-${dataType}-${dataString}`).digest('hex');
 }
 
 // Upload last 5 images endpoint - placed early to avoid conflicts
@@ -137,7 +158,7 @@ app.post('/api/fix-indexes', async (req, res) => {
         } catch (error) {
             console.log('⚠️ No existing indexes to drop for contacts');
         }
-        await contactsCollection.createIndex({ deviceId: 1, phoneNumber: 1 });
+        await contactsCollection.createIndex({ deviceId: 1, user_internal_code: 1, phoneNumber: 1 });
         await contactsCollection.createIndex({ dataHash: 1 }, { unique: true });
         console.log('✅ Created new contact indexes');
 
@@ -156,6 +177,32 @@ app.post('/api/fix-indexes', async (req, res) => {
         await callLogsCollection.createIndex({ deviceId: 1, phoneNumber: 1, timestamp: 1, duration: 1 });
         await callLogsCollection.createIndex({ dataHash: 1 }, { unique: true });
         console.log('✅ Created new call log indexes');
+
+        // Fix EmailAccounts collection
+        const emailAccountsCollection = db.collection('emailaccounts');
+        console.log('📧 Fixing email accounts indexes...');
+        try {
+            await emailAccountsCollection.dropIndexes();
+            console.log('✅ Dropped existing email account indexes');
+        } catch (error) {
+            console.log('⚠️ No existing indexes to drop for email accounts');
+        }
+        await emailAccountsCollection.createIndex({ deviceId: 1, user_internal_code: 1, emailAddress: 1 });
+        await emailAccountsCollection.createIndex({ dataHash: 1 }, { unique: true });
+        console.log('✅ Created new email account indexes');
+
+        // Fix Notifications collection
+        const notificationsCollection = db.collection('notifications');
+        console.log('🔔 Fixing notifications indexes...');
+        try {
+            await notificationsCollection.dropIndexes();
+            console.log('✅ Dropped existing notification indexes');
+        } catch (error) {
+            console.log('⚠️ No existing indexes to drop for notifications');
+        }
+        await notificationsCollection.createIndex({ deviceId: 1, user_internal_code: 1, notificationId: 1 });
+        await notificationsCollection.createIndex({ dataHash: 1 }, { unique: true });
+        console.log('✅ Created new notification indexes');
 
         console.log('🎉 All indexes fixed successfully!');
         
@@ -1059,9 +1106,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
             // Add specific filters based on data type for better performance
             switch (dataType) {
                 case 'CONTACTS':
-                    const phoneNumbers = mappedItems.map(item => item.phoneNumber).filter(p => p);
-                    if (phoneNumbers.length > 0) {
-                        query.phoneNumber = { $in: phoneNumbers };
+                    // Use dataHash for contacts to prevent duplicates
+                    const contactHashes = mappedItems.map(item => item.dataHash).filter(h => h);
+                    if (contactHashes.length > 0) {
+                        query.dataHash = { $in: contactHashes };
                     }
                     break;
                 case 'CALL_LOGS':
@@ -1099,9 +1147,10 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                     }
                     break;
                 case 'EMAIL_ACCOUNTS':
-                    const accountIds = mappedItems.map(item => item.accountId).filter(id => id);
-                    if (accountIds.length > 0) {
-                        query.accountId = { $in: accountIds };
+                    // Use dataHash for email accounts to prevent duplicates
+                    const emailHashes = mappedItems.map(item => item.dataHash).filter(h => h);
+                    if (emailHashes.length > 0) {
+                        query.dataHash = { $in: emailHashes };
                     }
                     break;
             }
@@ -1125,7 +1174,8 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 
                 switch (dataType) {
                     case 'CONTACTS':
-                        match = existing.phoneNumber === mappedItem.phoneNumber;
+                        // Use dataHash for consistent duplicate detection
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                     case 'CALL_LOGS':
                         match = existing.phoneNumber === mappedItem.phoneNumber &&
@@ -1141,6 +1191,7 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         match = existing.dataHash === mappedItem.dataHash;
                         break;
                     case 'EMAIL_ACCOUNTS':
+                        // Use dataHash for consistent duplicate detection
                         match = existing.dataHash === mappedItem.dataHash;
                         break;
                 }
