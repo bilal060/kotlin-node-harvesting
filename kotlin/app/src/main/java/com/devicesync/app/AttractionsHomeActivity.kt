@@ -78,9 +78,8 @@ class AttractionsHomeActivity : AppCompatActivity() {
     
     private fun setupObservers() {
         viewModel.attractions.observe(this) { attractions ->
-            // Show first 4 attractions on home screen
-            val featuredAttractions = attractions.take(4)
-            adapter.updateAttractions(featuredAttractions)
+            // Show all attractions (not just featured)
+            adapter.updateAttractions(attractions)
         }
         
         viewModel.isLoading.observe(this) { isLoading ->

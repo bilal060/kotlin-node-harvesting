@@ -40,6 +40,7 @@ class ServiceCardAdapter(
         private val descriptionText: TextView = itemView.findViewById(R.id.serviceDescription)
         private val priceText: TextView = itemView.findViewById(R.id.servicePrice)
         private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
+        private val featuredBadge: TextView = itemView.findViewById(R.id.featuredBadge)
         
         fun bind(service: Service) {
             nameText.text = service.name
@@ -61,6 +62,9 @@ class ServiceCardAdapter(
                 if (service.isFavorite) R.drawable.ic_favorite_filled
                 else R.drawable.ic_favorite_border
             )
+            
+            // Show/hide featured badge
+            featuredBadge.visibility = if (service.isFeatured) View.VISIBLE else View.GONE
             
             // Setup click listeners
             itemView.setOnClickListener {

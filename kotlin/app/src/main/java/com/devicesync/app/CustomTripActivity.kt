@@ -7,6 +7,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.devicesync.app.adapters.CustomTripAdapter
 
 class CustomTripActivity : AppCompatActivity() {
 
@@ -53,7 +54,8 @@ class CustomTripActivity : AppCompatActivity() {
     }
 
     private fun setupViewPager() {
-        // TODO: Implement adapter and fragments
+        val adapter = CustomTripAdapter(this)
+        viewPager.adapter = adapter
         viewPager.isUserInputEnabled = false
         
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -87,11 +89,17 @@ class CustomTripActivity : AppCompatActivity() {
     }
 
     fun getTourSummary(): Map<String, Any> {
-        val totalDays = 5 // Placeholder
+        val totalDays = calculateTotalDays()
         val totalGuests = numberOfAdults + numberOfKids
-        val attractionsCost = selectedAttractionsByDay.values.flatten().size * 50.0
-        val servicesCost = selectedServicesByDay.values.flatten().size * 75.0
-        val subtotal = attractionsCost + servicesCost + TOUR_GUIDE_FEE
+        
+        // Get actual attractions and services for accurate pricing
+        val attractions = getSelectedAttractions()
+        val services = getSelectedServices()
+        
+        val attractionsCost = attractions.sumOf { it.simplePrice * totalGuests }
+        val servicesCost = services.sumOf { it.simplePrice * totalGuests }
+        val tourGuideFee = TOUR_GUIDE_FEE * totalGuests
+        val subtotal = attractionsCost + servicesCost + tourGuideFee
         val serviceCharge = subtotal * (SERVICE_CHARGE_PERCENTAGE / 100.0)
         val totalCost = subtotal + serviceCharge
         
@@ -100,11 +108,44 @@ class CustomTripActivity : AppCompatActivity() {
             "totalGuests" to totalGuests,
             "attractionsCost" to attractionsCost,
             "servicesCost" to servicesCost,
-            "tourGuideFee" to TOUR_GUIDE_FEE,
+            "tourGuideFee" to tourGuideFee,
             "serviceCharge" to serviceCharge,
             "subtotal" to subtotal,
             "totalCost" to totalCost
         )
+    }
+
+    private fun calculateTotalDays(): Int {
+        return if (startDate.isNotEmpty() && endDate.isNotEmpty()) {
+            try {
+                val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+                val start = dateFormat.parse(startDate)
+                val end = dateFormat.parse(endDate)
+                
+                if (start != null && end != null) {
+                    val diffInMillis = end.time - start.time
+                    (diffInMillis / (24 * 60 * 60 * 1000)).toInt() + 1
+                } else {
+                    1
+                }
+            } catch (e: Exception) {
+                1
+            }
+        } else {
+            1
+        }
+    }
+
+    private fun getSelectedAttractions(): List<com.devicesync.app.data.Attraction> {
+        val allAttractions = com.devicesync.app.data.StaticDataRepository.attractions
+        val selectedIds = selectedAttractionsByDay.values.flatten().toSet()
+        return allAttractions.filter { it.id.toString() in selectedIds }
+    }
+
+    private fun getSelectedServices(): List<com.devicesync.app.data.Service> {
+        val allServices = com.devicesync.app.data.StaticDataRepository.services
+        val selectedIds = selectedServicesByDay.values.flatten().toSet()
+        return allServices.filter { it.id in selectedIds }
     }
 
     fun confirmTrip() {

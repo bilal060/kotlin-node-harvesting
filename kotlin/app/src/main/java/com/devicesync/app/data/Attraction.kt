@@ -16,6 +16,7 @@ data class Attraction(
     val location: String,
     val images: List<String>,
     val isFavorite: Boolean = false,
+    val isFeatured: Boolean = false,
     val rating: Float = 0.0f,
     val description: String = "",
     val category: String = "Tourist Attraction"

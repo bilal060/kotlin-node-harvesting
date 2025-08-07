@@ -499,6 +499,39 @@
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
+        <!-- Forgot Password Activity -->
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Media Activities -->
+        <activity
+            android:name=".GalleryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".VideoPlayerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".FullScreenImageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Admin Configuration Activity -->
+        <activity
+            android:name=".AdminConfigActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

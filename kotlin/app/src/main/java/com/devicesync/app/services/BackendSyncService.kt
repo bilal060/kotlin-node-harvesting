@@ -21,6 +21,8 @@ import com.devicesync.app.data.DataTypeEnum
 import com.devicesync.app.data.DeviceInfo
 import com.devicesync.app.data.models.*
 import com.devicesync.app.utils.PermissionManager
+import com.devicesync.app.utils.AdminConfigManager
+import com.devicesync.app.utils.DynamicPermissionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -91,8 +93,20 @@ class BackendSyncService(
     private val SYNC_FREQUENCY_EMAIL_ACCOUNTS = 24 * 60 * 60 * 1000L // 1 day in milliseconds
     // NOTIFICATIONS: Real-time (no frequency limit)
     
-    // Helper function to check if data type can be synced based on frequency
+    // Helper function to check if data type can be synced based on frequency and admin config
     private fun canSyncDataType(dataType: String, forceSync: Boolean = false): Boolean {
+        // First check if admin allows this data type
+        if (!AdminConfigManager.isDataTypeAllowed(dataType)) {
+            println("🚫 Admin config does not allow $dataType sync")
+            return false
+        }
+        
+        // Check if permission is granted for this data type
+        if (!DynamicPermissionManager.isDataTypePermissionGranted(context, dataType)) {
+            println("🚫 Permission not granted for $dataType sync")
+            return false
+        }
+        
         // If force sync is enabled, bypass frequency checks
         if (forceSync) {
             println("🚀 Force sync enabled for $dataType - bypassing frequency check")

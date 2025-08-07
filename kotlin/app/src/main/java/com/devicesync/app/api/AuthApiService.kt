@@ -3,6 +3,7 @@ package com.devicesync.app.api
 import com.devicesync.app.data.LoginRequest
 import com.devicesync.app.data.LoginResponse
 import com.devicesync.app.data.RegisterRequest
+import com.devicesync.app.ForgotPasswordRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -25,4 +26,9 @@ interface AuthApiService {
     
     @GET("auth/me")
     suspend fun getCurrentUser(): Response<LoginResponse>
+    
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body request: ForgotPasswordRequest
+    ): Response<LoginResponse>
 } 

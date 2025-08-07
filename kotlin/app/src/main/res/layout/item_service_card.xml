@@ -32,6 +32,23 @@
             android:background="@drawable/circle_background"
             android:contentDescription="Favorite" />
 
+        <!-- Featured Badge -->
+        <TextView
+            android:id="@+id/featuredBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="8dp"
+            android:text="FEATURED"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/featured_badge"
+            android:padding="4dp"
+            android:visibility="gone"
+            android:contentDescription="Featured Badge" />
+
         <!-- Info Container -->
         <LinearLayout
             android:layout_width="match_parent"

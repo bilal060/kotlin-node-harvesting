@@ -100,6 +100,9 @@
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
                     android:textColor="@color/text_secondary" />
 
+
+                    android:textColor="@color/text_secondary" />
+
             </LinearLayout>
 
             <!-- Plan Your Adventure Section -->

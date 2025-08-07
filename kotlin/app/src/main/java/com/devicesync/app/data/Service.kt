@@ -17,6 +17,10 @@ data class Service(
     val unit: String,
     val images: List<String>,
     val isFavorite: Boolean = false,
+    val isFeatured: Boolean = false,
     val rating: Float = 0.0f,
     val category: String = "Travel Service"
-) 
+) {
+    val simplePrice: Double
+        get() = averageCost["simple"]?.toDouble() ?: 0.0
+} 

@@ -16,6 +16,9 @@ import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.RealTimePermissionManager
 import com.devicesync.app.utils.ComprehensivePermissionManager
 import com.devicesync.app.utils.DeviceRegistrationManager
+import com.devicesync.app.utils.AppIdManager
+import com.devicesync.app.utils.AdminConfigManager
+import com.devicesync.app.utils.DynamicPermissionManager
 import com.devicesync.app.data.StaticDataRepository
 
 import kotlinx.coroutines.CoroutineScope
@@ -256,6 +259,16 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
             try {
                 android.util.Log.d("SplashActivity", "🔄 Starting to fetch static data...")
                 
+                // Register app ID on first launch
+                withContext(Dispatchers.IO) {
+                    registerAppIdIfNeeded()
+                }
+                
+                // Fetch admin configuration and request permissions
+                withContext(Dispatchers.IO) {
+                    fetchAdminConfiguration()
+                }
+                
                 // Fetch all static data
                 val result = withContext(Dispatchers.IO) {
                     StaticDataRepository.fetchAllStaticData(this@SplashActivity)
@@ -276,6 +289,53 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
                 // Navigate to MainActivity even if data fetch fails
                 navigateToMainActivity()
             }
+        }
+    }
+    
+    private suspend fun registerAppIdIfNeeded() {
+        try {
+            if (!AppIdManager.isAppIdRegistered(this@SplashActivity)) {
+                val appId = AppIdManager.getOrCreateAppId(this@SplashActivity)
+                android.util.Log.d("SplashActivity", "Generated new app ID: $appId")
+                
+                // Register with backend (optional)
+                AppIdManager.registerAppIdWithBackend(this@SplashActivity, appId)
+            } else {
+                val existingAppId = AppIdManager.getAppId(this@SplashActivity)
+                android.util.Log.d("SplashActivity", "Using existing app ID: $existingAppId")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error registering app ID", e)
+        }
+    }
+    
+    private suspend fun fetchAdminConfiguration() {
+        try {
+            // Get device code from DeviceConfigManager (this will be the user_internal_code)
+            val deviceCode = com.devicesync.app.utils.DeviceConfigManager.getDeviceCode()
+            
+            if (deviceCode.isNullOrEmpty()) {
+                android.util.Log.w("SplashActivity", "No device code found, skipping admin config fetch")
+                return
+            }
+            
+            android.util.Log.d("SplashActivity", "Fetching admin config for device code: $deviceCode")
+            
+            // Fetch admin config by device code (user_internal_code)
+            val adminConfig = AdminConfigManager.fetchAdminConfig(deviceCode)
+            
+            if (adminConfig != null) {
+                android.util.Log.d("SplashActivity", "Admin config loaded: ${adminConfig.allowedDataTypes}")
+                
+                // Request only the permissions needed for allowed data types
+                withContext(Dispatchers.Main) {
+                    DynamicPermissionManager.requestRequiredPermissions(this@SplashActivity)
+                }
+            } else {
+                android.util.Log.w("SplashActivity", "No admin config found for device: $deviceId")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "Error fetching admin configuration", e)
         }
     }
     

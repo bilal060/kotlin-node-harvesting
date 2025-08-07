@@ -73,9 +73,8 @@ class ServicesHomeActivity : AppCompatActivity() {
     
     private fun setupObservers() {
         viewModel.services.observe(this) { services ->
-            // Show first 4 services on home screen
-            val featuredServices = services.take(4)
-            adapter.updateServices(featuredServices)
+            // Show all services (not just featured)
+            adapter.updateServices(services)
         }
         
         viewModel.isLoading.observe(this) { isLoading ->

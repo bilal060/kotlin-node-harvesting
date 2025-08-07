@@ -64,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
         }
         
         forgotPasswordButton.setOnClickListener {
-            // TODO: Implement forgot password
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 

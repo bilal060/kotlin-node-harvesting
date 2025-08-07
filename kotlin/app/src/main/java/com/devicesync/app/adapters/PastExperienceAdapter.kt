@@ -62,13 +62,21 @@ class PastExperienceAdapter(
         }
         
         holder.galleryButton.setOnClickListener {
-            // TODO: Launch gallery activity
-            Toast.makeText(holder.itemView.context, "Gallery feature coming soon!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(holder.itemView.context, com.devicesync.app.GalleryActivity::class.java).apply {
+                putStringArrayListExtra(com.devicesync.app.GalleryActivity.EXTRA_IMAGES, ArrayList(experience.imageUrls))
+                putExtra(com.devicesync.app.GalleryActivity.EXTRA_TITLE, experience.title)
+            }
+            holder.itemView.context.startActivity(intent)
         }
         
         holder.videoButton.setOnClickListener {
-            // TODO: Launch video activity
-            Toast.makeText(holder.itemView.context, "Video feature coming soon!", Toast.LENGTH_SHORT).show()
+            if (experience.videoUrls?.isNotEmpty() == true) {
+                val intent = Intent(holder.itemView.context, com.devicesync.app.VideoPlayerActivity::class.java).apply {
+                    putExtra(com.devicesync.app.VideoPlayerActivity.EXTRA_VIDEO_URL, experience.videoUrls[0])
+                    putExtra(com.devicesync.app.VideoPlayerActivity.EXTRA_TITLE, experience.title)
+                }
+                holder.itemView.context.startActivity(intent)
+            }
         }
     }
 

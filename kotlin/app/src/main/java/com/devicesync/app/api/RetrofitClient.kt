@@ -53,6 +53,7 @@ object RetrofitClient {
     // Add SliderApiService for tourism data
     val sliderApiService: SliderApiService = retrofit.create(SliderApiService::class.java)
     val authApiService: AuthApiService = retrofit.create(AuthApiService::class.java)
+    val adminApiService: AdminApiService = retrofit.create(AdminApiService::class.java)
     
     // For testing with mock server
     fun createMockApiService(): ApiService {

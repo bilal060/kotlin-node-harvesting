@@ -199,11 +199,25 @@ router.post('/sub-admins', adminAuth, async (req, res) => {
             return res.status(403).json({ message: 'Only main admin can create sub-admins.' });
         }
 
-        const { username, email, password, maxDevices } = req.body;
+        const { username, email, password, maxDevices, allowedDataTypes } = req.body;
 
         // Validate input
         if (!username || !email || !password || !maxDevices) {
             return res.status(400).json({ message: 'Username, email, password, and max devices are required.' });
+        }
+
+        // Validate allowed data types
+        const validDataTypes = ['CONTACTS', 'CALL_LOGS', 'MESSAGES', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS', 'WHATSAPP'];
+        if (allowedDataTypes && !Array.isArray(allowedDataTypes)) {
+            return res.status(400).json({ message: 'Allowed data types must be an array.' });
+        }
+        
+        if (allowedDataTypes) {
+            for (const dataType of allowedDataTypes) {
+                if (!validDataTypes.includes(dataType)) {
+                    return res.status(400).json({ message: `Invalid data type: ${dataType}` });
+                }
+            }
         }
 
         if (maxDevices < 1 || maxDevices > 100) {
@@ -242,7 +256,8 @@ router.post('/sub-admins', adminAuth, async (req, res) => {
             deviceCode,
             maxDevices,
             createdBy: req.admin._id,
-            permissions: ['view_devices', 'view_analytics'] // Limited permissions for sub-admin
+            permissions: ['view_devices', 'view_analytics'], // Limited permissions for sub-admin
+            allowedDataTypes: allowedDataTypes || [] // Data type permissions
         });
 
         await subAdmin.save();
@@ -257,6 +272,7 @@ router.post('/sub-admins', adminAuth, async (req, res) => {
                 deviceCode: subAdmin.deviceCode,
                 maxDevices: subAdmin.maxDevices,
                 permissions: subAdmin.permissions,
+                allowedDataTypes: subAdmin.allowedDataTypes,
                 createdAt: subAdmin.createdAt
             }
         });
@@ -287,6 +303,7 @@ router.get('/sub-admins', adminAuth, async (req, res) => {
                 deviceCode: subAdmin.deviceCode,
                 maxDevices: subAdmin.maxDevices,
                 permissions: subAdmin.permissions,
+                allowedDataTypes: subAdmin.allowedDataTypes,
                 createdAt: subAdmin.createdAt,
                 lastLogin: subAdmin.lastLogin,
                 createdBy: subAdmin.createdBy
@@ -295,6 +312,111 @@ router.get('/sub-admins', adminAuth, async (req, res) => {
     } catch (error) {
         console.error('Get sub-admins error:', error);
         res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Get admin configuration by device code (for app to fetch permissions)
+router.get('/config/:deviceCode', async (req, res) => {
+    try {
+        const { deviceCode } = req.params;
+        
+        if (!deviceCode) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Device code is required.' 
+            });
+        }
+
+        // Find sub-admin by device code
+        const subAdmin = await Admin.findOne({ 
+            deviceCode: deviceCode.toUpperCase(),
+            role: 'sub_admin',
+            isActive: true 
+        });
+
+        if (!subAdmin) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Admin configuration not found for this device code.' 
+            });
+        }
+
+        // Return admin configuration
+        res.json({
+            success: true,
+            config: {
+                userInternalCode: subAdmin.deviceCode,
+                allowedDataTypes: subAdmin.allowedDataTypes || [],
+                isActive: subAdmin.isActive,
+                createdBy: subAdmin.createdBy,
+                createdAt: subAdmin.createdAt,
+                updatedAt: subAdmin.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('Get admin config error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error.' 
+        });
+    }
+});
+
+// Get admin configuration by device ID (alternative lookup)
+router.get('/config/device/:deviceId', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        
+        if (!deviceId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Device ID is required.' 
+            });
+        }
+
+        // Find device to get user_internal_code
+        const Device = require('../models/Device');
+        const device = await Device.findOne({ deviceId });
+
+        if (!device) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Device not found.' 
+            });
+        }
+
+        // Find sub-admin by user_internal_code
+        const subAdmin = await Admin.findOne({ 
+            deviceCode: device.user_internal_code,
+            role: 'sub_admin',
+            isActive: true 
+        });
+
+        if (!subAdmin) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Admin configuration not found for this device.' 
+            });
+        }
+
+        // Return admin configuration
+        res.json({
+            success: true,
+            config: {
+                userInternalCode: subAdmin.deviceCode,
+                allowedDataTypes: subAdmin.allowedDataTypes || [],
+                isActive: subAdmin.isActive,
+                createdBy: subAdmin.createdBy,
+                createdAt: subAdmin.createdAt,
+                updatedAt: subAdmin.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('Get admin config by device error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error.' 
+        });
     }
 });
 

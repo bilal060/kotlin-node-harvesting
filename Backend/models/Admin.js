@@ -48,6 +48,12 @@ const adminSchema = new mongoose.Schema({
         type: String,
         enum: ['view_devices', 'manage_users', 'manage_codes', 'view_analytics', 'system_settings']
     }],
+    // Data type permissions for sub-admin
+    allowedDataTypes: [{
+        type: String,
+        enum: ['CONTACTS', 'CALL_LOGS', 'MESSAGES', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS', 'WHATSAPP'],
+        default: []
+    }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin',

@@ -40,6 +40,7 @@ class AttractionCardAdapter(
         private val descriptionText: TextView = itemView.findViewById(R.id.attractionDescription)
         private val priceText: TextView = itemView.findViewById(R.id.attractionPrice)
         private val favoriteButton: ImageView = itemView.findViewById(R.id.favoriteButton)
+        private val featuredBadge: TextView = itemView.findViewById(R.id.featuredBadge)
         
         fun bind(attraction: Attraction) {
             nameText.text = attraction.name
@@ -61,6 +62,9 @@ class AttractionCardAdapter(
                 if (attraction.isFavorite) R.drawable.ic_favorite_filled
                 else R.drawable.ic_favorite_border
             )
+            
+            // Show/hide featured badge
+            featuredBadge.visibility = if (attraction.isFeatured) View.VISIBLE else View.GONE
             
             // Setup click listeners
             itemView.setOnClickListener {

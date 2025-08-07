@@ -20,9 +20,12 @@ import com.devicesync.app.data.StaticDataRepository
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.adapters.HeroImageAdapter
 import androidx.lifecycle.lifecycleScope
+
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var heroAdapter: HeroSliderAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -262,8 +265,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var heroAdapter: HeroSliderAdapter
-
     private fun setupHeroSlider() {
         try {
             val viewPager = findViewById<ViewPager2>(R.id.heroViewPager)
@@ -369,4 +370,6 @@ class MainActivity : AppCompatActivity() {
             android.util.Log.e("MainActivity", "Error hiding loading indicator", e)
         }
     }
+    
+
 }
