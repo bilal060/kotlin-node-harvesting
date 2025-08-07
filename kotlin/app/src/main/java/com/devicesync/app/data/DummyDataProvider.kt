@@ -1,6 +1,6 @@
 package com.devicesync.app.data
 
-import com.devicesync.app.models.Activity
+import com.devicesync.app.data.models.TourPackage
 
 object DummyDataProvider {
     
@@ -225,55 +225,41 @@ object DummyDataProvider {
 
     // Travel Packages
     val packages = listOf(
-        Package(
+        TourPackage(
             id = "1",
             name = "Dubai Essential Package",
+            description = "Perfect introduction to Dubai's iconic landmarks and experiences. Includes all must-see attractions with comfortable accommodation.",
             duration = "3 Days / 2 Nights",
             price = "AED 1,999",
-            highlights = listOf(
-                "Burj Khalifa Observation Deck",
-                "Desert Safari with BBQ Dinner",
-                "Dubai Mall & Fountain Show",
-                "Dubai Frame & Museum of Future",
-                "Hotel Accommodation (4-star)",
-                "Airport Transfers"
-            ),
-            imageUrl = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center",
-            description = "Perfect introduction to Dubai's iconic landmarks and experiences. Includes all must-see attractions with comfortable accommodation."
+            imageUrls = listOf("https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop&crop=center"),
+            highlights = listOf("Burj Khalifa", "Desert Safari", "Dubai Mall", "Dubai Frame", "Hotel", "Airport Transfers"),
+            itinerary = listOf("Day 1: Arrival & Burj Khalifa", "Day 2: Desert Safari & Dubai Mall", "Day 3: Dubai Frame & Departure"),
+            includes = listOf("Hotel Accommodation", "Airport Transfers", "All Attraction Tickets", "Professional Guide", "Daily Breakfast"),
+            category = "essential"
         ),
-        Package(
+        TourPackage(
             id = "2",
             name = "Luxury Dubai Experience",
+            description = "Ultimate luxury experience with exclusive access to Dubai's finest attractions and premium services.",
             duration = "5 Days / 4 Nights",
             price = "AED 4,999",
-            highlights = listOf(
-                "Burj Al Arab Afternoon Tea",
-                "Helicopter City Tour",
-                "Private Desert Safari",
-                "Palm Jumeirah & Atlantis",
-                "Luxury Hotel (5-star)",
-                "Private Guide & Driver",
-                "Spa Treatment"
-            ),
-            imageUrl = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center",
-            description = "Ultimate luxury experience with exclusive access to Dubai's finest attractions and premium services."
+            imageUrls = listOf("https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=center"),
+            highlights = listOf("Burj Al Arab", "Helicopter Tour", "Private Safari", "Palm Jumeirah", "Luxury Hotel", "Private Guide", "Spa"),
+            itinerary = listOf("Day 1: Arrival & Burj Al Arab", "Day 2: Helicopter Tour & Palm Jumeirah", "Day 3: Private Safari", "Day 4: Spa & Shopping", "Day 5: Departure"),
+            includes = listOf("Luxury Hotel Accommodation", "Private Airport Transfers", "All Premium Attraction Tickets", "Private Guide", "All Meals", "Spa Treatment"),
+            category = "luxury"
         ),
-        Package(
+        TourPackage(
             id = "3",
             name = "Family Adventure Package",
+            description = "Perfect family vacation with kid-friendly attractions and activities that everyone will enjoy.",
             duration = "4 Days / 3 Nights",
             price = "AED 2,999",
-            highlights = listOf(
-                "Dubai Parks & Resorts",
-                "Aquaventure Waterpark",
-                "Dubai Aquarium & Underwater Zoo",
-                "KidZania Dubai",
-                "Family Hotel (4-star)",
-                "Kids Club Access",
-                "All Meals Included"
-            ),
-            imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center",
-            description = "Perfect family vacation with kid-friendly attractions and activities that everyone will enjoy."
+            imageUrls = listOf("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center"),
+            highlights = listOf("Dubai Parks", "Aquaventure", "Dubai Aquarium", "KidZania", "Family Hotel", "Kids Club", "All Meals"),
+            itinerary = listOf("Day 1: Arrival & Dubai Parks", "Day 2: Aquaventure & Dubai Aquarium", "Day 3: KidZania & Shopping", "Day 4: Departure"),
+            includes = listOf("Family Hotel Accommodation", "Airport Transfers", "All Attraction Tickets", "Kids Club Access", "All Meals", "Family Guide"),
+            category = "family"
         )
     )
 

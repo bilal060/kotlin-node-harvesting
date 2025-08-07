@@ -331,6 +331,20 @@
             android:theme="@style/Theme.DubaiDiscoveries"
             android:screenOrientation="portrait" />
 
+        <!-- Day Planner Activity -->
+        <activity
+            android:name=".DayPlannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <!-- Tour Planning Activity -->
+        <activity
+            android:name=".TourPlanningActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
         <!-- Itinerary Day Selection Activity -->
         <activity
             android:name=".ItineraryDaySelectionActivity"
@@ -471,6 +485,19 @@
         <meta-data
             android:name="android.security.net.config"
             android:resource="@xml/network_security_config" />
+
+        <!-- Authentication Activities -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CustomTripActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DubaiDiscoveries"
+            android:screenOrientation="portrait" />
 
     </application>
 

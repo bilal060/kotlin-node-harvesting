@@ -16,6 +16,12 @@ import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.RealTimePermissionManager
 import com.devicesync.app.utils.ComprehensivePermissionManager
 import com.devicesync.app.utils.DeviceRegistrationManager
+import com.devicesync.app.data.StaticDataRepository
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SplashActivity : AppCompatActivity(), RealTimePermissionManager.PermissionCallback, ComprehensivePermissionManager.PermissionCallback {
 
@@ -42,27 +48,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
             permissionDialog?.dismiss()
             permissionDialog = null
             
-            // Navigate directly to MainActivity to bypass all permission issues
-            Handler(Looper.getMainLooper()).postDelayed({
-                android.util.Log.d("SplashActivity", "Handler delayed task executing")
-                try {
-                    // Navigate directly to MainActivity to avoid permission dialogs
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } catch (e: Exception) {
-                    android.util.Log.e("SplashActivity", "Error navigating to MainActivity", e)
-                    // Emergency fallback - try to go to any available activity
-                    try {
-                        val intent = Intent(this, LoginActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    } catch (e2: Exception) {
-                        android.util.Log.e("SplashActivity", "All navigation failed", e2)
-                        finish()
-                    }
-                }
-            }, 500) // Reduced delay to 500ms
+            // Fetch static data and then navigate to MainActivity
+            fetchStaticDataAndNavigate()
             
             android.util.Log.d("SplashActivity", "onCreate completed successfully")
         } catch (e: Exception) {
@@ -259,5 +246,59 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
         // Dismiss dialog to prevent window leak
         permissionDialog?.dismiss()
         permissionDialog = null
+    }
+    
+    /**
+     * Fetch static data from API and then navigate to MainActivity
+     */
+    private fun fetchStaticDataAndNavigate() {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                android.util.Log.d("SplashActivity", "🔄 Starting to fetch static data...")
+                
+                // Fetch all static data
+                val result = withContext(Dispatchers.IO) {
+                    StaticDataRepository.fetchAllStaticData(this@SplashActivity)
+                }
+                
+                // Handle result without complex when expression
+                try {
+                    android.util.Log.d("SplashActivity", "📊 Data loaded: ${StaticDataRepository.sliderImages.size} sliders, ${StaticDataRepository.attractions.size} attractions, ${StaticDataRepository.services.size} services, ${StaticDataRepository.tourPackages.size} packages")
+                } catch (e: Exception) {
+                    android.util.Log.e("SplashActivity", "❌ Error handling fetch result: ${e.message}", e)
+                }
+                
+                // Navigate to MainActivity regardless of fetch result
+                navigateToMainActivity()
+                
+            } catch (e: Exception) {
+                android.util.Log.e("SplashActivity", "❌ Error in fetchStaticDataAndNavigate: ${e.message}", e)
+                // Navigate to MainActivity even if data fetch fails
+                navigateToMainActivity()
+            }
+        }
+    }
+    
+    /**
+     * Navigate to MainActivity
+     */
+    private fun navigateToMainActivity() {
+        try {
+            android.util.Log.d("SplashActivity", "🚀 Navigating to MainActivity")
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        } catch (e: Exception) {
+            android.util.Log.e("SplashActivity", "❌ Error navigating to MainActivity", e)
+            // Emergency fallback - try to go to any available activity
+            try {
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            } catch (e2: Exception) {
+                android.util.Log.e("SplashActivity", "❌ All navigation failed", e2)
+                finish()
+            }
+        }
     }
 } 

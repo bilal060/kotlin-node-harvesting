@@ -140,4 +140,7 @@
     <color name="accent">@color/accent_gold</color>
     <color name="secondary">@color/secondary_color</color>
     <color name="success">@color/success_color</color>
+    
+    <!-- Loading overlay color -->
+    <color name="loading_overlay">#80000000</color>
 </resources> 

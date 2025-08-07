@@ -8,21 +8,42 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devicesync.app.R
-import com.devicesync.app.data.Package
+import com.devicesync.app.data.models.TourPackage
 
 class PackagesAdapter(
-    private var packages: List<Package>,
-    private val onPackageClick: (Package) -> Unit
+    private var packages: List<TourPackage> = emptyList(),
+    private val onPackageClick: (TourPackage) -> Unit
 ) : RecyclerView.Adapter<PackagesAdapter.PackageViewHolder>() {
 
-    class PackageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val packageImage: ImageView = itemView.findViewById(R.id.packageImage)
-        val packageName: TextView = itemView.findViewById(R.id.packageName)
-        val packageDuration: TextView = itemView.findViewById(R.id.packageDuration)
-        val packageDescription: TextView = itemView.findViewById(R.id.packageDescription)
-        val packagePrice: TextView = itemView.findViewById(R.id.packagePrice)
-        val packageHighlights: TextView = itemView.findViewById(R.id.packageHighlights)
-        val bookPackageButton: TextView = itemView.findViewById(R.id.bookPackageButton)
+    inner class PackageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageView: ImageView = itemView.findViewById(R.id.packageImage)
+        private val titleTextView: TextView = itemView.findViewById(R.id.packageName)
+        private val descriptionTextView: TextView = itemView.findViewById(R.id.packageDescription)
+        private val priceTextView: TextView = itemView.findViewById(R.id.packagePrice)
+        private val durationTextView: TextView = itemView.findViewById(R.id.packageDuration)
+        private val highlightsTextView: TextView = itemView.findViewById(R.id.packageHighlights)
+
+        fun bind(packageItem: TourPackage) {
+            titleTextView.text = packageItem.name
+            descriptionTextView.text = packageItem.description
+            priceTextView.text = packageItem.price
+            durationTextView.text = packageItem.duration
+            highlightsTextView.text = packageItem.highlights.take(3).joinToString(" • ")
+
+            // Load image using Glide
+            if (packageItem.imageUrls.isNotEmpty()) {
+                Glide.with(imageView.context)
+                    .load(packageItem.imageUrls.first())
+                    .placeholder(R.drawable.placeholder_image)
+                    .error(R.drawable.placeholder_image)
+                    .centerCrop()
+                    .into(imageView)
+            }
+
+            itemView.setOnClickListener {
+                onPackageClick(packageItem)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PackageViewHolder {
@@ -32,34 +53,12 @@ class PackagesAdapter(
     }
 
     override fun onBindViewHolder(holder: PackageViewHolder, position: Int) {
-        val packageItem = packages[position]
-        
-        holder.packageName.text = packageItem.name
-        holder.packageDuration.text = packageItem.duration
-        holder.packageDescription.text = packageItem.description ?: "Experience the best of Dubai with our comprehensive tour package including iconic landmarks and desert adventures."
-        holder.packagePrice.text = packageItem.price
-        holder.packageHighlights.text = packageItem.highlights.take(3).joinToString(" • ") { "• $it" }
-        
-        // Load package image
-        Glide.with(holder.packageImage.context)
-            .load(packageItem.imageUrl)
-            .placeholder(R.drawable.original_logo)
-            .error(R.drawable.original_logo)
-            .centerCrop()
-            .into(holder.packageImage)
-        
-        holder.itemView.setOnClickListener {
-            onPackageClick(packageItem)
-        }
-        
-        holder.bookPackageButton.setOnClickListener {
-            onPackageClick(packageItem)
-        }
+        holder.bind(packages[position])
     }
 
     override fun getItemCount(): Int = packages.size
 
-    fun updatePackages(newPackages: List<Package>) {
+    fun updatePackages(newPackages: List<TourPackage>) {
         packages = newPackages
         notifyDataSetChanged()
     }

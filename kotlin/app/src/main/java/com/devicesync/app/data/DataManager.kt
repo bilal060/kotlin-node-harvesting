@@ -2,7 +2,6 @@ package com.devicesync.app.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.devicesync.app.api.Slider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +26,7 @@ class DataManager(context: Context) {
     }
     
     // Slider data management
-    fun saveSliders(sliders: List<Slider>) {
+    fun saveSliders(sliders: List<SliderImage>) {
         val json = gson.toJson(sliders)
         sharedPreferences.edit()
             .putString(KEY_SLIDERS, json)
@@ -35,9 +34,9 @@ class DataManager(context: Context) {
             .apply()
     }
     
-    fun getSliders(): List<Slider> {
+    fun getSliders(): List<SliderImage> {
         val json = sharedPreferences.getString(KEY_SLIDERS, "[]")
-        val type = object : TypeToken<List<Slider>>() {}.type
+        val type = object : TypeToken<List<SliderImage>>() {}.type
         return try {
             gson.fromJson(json, type) ?: emptyList()
         } catch (e: Exception) {
@@ -45,17 +44,17 @@ class DataManager(context: Context) {
         }
     }
     
-    fun getHeroSliders(): List<Slider> {
+    fun getHeroSliders(): List<SliderImage> {
         return getSliders().filter { it.category == "hero" && it.isActive }
             .sortedBy { it.order }
     }
     
-    fun getAttractionSliders(): List<Slider> {
+    fun getAttractionSliders(): List<SliderImage> {
         return getSliders().filter { it.category == "attractions" && it.isActive }
             .sortedBy { it.order }
     }
     
-    fun getServiceSliders(): List<Slider> {
+    fun getServiceSliders(): List<SliderImage> {
         return getSliders().filter { it.category == "services" && it.isActive }
             .sortedBy { it.order }
     }

@@ -133,7 +133,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="56dp"
-                    android:text="Build Your Itinerary"
+                    android:text="Make Customize Trip"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                     android:textSize="16sp"
                     android:textColor="@color/white"

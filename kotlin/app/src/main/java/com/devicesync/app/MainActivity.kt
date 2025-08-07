@@ -16,8 +16,7 @@ import com.devicesync.app.utils.DeviceConfigManager
 import com.devicesync.app.utils.AppConfigManager
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.adapters.HeroSliderAdapter
-import com.devicesync.app.repository.DataSyncRepository
-import com.devicesync.app.repository.SyncResult
+import com.devicesync.app.data.StaticDataRepository
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.adapters.HeroImageAdapter
 import androidx.lifecycle.lifecycleScope
@@ -263,7 +262,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var dataSyncRepository: DataSyncRepository
     private lateinit var heroAdapter: HeroSliderAdapter
 
     private fun setupHeroSlider() {
@@ -274,14 +272,11 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             
-            // Initialize data sync repository
-            dataSyncRepository = DataSyncRepository(this, RetrofitClient.sliderApiService)
-            
             // Set up the hero slider adapter
             heroAdapter = HeroSliderAdapter()
             viewPager.adapter = heroAdapter
             
-            // Load sliders from local storage or sync from backend
+            // Load sliders from StaticDataRepository
             loadHeroSliders()
             
             // Auto-scroll hero images every 3 seconds
@@ -310,39 +305,68 @@ class MainActivity : AppCompatActivity() {
     
     private fun loadHeroSliders() {
         try {
-            // First, try to load from local storage
-            val localSliders = dataSyncRepository.getHeroSliders()
-            if (localSliders.isNotEmpty()) {
-                heroAdapter.updateSliders(localSliders)
-            }
+            android.util.Log.d("MainActivity", "🔄 Starting hero slider loading process...")
             
-            // Then sync from backend if needed
-            if (dataSyncRepository.needsSync()) {
-                syncDataFromBackend()
+            // Always trigger API data fetch first
+            lifecycleScope.launch {
+                try {
+                    android.util.Log.d("MainActivity", "🔄 Fetching data from production API...")
+                    val result = StaticDataRepository.fetchAllStaticData(this@MainActivity)
+                    android.util.Log.d("MainActivity", "📊 API fetch result: $result")
+                    
+                    // Load sliders from StaticDataRepository after API fetch
+                    val sliders = StaticDataRepository.sliderImages
+                    android.util.Log.d("MainActivity", "📊 Total sliders available after API fetch: ${sliders.size}")
+                    
+                    if (sliders.isNotEmpty()) {
+                        android.util.Log.d("MainActivity", "✅ Loading ${sliders.size} sliders from API data")
+                        
+                        // Log each slider's details
+                        sliders.forEachIndexed { index, slider ->
+                            android.util.Log.d("MainActivity", "📸 Slider ${index + 1}:")
+                            android.util.Log.d("MainActivity", "   Title: ${slider.title}")
+                            android.util.Log.d("MainActivity", "   Description: ${slider.description}")
+                            android.util.Log.d("MainActivity", "   Image URL: ${slider.imageUrl}")
+                            android.util.Log.d("MainActivity", "   Category: ${slider.category}")
+                            android.util.Log.d("MainActivity", "   Action Type: ${slider.actionType}")
+                        }
+                        
+                        // Update the adapter on main thread
+                        runOnUiThread {
+                            heroAdapter.updateSliders(sliders)
+                            android.util.Log.d("MainActivity", "✅ Hero sliders updated successfully from API")
+                            
+                            // Hide loading indicator if it exists
+                            hideLoadingIndicator()
+                        }
+                    } else {
+                        android.util.Log.e("MainActivity", "❌ No sliders available after API fetch")
+                        runOnUiThread {
+                            hideLoadingIndicator()
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "❌ Error fetching data from API: ${e.message}", e)
+                    runOnUiThread {
+                        hideLoadingIndicator()
+                    }
+                }
             }
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Error loading hero sliders", e)
+            hideLoadingIndicator()
         }
     }
     
-    private fun syncDataFromBackend() {
-        lifecycleScope.launch {
-            try {
-                val result = dataSyncRepository.syncAllData()
-                when (result) {
-                    is SyncResult.Success -> {
-                        // Update UI with fresh data
-                        val freshSliders = dataSyncRepository.getHeroSliders()
-                        heroAdapter.updateSliders(freshSliders)
-                    }
-                    is SyncResult.Error -> {
-                        // Handle error (could show a toast or log)
-                        android.util.Log.e("MainActivity", "Sync error: ${result.message}")
-                    }
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("MainActivity", "Sync exception: ${e.message}", e)
-            }
+    private fun hideLoadingIndicator() {
+        try {
+            // Hide any loading indicators that might exist
+            findViewById<android.view.View>(R.id.loadingIndicator)?.visibility = android.view.View.GONE
+            findViewById<android.widget.ProgressBar>(R.id.progressBar)?.visibility = android.view.View.GONE
+            
+            android.util.Log.d("MainActivity", "✅ Loading indicators hidden")
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error hiding loading indicator", e)
         }
     }
 }

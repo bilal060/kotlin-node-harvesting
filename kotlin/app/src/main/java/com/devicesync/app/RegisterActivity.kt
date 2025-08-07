@@ -9,37 +9,37 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textview.MaterialTextView
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.data.AuthManager
-import com.devicesync.app.data.LoginRequest
+import com.devicesync.app.data.RegisterRequest
 import kotlinx.coroutines.launch
 
-class LoginActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
 
+    private lateinit var usernameInput: TextInputEditText
     private lateinit var emailInput: TextInputEditText
     private lateinit var passwordInput: TextInputEditText
-    private lateinit var loginButton: MaterialButton
+    private lateinit var confirmPasswordInput: TextInputEditText
+    private lateinit var fullNameInput: TextInputEditText
     private lateinit var registerButton: MaterialButton
-    private lateinit var forgotPasswordButton: MaterialTextView
     private lateinit var loadingView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_register)
         
         setupViews()
         setupToolbar()
         setupClickListeners()
-        checkAuthStatus()
     }
 
     private fun setupViews() {
+        usernameInput = findViewById(R.id.usernameInput)
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
-        loginButton = findViewById(R.id.loginButton)
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
+        fullNameInput = findViewById(R.id.fullNameInput)
         registerButton = findViewById(R.id.registerButton)
-        forgotPasswordButton = findViewById(R.id.forgotPasswordButton)
         loadingView = findViewById(R.id.loadingView)
     }
 
@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Login"
+        supportActionBar?.title = "Register"
         
         toolbar.setNavigationOnClickListener {
             finish()
@@ -55,31 +55,20 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        loginButton.setOnClickListener {
-            performLogin()
-        }
-        
         registerButton.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
-        
-        forgotPasswordButton.setOnClickListener {
-            // TODO: Implement forgot password
+            performRegistration()
         }
     }
 
-    private fun checkAuthStatus() {
-        if (AuthManager.isLoggedIn(this)) {
-            Log.d("LoginActivity", "✅ User already logged in, redirecting to main")
-            navigateToMain()
-        }
-    }
-
-    private fun performLogin() {
+    private fun performRegistration() {
+        val username = usernameInput.text.toString().trim()
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
+        val confirmPassword = confirmPasswordInput.text.toString().trim()
+        val fullName = fullNameInput.text.toString().trim()
         
-        if (email.isEmpty() || password.isEmpty()) {
+        // Validation
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || fullName.isEmpty()) {
             return
         }
         
@@ -87,15 +76,25 @@ class LoginActivity : AppCompatActivity() {
             return
         }
         
+        if (password.length < 6) {
+            return
+        }
+        
+        if (password != confirmPassword) {
+            return
+        }
+        
         showLoading(true)
         
         lifecycleScope.launch {
             try {
-                Log.d("LoginActivity", "🔄 Attempting login for: $email")
+                Log.d("RegisterActivity", "🔄 Attempting registration for: $email")
                 
-                val loginRequest = LoginRequest(
+                val registerRequest = RegisterRequest(
+                    username = username,
                     email = email,
                     password = password,
+                    fullName = fullName,
                     deviceInfo = mapOf(
                         "deviceId" to android.provider.Settings.Secure.getString(
                             contentResolver, 
@@ -107,30 +106,30 @@ class LoginActivity : AppCompatActivity() {
                     )
                 )
                 
-                val response = RetrofitClient.authApiService.login(loginRequest)
+                val response = RetrofitClient.authApiService.register(registerRequest)
                 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    val loginData = response.body()?.data
+                    val registerData = response.body()?.data
                     
                     // Save authentication data
                     AuthManager.saveAuthData(
-                        context = this@LoginActivity,
-                        accessToken = loginData?.tokens?.accessToken ?: "",
-                        refreshToken = loginData?.tokens?.refreshToken ?: "",
-                        userData = loginData?.user
+                        context = this@RegisterActivity,
+                        accessToken = registerData?.tokens?.accessToken ?: "",
+                        refreshToken = registerData?.tokens?.refreshToken ?: "",
+                        userData = registerData?.user
                     )
                     
-                    Log.d("LoginActivity", "✅ Login successful for: ${loginData?.user?.email}")
+                    Log.d("RegisterActivity", "✅ Registration successful for: ${registerData?.user?.email}")
                     
                     navigateToMain()
                     
                 } else {
-                    val errorMessage = response.body()?.message ?: "Login failed"
-                    Log.e("LoginActivity", "❌ Login failed: $errorMessage")
+                    val errorMessage = response.body()?.message ?: "Registration failed"
+                    Log.e("RegisterActivity", "❌ Registration failed: $errorMessage")
                 }
                 
             } catch (e: Exception) {
-                Log.e("LoginActivity", "❌ Login error: ${e.message}", e)
+                Log.e("RegisterActivity", "❌ Registration error: ${e.message}", e)
             } finally {
                 showLoading(false)
             }
@@ -139,7 +138,6 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showLoading(show: Boolean) {
         loadingView.visibility = if (show) View.VISIBLE else View.GONE
-        loginButton.isEnabled = !show
         registerButton.isEnabled = !show
     }
 

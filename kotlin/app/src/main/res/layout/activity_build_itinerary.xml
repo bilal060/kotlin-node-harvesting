@@ -22,7 +22,7 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Build Your Itinerary"
+            app:title="Make Customize Trip"
             app:titleTextColor="@color/white"
             app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
 
@@ -60,7 +60,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Build Your Itinerary"
+                        android:text="Make Customize Trip"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline2"
                         android:textColor="@color/white"
                         android:textStyle="bold" />
@@ -265,12 +265,12 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Select Attractions -->
+            <!-- Select Attractions & Services -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Select Attractions"
+                android:text="Select Attractions and Services"
                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
                 android:textColor="@color/text_dark"
                 android:textStyle="bold" />
@@ -293,175 +293,45 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:text="Choose your preferred attractions"
+                        android:text="Choose your preferred attractions and services"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
                         android:textColor="@color/text_secondary" />
 
-                    <!-- Attraction Options -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Selected Items Display -->
+                    <TextView
+                        android:id="@+id/selectedItemsText"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_marginBottom="16dp"
+                        android:text="No items selected"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
+                        android:textColor="@color/text_secondary" />
 
-                        <!-- Burj Khalifa -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:background="@drawable/rounded_corner_background"
-                            android:orientation="horizontal"
-                            android:padding="12dp">
-
-                            <CheckBox
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="12dp"
-                                android:checked="true"
-                                android:buttonTint="@color/accent_gold" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Burj Khalifa"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
-                                    android:textColor="@color/text_dark"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="World's tallest building"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
-                                    android:textColor="@color/text_secondary" />
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AED 150"
-                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                                android:textColor="@color/accent_gold"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                        <!-- Dubai Mall -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:background="@drawable/rounded_corner_background"
-                            android:orientation="horizontal"
-                            android:padding="12dp">
-
-                            <CheckBox
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="12dp"
-                                android:checked="true"
-                                android:buttonTint="@color/accent_gold" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Dubai Mall"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
-                                    android:textColor="@color/text_dark"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="World's largest shopping mall"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
-                                    android:textColor="@color/text_secondary" />
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Free"
-                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                                android:textColor="@color/accent_gold"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                        <!-- Desert Safari -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:background="@drawable/rounded_corner_background"
-                            android:orientation="horizontal"
-                            android:padding="12dp">
-
-                            <CheckBox
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="12dp"
-                                android:checked="true"
-                                android:buttonTint="@color/accent_gold" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Desert Safari"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
-                                    android:textColor="@color/text_dark"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Arabian desert adventure"
-                                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
-                                    android:textColor="@color/text_secondary" />
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AED 350"
-                                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                                android:textColor="@color/accent_gold"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
+                    <!-- Select Attractions Button -->
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addMoreAttractionsButton"
+                        android:id="@+id/selectAttractionsButton"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:layout_marginTop="16dp"
-                        android:text="Add More Attractions"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="Select Attractions"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/primary_color"
                         
-                        app:icon="@android:drawable/ic_menu_add"
+                        app:icon="@android:drawable/ic_menu_myplaces"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                    <!-- Select Services Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/selectServicesButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="Select Services"
+                        android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                        app:backgroundTint="@color/primary_color"
+                        
+                        app:icon="@android:drawable/ic_menu_manage"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
 
@@ -531,9 +401,10 @@
                             android:textColor="@color/text_secondary" />
 
                         <TextView
+                            android:id="@+id/selectedAttractionsText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="3 Selected"
+                            android:text="0 Selected"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
                             android:textColor="@color/text_dark"
                             android:textStyle="bold" />
@@ -561,9 +432,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/totalCostText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="AED 500"
+                            android:text="AED 0"
                             android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline5"
                             android:textColor="@color/accent_gold"
                             android:textStyle="bold" />
@@ -574,15 +446,29 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Plan Your Days Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/planYourDaysButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="16dp"
+                android:text="Plan Your Days"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                app:backgroundTint="@color/accent_gold"
+                
+                app:icon="@android:drawable/ic_menu_today"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
             <!-- Build Itinerary Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buildItineraryButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginBottom="24dp"
-                android:text="Build My Itinerary"
+                android:text="Make Customize Trip"
                 android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
-                app:backgroundTint="@color/accent_gold"
+                app:backgroundTint="@color/primary_color"
                 
                 app:icon="@android:drawable/ic_menu_myplaces"
                 app:iconGravity="textStart"
@@ -606,7 +492,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="Need Help Building Your Itinerary?"
+                        android:text="Need Help Making Your Custom Trip?"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6"
                         android:textColor="@color/text_dark" />
 

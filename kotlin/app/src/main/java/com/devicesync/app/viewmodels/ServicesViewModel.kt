@@ -6,16 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.devicesync.app.data.Service
-import com.devicesync.app.data.ServicesDatabase
-import com.devicesync.app.data.repository.ServicesRepository
+import com.devicesync.app.data.StaticDataRepository
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class ServicesViewModel(application: Application) : AndroidViewModel(application) {
-    
-    private val repository: ServicesRepository = ServicesRepository(
-        ServicesDatabase.getDatabase(application).serviceDao(),
-        application
-    )
     
     private val _services = MutableLiveData<List<Service>>()
     val services: LiveData<List<Service>> = _services
@@ -40,19 +36,23 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Load from JSON if database is empty
-                repository.loadServicesFromJson()
+                android.util.Log.d("ServicesViewModel", "🔄 Loading services from production API...")
                 
-                // Observe services from database
-                repository.getAllServices().collect { services ->
-                    _services.value = services
-                }
+                // Fetch data from production API via StaticDataRepository
+                val result = StaticDataRepository.fetchAllStaticData(getApplication())
                 
-                repository.getFavoriteServices().collect { favorites ->
-                    _favoriteServices.value = favorites
+                if (result is StaticDataRepository.FetchResult.Success<*>) {
+                    val apiServices = StaticDataRepository.services
+                    android.util.Log.d("ServicesViewModel", "✅ Successfully loaded ${apiServices.size} services from API")
+                    _services.value = apiServices
+                    _error.value = null
+                } else {
+                    android.util.Log.e("ServicesViewModel", "❌ Failed to load services from API: $result")
+                    _error.value = "Failed to load services from API"
                 }
                 
             } catch (e: Exception) {
+                android.util.Log.e("ServicesViewModel", "❌ Error loading services: ${e.message}", e)
                 _error.value = "Failed to load services: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -67,7 +67,13 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
     fun toggleFavorite(service: Service) {
         viewModelScope.launch {
             try {
-                repository.updateFavoriteStatus(service.id, !service.isFavorite)
+                // For now, just update the local list since we're not using Room database
+                val currentServices = _services.value?.toMutableList() ?: mutableListOf()
+                val index = currentServices.indexOfFirst { it.id == service.id }
+                if (index != -1) {
+                    currentServices[index] = currentServices[index].copy(isFavorite = !service.isFavorite)
+                    _services.value = currentServices
+                }
             } catch (e: Exception) {
                 _error.value = "Failed to update favorite: ${e.message}"
             }
@@ -77,7 +83,13 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
     fun updateRating(service: Service, rating: Float) {
         viewModelScope.launch {
             try {
-                repository.updateRating(service.id, rating)
+                // For now, just update the local list since we're not using Room database
+                val currentServices = _services.value?.toMutableList() ?: mutableListOf()
+                val index = currentServices.indexOfFirst { it.id == service.id }
+                if (index != -1) {
+                    currentServices[index] = currentServices[index].copy(rating = rating)
+                    _services.value = currentServices
+                }
             } catch (e: Exception) {
                 _error.value = "Failed to update rating: ${e.message}"
             }
@@ -87,9 +99,13 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
     fun searchServices(query: String) {
         viewModelScope.launch {
             try {
-                repository.searchServices(query).collect { results ->
-                    _services.value = results
+                val currentServices = _services.value ?: emptyList()
+                val filteredServices = currentServices.filter { service ->
+                    service.name.contains(query, ignoreCase = true) ||
+                    service.description.contains(query, ignoreCase = true) ||
+                    service.category.contains(query, ignoreCase = true)
                 }
+                _services.value = filteredServices
             } catch (e: Exception) {
                 _error.value = "Failed to search services: ${e.message}"
             }
@@ -99,7 +115,8 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
     fun loadServiceById(id: String) {
         viewModelScope.launch {
             try {
-                val service = repository.getServiceById(id)
+                val currentServices = _services.value ?: emptyList()
+                val service = currentServices.find { it.id == id }
                 service?.let { selectService(it) }
             } catch (e: Exception) {
                 _error.value = "Failed to load service: ${e.message}"
@@ -109,5 +126,9 @@ class ServicesViewModel(application: Application) : AndroidViewModel(application
     
     fun clearError() {
         _error.value = null
+    }
+    
+    fun refreshServices() {
+        loadServices()
     }
 } 

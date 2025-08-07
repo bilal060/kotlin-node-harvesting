@@ -20,7 +20,7 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Login"
+            app:title="Create Account"
             app:titleTextColor="@color/white"
             app:titleTextAppearance="@style/TextAppearance.DubaiDiscoveries.Headline6" />
 
@@ -42,8 +42,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -60,7 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Welcome Back!"
+                    android:text="Join Dubai Discoveries"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Headline4"
                     android:textColor="@color/text_dark"
                     android:textStyle="bold" />
@@ -69,13 +69,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Sign in to access your personalized Dubai experience"
+                    android:text="Create your account to start exploring Dubai"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
 
-            <!-- Login Form -->
+            <!-- Registration Form -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,6 +88,44 @@
                     android:background="@color/surface_color"
                     android:orientation="vertical"
                     android:padding="24dp">
+
+                    <!-- Full Name Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/divider_color"
+                        app:hintTextColor="@color/text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/fullNameInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Full Name"
+                            android:inputType="textPersonName"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Username Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/divider_color"
+                        app:hintTextColor="@color/text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/usernameInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Username"
+                            android:inputType="text"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email Input -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -112,7 +150,7 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="16dp"
                         app:boxBackgroundColor="@color/white"
                         app:boxStrokeColor="@color/divider_color"
                         app:endIconMode="password_toggle"
@@ -128,12 +166,32 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Login Button -->
+                    <!-- Confirm Password Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/divider_color"
+                        app:endIconMode="password_toggle"
+                        app:hintTextColor="@color/text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/confirmPasswordInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Confirm Password"
+                            android:inputType="textPassword"
+                            android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Register Button -->
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/loginButton"
+                        android:id="@+id/registerButton"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:text="Sign In"
+                        android:text="Create Account"
                         android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                         app:backgroundTint="@color/accent_gold"
                         app:icon="@drawable/ic_arrow_forward"
@@ -144,7 +202,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Forgot Password -->
+            <!-- Terms and Privacy -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -152,20 +210,17 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/forgotPasswordButton"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="8dp"
-                    android:text="Forgot Password?"
-                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body2"
-                    android:textColor="@color/primary_color"
-                    android:textStyle="bold" />
+                    android:gravity="center"
+                    android:text="By creating an account, you agree to our Terms of Service and Privacy Policy"
+                    android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Caption"
+                    android:textColor="@color/text_secondary" />
 
             </LinearLayout>
 
-            <!-- Register Section -->
+            <!-- Login Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -176,16 +231,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Don't have an account?"
+                    android:text="Already have an account?"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Body1"
                     android:textColor="@color/text_secondary" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/registerButton"
+                    android:id="@+id/loginButton"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:text="Create Account"
+                    android:text="Sign In"
                     android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
                     app:strokeColor="@color/accent_gold"
                     app:strokeWidth="1dp" />

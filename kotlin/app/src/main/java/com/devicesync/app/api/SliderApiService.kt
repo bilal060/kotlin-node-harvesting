@@ -4,80 +4,70 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-data class Slider(
+// Data classes for API responses
+data class Attraction(
     val _id: String,
-    val title: String,
+    val name: String,
     val description: String,
-    val imageUrl: String,
-    val imageType: String,
-    val order: Int,
+    val shortDescription: String,
+    val location: Location,
+    val images: List<Image>,
+    val tags: List<String>,
     val isActive: Boolean,
-    val category: String,
-    val actionType: String,
-    val tags: List<String>?,
-    val createdAt: String,
-    val updatedAt: String
+    val isPopular: Boolean,
+    val isFeatured: Boolean
 )
 
-data class SliderResponse(
+data class Service(
+    val _id: String,
+    val name: String,
+    val description: String,
+    val shortDescription: String,
+    val category: String,
+    val subcategory: String,
+    val location: Location,
+    val images: List<Image>,
+    val tags: List<String>,
+    val isActive: Boolean,
+    val isPopular: Boolean,
+    val isFeatured: Boolean
+)
+
+data class Location(
+    val address: String,
+    val area: String
+)
+
+data class Image(
+    val url: String,
+    val caption: String,
+    val isPrimary: Boolean
+)
+
+data class AttractionResponse(
     val success: Boolean,
-    val data: List<Slider>,
+    val data: List<Attraction>,
     val count: Int,
     val message: String
 )
 
-data class MobileBundle(
-    val sliders: List<Slider>,
-    val attractions: List<Any>?, // Will be defined separately
-    val services: List<Any>?, // Will be defined separately
-    val tourPackages: List<Any>?, // Will be defined separately
-    val metadata: BundleMetadata
-)
-
-data class BundleMetadata(
-    val timestamp: String,
-    val version: String,
-    val totalSliders: Int,
-    val totalAttractions: Int,
-    val totalServices: Int,
-    val totalTourPackages: Int
-)
-
-data class BundleResponse(
+data class ServiceResponse(
     val success: Boolean,
-    val data: MobileBundle,
+    val data: List<Service>,
+    val count: Int,
     val message: String
 )
 
 interface SliderApiService {
+    // Get attractions from production API
+    @GET("dubai/attractions")
+    suspend fun getAttractions(
+        @Query("limit") limit: Int = 20
+    ): Response<AttractionResponse>
     
-    @GET("sliders/hero")
-    suspend fun getHeroSliders(
-        @Query("limit") limit: Int = 6
-    ): Response<SliderResponse>
-    
-    @GET("sliders/attractions")
-    suspend fun getAttractionSliders(
-        @Query("limit") limit: Int = 10
-    ): Response<SliderResponse>
-    
-    @GET("sliders/services")
-    suspend fun getServiceSliders(
-        @Query("limit") limit: Int = 10
-    ): Response<SliderResponse>
-    
-    @GET("sliders/category/{category}")
-    suspend fun getSlidersByCategory(
-        @retrofit2.http.Path("category") category: String,
-        @Query("limit") limit: Int? = null,
-        @Query("offset") offset: Int? = null
-    ): Response<SliderResponse>
-    
-    @GET("sliders/mobile/bundle")
-    suspend fun getMobileBundle(): Response<BundleResponse>
-    
-    @GET("sliders/mobile/bundle/{category}")
-    suspend fun getBundleByCategory(
-        @retrofit2.http.Path("category") category: String
-    ): Response<BundleResponse>
+    // Get services from production API
+    @GET("dubai/services")
+    suspend fun getServices(
+        @Query("limit") limit: Int = 20
+    ): Response<ServiceResponse>
 } 

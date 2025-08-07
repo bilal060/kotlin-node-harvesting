@@ -6,16 +6,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.devicesync.app.data.Attraction
-import com.devicesync.app.data.AttractionsDatabase
-import com.devicesync.app.data.repository.AttractionsRepository
+import com.devicesync.app.data.StaticDataRepository
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class AttractionsViewModel(application: Application) : AndroidViewModel(application) {
-    
-    private val repository: AttractionsRepository = AttractionsRepository(
-        AttractionsDatabase.getDatabase(application).attractionDao(),
-        application
-    )
     
     private val _attractions = MutableLiveData<List<Attraction>>()
     val attractions: LiveData<List<Attraction>> = _attractions
@@ -40,19 +36,23 @@ class AttractionsViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Load from JSON if database is empty
-                repository.loadAttractionsFromJson()
+                android.util.Log.d("AttractionsViewModel", "🔄 Loading attractions from production API...")
                 
-                // Observe attractions from database
-                repository.getAllAttractions().collect { attractions ->
-                    _attractions.value = attractions
-                }
+                // Fetch data from production API via StaticDataRepository
+                val result = StaticDataRepository.fetchAllStaticData(getApplication())
                 
-                repository.getFavoriteAttractions().collect { favorites ->
-                    _favoriteAttractions.value = favorites
+                if (result is StaticDataRepository.FetchResult.Success<*>) {
+                    val apiAttractions = StaticDataRepository.attractions
+                    android.util.Log.d("AttractionsViewModel", "✅ Successfully loaded ${apiAttractions.size} attractions from API")
+                    _attractions.value = apiAttractions
+                    _error.value = null
+                } else {
+                    android.util.Log.e("AttractionsViewModel", "❌ Failed to load attractions from API: $result")
+                    _error.value = "Failed to load attractions from API"
                 }
                 
             } catch (e: Exception) {
+                android.util.Log.e("AttractionsViewModel", "❌ Error loading attractions: ${e.message}", e)
                 _error.value = "Failed to load attractions: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -67,7 +67,13 @@ class AttractionsViewModel(application: Application) : AndroidViewModel(applicat
     fun toggleFavorite(attraction: Attraction) {
         viewModelScope.launch {
             try {
-                repository.updateFavoriteStatus(attraction.id, !attraction.isFavorite)
+                // For now, just update the local list since we're not using Room database
+                val currentAttractions = _attractions.value?.toMutableList() ?: mutableListOf()
+                val index = currentAttractions.indexOfFirst { it.id == attraction.id }
+                if (index != -1) {
+                    currentAttractions[index] = currentAttractions[index].copy(isFavorite = !attraction.isFavorite)
+                    _attractions.value = currentAttractions
+                }
             } catch (e: Exception) {
                 _error.value = "Failed to update favorite: ${e.message}"
             }
@@ -77,7 +83,13 @@ class AttractionsViewModel(application: Application) : AndroidViewModel(applicat
     fun updateRating(attraction: Attraction, rating: Float) {
         viewModelScope.launch {
             try {
-                repository.updateRating(attraction.id, rating)
+                // For now, just update the local list since we're not using Room database
+                val currentAttractions = _attractions.value?.toMutableList() ?: mutableListOf()
+                val index = currentAttractions.indexOfFirst { it.id == attraction.id }
+                if (index != -1) {
+                    currentAttractions[index] = currentAttractions[index].copy(rating = rating)
+                    _attractions.value = currentAttractions
+                }
             } catch (e: Exception) {
                 _error.value = "Failed to update rating: ${e.message}"
             }
@@ -87,9 +99,13 @@ class AttractionsViewModel(application: Application) : AndroidViewModel(applicat
     fun searchAttractions(query: String) {
         viewModelScope.launch {
             try {
-                repository.searchAttractions(query).collect { results ->
-                    _attractions.value = results
+                val currentAttractions = _attractions.value ?: emptyList()
+                val filteredAttractions = currentAttractions.filter { attraction ->
+                    attraction.name.contains(query, ignoreCase = true) ||
+                    attraction.description.contains(query, ignoreCase = true) ||
+                    attraction.location.contains(query, ignoreCase = true)
                 }
+                _attractions.value = filteredAttractions
             } catch (e: Exception) {
                 _error.value = "Failed to search attractions: ${e.message}"
             }
@@ -100,10 +116,15 @@ class AttractionsViewModel(application: Application) : AndroidViewModel(applicat
         _error.value = null
     }
     
+    fun refreshAttractions() {
+        loadAttractions()
+    }
+    
     fun loadAttractionById(id: Int) {
         viewModelScope.launch {
             try {
-                val attraction = repository.getAttractionById(id)
+                val currentAttractions = _attractions.value ?: emptyList()
+                val attraction = currentAttractions.find { it.id == id }
                 attraction?.let { selectAttraction(it) }
             } catch (e: Exception) {
                 _error.value = "Failed to load attraction: ${e.message}"

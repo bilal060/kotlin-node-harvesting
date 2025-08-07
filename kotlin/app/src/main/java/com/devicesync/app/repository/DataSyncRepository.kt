@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.devicesync.app.api.SliderApiService
 import com.devicesync.app.data.DataManager
+import com.devicesync.app.data.SliderImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -34,52 +35,29 @@ class DataSyncRepository(
                 return@withContext SyncResult.Success("Data is fresh")
             }
             
-            // Fetch mobile bundle from backend
-            val bundleResponse = sliderApiService.getMobileBundle()
-            
-            if (bundleResponse.isSuccessful) {
-                val bundle = bundleResponse.body()
-                if (bundle?.success == true) {
-                    // Save sliders
-                    bundle.data.sliders?.let { sliders ->
-                        dataManager.saveSliders(sliders)
-                        Log.d(TAG, "✅ Saved ${sliders.size} sliders")
-                    }
-                    
-                    // Save attractions
-                    bundle.data.attractions?.let { attractions ->
-                        dataManager.saveAttractions(attractions)
-                        Log.d(TAG, "✅ Saved ${attractions.size} attractions")
-                    }
-                    
-                    // Save services
-                    bundle.data.services?.let { services ->
-                        dataManager.saveServices(services)
-                        Log.d(TAG, "✅ Saved ${services.size} services")
-                    }
-                    
-                    // Save tour packages
-                    bundle.data.tourPackages?.let { packages ->
-                        dataManager.saveTourPackages(packages)
-                        Log.d(TAG, "✅ Saved ${packages.size} tour packages")
-                    }
-                    
-                    // Save metadata
-                    bundle.data.metadata?.let { metadata ->
-                        dataManager.saveDataVersion(metadata.version)
-                        Log.d(TAG, "✅ Saved data version: ${metadata.version}")
-                    }
-                    
-                    Log.d(TAG, "🎉 Data synchronization completed successfully")
-                    return@withContext SyncResult.Success("Data synchronized successfully")
-                } else {
-                    Log.e(TAG, "❌ Backend returned error: ${bundle?.message}")
-                    return@withContext SyncResult.Error("Backend error: ${bundle?.message}")
-                }
-            } else {
-                Log.e(TAG, "❌ Network error: ${bundleResponse.code()}")
-                return@withContext SyncResult.Error("Network error: ${bundleResponse.code()}")
+            // Fetch attractions from API
+            val attractionsResponse = sliderApiService.getAttractions(20)
+            if (attractionsResponse.isSuccessful && attractionsResponse.body()?.success == true) {
+                val attractions = attractionsResponse.body()?.data ?: emptyList()
+                dataManager.saveAttractions(attractions)
+                Log.d(TAG, "✅ Saved ${attractions.size} attractions")
             }
+            
+            // Fetch services from API
+            val servicesResponse = sliderApiService.getServices(20)
+            if (servicesResponse.isSuccessful && servicesResponse.body()?.success == true) {
+                val services = servicesResponse.body()?.data ?: emptyList()
+                dataManager.saveServices(services)
+                Log.d(TAG, "✅ Saved ${services.size} services")
+            }
+            
+            // Create slider data from attractions and services
+            val sliders = createSliderDataFromApiData()
+            dataManager.saveSliders(sliders)
+            Log.d(TAG, "✅ Saved ${sliders.size} sliders")
+            
+            Log.d(TAG, "🎉 Data synchronization completed successfully")
+            return@withContext SyncResult.Success("Data synchronized successfully")
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Sync error: ${e.message}", e)
@@ -94,20 +72,12 @@ class DataSyncRepository(
         try {
             Log.d(TAG, "🖼️ Syncing sliders...")
             
-            val response = sliderApiService.getHeroSliders()
+            // Create slider data from attractions and services
+            val sliders = createSliderDataFromApiData()
+            dataManager.saveSliders(sliders)
             
-            if (response.isSuccessful) {
-                val sliderResponse = response.body()
-                if (sliderResponse?.success == true) {
-                    dataManager.saveSliders(sliderResponse.data)
-                    Log.d(TAG, "✅ Saved ${sliderResponse.data.size} sliders")
-                    return@withContext SyncResult.Success("Sliders synchronized")
-                } else {
-                    return@withContext SyncResult.Error("Backend error: ${sliderResponse?.message}")
-                }
-            } else {
-                return@withContext SyncResult.Error("Network error: ${response.code()}")
-            }
+            Log.d(TAG, "✅ Synced ${sliders.size} sliders")
+            return@withContext SyncResult.Success("Sliders synced successfully")
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Slider sync error: ${e.message}", e)
@@ -116,126 +86,149 @@ class DataSyncRepository(
     }
     
     /**
-     * Sync data by category
+     * Sync attractions
      */
-    suspend fun syncDataByCategory(category: String): SyncResult = withContext(Dispatchers.IO) {
+    suspend fun syncAttractions(): SyncResult = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "📦 Syncing $category data...")
+            Log.d(TAG, "🏛️ Syncing attractions...")
             
-            val response = sliderApiService.getBundleByCategory(category)
+            val response = sliderApiService.getAttractions(50)
             
-            if (response.isSuccessful) {
-                val bundleResponse = response.body()
-                if (bundleResponse?.success == true) {
-                    val bundle = bundleResponse.data
-                    
-                    when (category) {
-                        "sliders" -> {
-                            bundle.sliders?.let { sliders ->
-                                dataManager.saveSliders(sliders)
-                                Log.d(TAG, "✅ Saved ${sliders.size} sliders")
-                            }
-                        }
-                        "attractions" -> {
-                            bundle.attractions?.let { attractions ->
-                                dataManager.saveAttractions(attractions)
-                                Log.d(TAG, "✅ Saved ${attractions.size} attractions")
-                            }
-                        }
-                        "services" -> {
-                            bundle.services?.let { services ->
-                                dataManager.saveServices(services)
-                                Log.d(TAG, "✅ Saved ${services.size} services")
-                            }
-                        }
-                        "packages" -> {
-                            bundle.tourPackages?.let { packages ->
-                                dataManager.saveTourPackages(packages)
-                                Log.d(TAG, "✅ Saved ${packages.size} tour packages")
-                            }
-                        }
-                    }
-                    
-                    return@withContext SyncResult.Success("$category data synchronized")
-                } else {
-                    return@withContext SyncResult.Error("Backend error: ${bundleResponse?.message}")
-                }
+            if (response.isSuccessful && response.body()?.success == true) {
+                val attractions = response.body()?.data ?: emptyList()
+                dataManager.saveAttractions(attractions)
+                Log.d(TAG, "✅ Synced ${attractions.size} attractions")
+                return@withContext SyncResult.Success("Attractions synced successfully")
             } else {
-                return@withContext SyncResult.Error("Network error: ${response.code()}")
+                Log.e(TAG, "❌ Attraction sync failed: ${response.code()}")
+                return@withContext SyncResult.Error("Attraction sync failed")
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ $category sync error: ${e.message}", e)
-            return@withContext SyncResult.Error("$category sync error: ${e.message}")
+            Log.e(TAG, "❌ Attraction sync error: ${e.message}", e)
+            return@withContext SyncResult.Error("Attraction sync error: ${e.message}")
         }
     }
     
     /**
-     * Get hero sliders from local storage
+     * Sync services
      */
-    fun getHeroSliders(): List<com.devicesync.app.api.Slider> {
-        return dataManager.getHeroSliders()
+    suspend fun syncServices(): SyncResult = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "🔧 Syncing services...")
+            
+            val response = sliderApiService.getServices(50)
+            
+            if (response.isSuccessful && response.body()?.success == true) {
+                val services = response.body()?.data ?: emptyList()
+                dataManager.saveServices(services)
+                Log.d(TAG, "✅ Synced ${services.size} services")
+                return@withContext SyncResult.Success("Services synced successfully")
+            } else {
+                Log.e(TAG, "❌ Service sync failed: ${response.code()}")
+                return@withContext SyncResult.Error("Service sync failed")
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Service sync error: ${e.message}", e)
+            return@withContext SyncResult.Error("Service sync error: ${e.message}")
+        }
     }
     
     /**
-     * Get attraction sliders from local storage
+     * Create slider data from API data
      */
-    fun getAttractionSliders(): List<com.devicesync.app.api.Slider> {
-        return dataManager.getAttractionSliders()
+    private suspend fun createSliderDataFromApiData(): List<SliderImage> {
+        val sliders = mutableListOf<SliderImage>()
+        
+        // Reliable Unsplash URLs for fallback
+        val reliableImageUrls = listOf(
+            "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&h=600&fit=crop", // Burj Khalifa
+            "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1200&h=600&fit=crop", // Palm Jumeirah
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&h=600&fit=crop", // Dubai Marina
+            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=600&fit=crop", // Desert
+            "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop"  // Mall
+        )
+        
+        try {
+            // Get attractions for sliders
+            val attractionsResponse = sliderApiService.getAttractions(5)
+            if (attractionsResponse.isSuccessful && attractionsResponse.body()?.success == true) {
+                val attractions = attractionsResponse.body()?.data ?: emptyList()
+                attractions.take(3).forEachIndexed { index, attraction ->
+                    // Use reliable Unsplash URL instead of potentially failing external URLs
+                    val imageUrl = reliableImageUrls.getOrNull(index) ?: reliableImageUrls.first()
+                    sliders.add(
+                        SliderImage(
+                            id = "attraction_${attraction._id}",
+                            title = attraction.name,
+                            description = attraction.description,
+                            imageUrl = imageUrl,
+                            imageType = "url",
+                            order = index + 1,
+                            isActive = true,
+                            category = "hero",
+                            actionType = "attraction",
+                            actionData = attraction._id
+                        )
+                    )
+                }
+            }
+            
+            // Get services for sliders
+            val servicesResponse = sliderApiService.getServices(5)
+            if (servicesResponse.isSuccessful && servicesResponse.body()?.success == true) {
+                val services = servicesResponse.body()?.data ?: emptyList()
+                services.take(2).forEachIndexed { index, service ->
+                    // Use reliable Unsplash URL instead of potentially failing external URLs
+                    val imageUrl = reliableImageUrls.getOrNull(index + 3) ?: reliableImageUrls.last()
+                    sliders.add(
+                        SliderImage(
+                            id = "service_${service._id}",
+                            title = service.name,
+                            description = service.description,
+                            imageUrl = imageUrl,
+                            imageType = "url",
+                            order = index + 4,
+                            isActive = true,
+                            category = "hero",
+                            actionType = "service",
+                            actionData = service._id
+                        )
+                    )
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error creating slider data: ${e.message}", e)
+        }
+        
+        return sliders
     }
     
     /**
-     * Get service sliders from local storage
+     * Get cached data
      */
-    fun getServiceSliders(): List<com.devicesync.app.api.Slider> {
-        return dataManager.getServiceSliders()
-    }
-    
-    /**
-     * Get all sliders from local storage
-     */
-    fun getAllSliders(): List<com.devicesync.app.api.Slider> {
-        return dataManager.getSliders()
-    }
-    
-    /**
-     * Get attractions from local storage
-     */
-    fun getAttractions(): List<Any> {
-        return dataManager.getAttractions()
-    }
-    
-    /**
-     * Get services from local storage
-     */
-    fun getServices(): List<Any> {
-        return dataManager.getServices()
-    }
-    
-    /**
-     * Get tour packages from local storage
-     */
-    fun getTourPackages(): List<Any> {
-        return dataManager.getTourPackages()
-    }
+    fun getCachedSliders(): List<SliderImage> = dataManager.getSliders()
+    fun getCachedAttractions(): List<Any> = dataManager.getAttractions()
+    fun getCachedServices(): List<Any> = dataManager.getServices()
+    fun getCachedTourPackages(): List<Any> = dataManager.getTourPackages()
     
     /**
      * Check if data needs sync
      */
-    fun needsSync(): Boolean {
-        return dataManager.isDataStale(SYNC_INTERVAL_HOURS) || !dataManager.hasData()
-    }
+    fun needsSync(): Boolean = dataManager.isDataStale(SYNC_INTERVAL_HOURS) || !dataManager.hasData()
     
     /**
-     * Clear all local data
+     * Clear all cached data
      */
-    fun clearLocalData() {
+    fun clearCache() {
         dataManager.clearAllData()
-        Log.d(TAG, "🗑️ Cleared all local data")
+        Log.d(TAG, "🗑️ Cache cleared")
     }
-}
-
-sealed class SyncResult {
-    data class Success(val message: String) : SyncResult()
-    data class Error(val message: String) : SyncResult()
+    
+    sealed class SyncResult {
+        data class Success(val message: String) : SyncResult()
+        data class Error(val message: String) : SyncResult()
+    }
 } 
