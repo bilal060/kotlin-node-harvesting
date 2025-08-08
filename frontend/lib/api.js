@@ -166,7 +166,15 @@ export const whatsappAPI = {
 export const adminAPI = {
   fixIndexes: () => api.post('/fix-indexes'),
   getGlobalStats: () => api.get('/health'),
-  getDataByType: (dataType) => api.get(`/data/${dataType}`)
+  getDataByType: (dataType) => api.get(`/data/${dataType}`),
+  // Transport Services CRUD
+  listTransportServices: (params = {}) => api.get('/transport-services', { params }),
+  getTransportService: (id) => api.get(`/transport-services/${id}`),
+  createTransportService: (payload) => api.post('/transport-services', payload),
+  bulkCreateTransportServices: (payloadArray) => api.post('/transport-services', payloadArray),
+  seedDefaultTransportServices: () => api.post('/transport-services/seed-defaults'),
+  updateTransportService: (id, payload) => api.put(`/transport-services/${id}`, payload),
+  deleteTransportService: (id) => api.delete(`/transport-services/${id}`)
 };
 
 // Sync API - Updated to use working endpoints

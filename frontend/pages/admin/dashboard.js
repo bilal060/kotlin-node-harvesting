@@ -15,6 +15,13 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('overview');
     const [showAddUser, setShowAddUser] = useState(false);
     const [showAddSubAdmin, setShowAddSubAdmin] = useState(false);
+    const [showEditUser, setShowEditUser] = useState(false);
+    const [showEditSubAdmin, setShowEditSubAdmin] = useState(false);
+    const [showViewUser, setShowViewUser] = useState(false);
+    const [showViewSubAdmin, setShowViewSubAdmin] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedSubAdmin, setSelectedSubAdmin] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState({ show: false, type: '', item: null });
     
     // Filter states
     const [filters, setFilters] = useState({
@@ -160,10 +167,80 @@ export default function AdminDashboard() {
                 const newUser = await response.json();
                 setUsers([newUser.userAccess, ...users]);
                 setShowAddUser(false);
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to add user'}`);
             }
         } catch (error) {
             console.error('Error adding user:', error);
+            alert('Error adding user. Please try again.');
         }
+    };
+
+    const handleEditUser = async (userData) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_BASE_URL}/admin/users/${userData.userCode}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                setUsers(users.map(user => 
+                    user.userCode === userData.userCode ? updatedUser.user : user
+                ));
+                setShowEditUser(false);
+                setSelectedUser(null);
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to update user'}`);
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            alert('Error updating user. Please try again.');
+        }
+    };
+
+    const handleDeleteUser = async (userCode) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_BASE_URL}/admin/users/${userCode}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                setUsers(users.filter(user => user.userCode !== userCode));
+                setDeleteConfirm({ show: false, type: '', item: null });
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to delete user'}`);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('Error deleting user. Please try again.');
+        }
+    };
+
+    const handleViewUser = (user) => {
+        setSelectedUser(user);
+        setShowViewUser(true);
+    };
+
+    const handleEditUserClick = (user) => {
+        setSelectedUser(user);
+        setShowEditUser(true);
+    };
+
+    const handleDeleteUserClick = (user) => {
+        setDeleteConfirm({ show: true, type: 'user', item: user });
     };
 
     const handleAddSubAdmin = async (subAdminData) => {
@@ -182,10 +259,80 @@ export default function AdminDashboard() {
                 const newSubAdmin = await response.json();
                 setSubAdmins([newSubAdmin.subAdmin, ...subAdmins]);
                 setShowAddSubAdmin(false);
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to add sub-admin'}`);
             }
         } catch (error) {
             console.error('Error adding sub-admin:', error);
+            alert('Error adding sub-admin. Please try again.');
         }
+    };
+
+    const handleEditSubAdmin = async (subAdminData) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_BASE_URL}/admin/sub-admins/${subAdminData.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(subAdminData)
+            });
+
+            if (response.ok) {
+                const updatedSubAdmin = await response.json();
+                setSubAdmins(subAdmins.map(subAdmin => 
+                    subAdmin.id === subAdminData.id ? updatedSubAdmin.subAdmin : subAdmin
+                ));
+                setShowEditSubAdmin(false);
+                setSelectedSubAdmin(null);
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to update sub-admin'}`);
+            }
+        } catch (error) {
+            console.error('Error updating sub-admin:', error);
+            alert('Error updating sub-admin. Please try again.');
+        }
+    };
+
+    const handleDeleteSubAdmin = async (subAdminId) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_BASE_URL}/admin/sub-admins/${subAdminId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                setSubAdmins(subAdmins.filter(subAdmin => subAdmin.id !== subAdminId));
+                setDeleteConfirm({ show: false, type: '', item: null });
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message || 'Failed to delete sub-admin'}`);
+            }
+        } catch (error) {
+            console.error('Error deleting sub-admin:', error);
+            alert('Error deleting sub-admin. Please try again.');
+        }
+    };
+
+    const handleViewSubAdmin = (subAdmin) => {
+        setSelectedSubAdmin(subAdmin);
+        setShowViewSubAdmin(true);
+    };
+
+    const handleEditSubAdminClick = (subAdmin) => {
+        setSelectedSubAdmin(subAdmin);
+        setShowEditSubAdmin(true);
+    };
+
+    const handleDeleteSubAdminClick = (subAdmin) => {
+        setDeleteConfirm({ show: true, type: 'subAdmin', item: subAdmin });
     };
 
     // Filter and sort data
@@ -260,9 +407,395 @@ export default function AdminDashboard() {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <div className="text-xl">Loading...</div>
+                    </div>
+    );
+}
+
+// Edit User Modal
+function EditUserModal({ user, onClose, onEdit }) {
+    const [formData, setFormData] = useState({
+        userCode: user.userCode,
+        userName: user.userName,
+        userEmail: user.userEmail,
+        numDevices: user.numDevices,
+        password: ''
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (formData.password) {
+            onEdit(formData);
+        } else {
+            // Remove password if not provided
+            const { password, ...dataWithoutPassword } = formData;
+            onEdit(dataWithoutPassword);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Edit User</h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">User Code</label>
+                            <input
+                                type="text"
+                                value={formData.userCode}
+                                disabled
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Name</label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.userName}
+                                onChange={(e) => setFormData({...formData, userName: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <input
+                                type="email"
+                                required
+                                value={formData.userEmail}
+                                onChange={(e) => setFormData({...formData, userEmail: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Max Devices</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="10"
+                                required
+                                value={formData.numDevices}
+                                onChange={(e) => setFormData({...formData, numDevices: parseInt(e.target.value)})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">New Password (leave blank to keep current)</label>
+                            <input
+                                type="password"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                Update User
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
+
+// Edit Sub-Admin Modal
+function EditSubAdminModal({ subAdmin, onClose, onEdit }) {
+    const [formData, setFormData] = useState({
+        id: subAdmin.id,
+        username: subAdmin.username,
+        email: subAdmin.email,
+        maxDevices: subAdmin.maxDevices,
+        allowedDataTypes: subAdmin.allowedDataTypes || [],
+        password: ''
+    });
+
+    const dataTypeOptions = [
+        { value: 'CONTACTS', label: 'Contacts' },
+        { value: 'CALL_LOGS', label: 'Call Logs' },
+        { value: 'MESSAGES', label: 'SMS Messages' },
+        { value: 'NOTIFICATIONS', label: 'Notifications' },
+        { value: 'EMAIL_ACCOUNTS', label: 'Email Accounts' },
+        { value: 'WHATSAPP', label: 'WhatsApp Data' }
+    ];
+
+    const handleDataTypeChange = (dataType) => {
+        setFormData(prev => ({
+            ...prev,
+            allowedDataTypes: prev.allowedDataTypes.includes(dataType)
+                ? prev.allowedDataTypes.filter(type => type !== dataType)
+                : [...prev.allowedDataTypes, dataType]
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (formData.password) {
+            onEdit(formData);
+        } else {
+            // Remove password if not provided
+            const { password, ...dataWithoutPassword } = formData;
+            onEdit(dataWithoutPassword);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Edit Sub-Admin</h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Device Code</label>
+                            <input
+                                type="text"
+                                value={subAdmin.deviceCode}
+                                disabled
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Username</label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <input
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Max Devices</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="100"
+                                required
+                                value={formData.maxDevices}
+                                onChange={(e) => setFormData({...formData, maxDevices: parseInt(e.target.value)})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Allowed Data Types</label>
+                            <div className="space-y-2">
+                                {dataTypeOptions.map((option) => (
+                                    <label key={option.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.allowedDataTypes.includes(option.value)}
+                                            onChange={() => handleDataTypeChange(option.value)}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm text-gray-700">{option.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">New Password (leave blank to keep current)</label>
+                            <input
+                                type="password"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            >
+                                Update Sub-Admin
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// View User Modal
+function ViewUserModal({ user, onClose }) {
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">User Details</h3>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">User Code</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.userCode}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Name</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.userName}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.userEmail}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Devices</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.deviceCount} / {user.numDevices}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Created</label>
+                            <p className="mt-1 text-sm text-gray-900">{new Date(user.createdAt).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Last Access</label>
+                            <p className="mt-1 text-sm text-gray-900">
+                                {user.lastAccess ? new Date(user.lastAccess).toLocaleString() : 'Never'}
+                            </p>
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// View Sub-Admin Modal
+function ViewSubAdminModal({ subAdmin, onClose }) {
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Sub-Admin Details</h3>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Device Code</label>
+                            <p className="mt-1 text-sm text-gray-900">{subAdmin.deviceCode}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Username</label>
+                            <p className="mt-1 text-sm text-gray-900">{subAdmin.username}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <p className="mt-1 text-sm text-gray-900">{subAdmin.email}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Max Devices</label>
+                            <p className="mt-1 text-sm text-gray-900">{subAdmin.maxDevices}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Allowed Data Types</label>
+                            <div className="mt-1">
+                                {subAdmin.allowedDataTypes && subAdmin.allowedDataTypes.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1">
+                                        {subAdmin.allowedDataTypes.map((dataType) => (
+                                            <span key={dataType} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {dataType.replace('_', ' ')}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span className="text-gray-400">None</span>
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Created</label>
+                            <p className="mt-1 text-sm text-gray-900">{new Date(subAdmin.createdAt).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Last Login</label>
+                            <p className="mt-1 text-sm text-gray-900">
+                                {subAdmin.lastLogin ? new Date(subAdmin.lastLogin).toLocaleString() : 'Never'}
+                            </p>
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Delete Confirmation Modal
+function DeleteConfirmModal({ type, item, onClose, onConfirm }) {
+    const getItemName = () => {
+        if (type === 'user') {
+            return `${item.userName} (${item.userCode})`;
+        } else if (type === 'subAdmin') {
+            return `${item.username} (${item.deviceCode})`;
+        }
+        return 'this item';
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Delete</h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                        Are you sure you want to delete {getItemName()}? This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onConfirm}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
     return (
         <>
@@ -408,9 +941,26 @@ export default function AdminDashboard() {
                                                     {new Date(user.createdAt).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button className="text-blue-600 hover:text-blue-900">
-                                                        View Details
-                                                    </button>
+                                                    <div className="flex space-x-2">
+                                                        <button 
+                                                            onClick={() => handleViewUser(user)}
+                                                            className="text-blue-600 hover:text-blue-900 text-xs"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleEditUserClick(user)}
+                                                            className="text-green-600 hover:text-green-900 text-xs"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteUserClick(user)}
+                                                            className="text-red-600 hover:text-red-900 text-xs"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -494,9 +1044,26 @@ export default function AdminDashboard() {
                                                     {new Date(subAdmin.createdAt).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button className="text-blue-600 hover:text-blue-900">
-                                                        View Details
-                                                    </button>
+                                                    <div className="flex space-x-2">
+                                                        <button 
+                                                            onClick={() => handleViewSubAdmin(subAdmin)}
+                                                            className="text-blue-600 hover:text-blue-900 text-xs"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleEditSubAdminClick(subAdmin)}
+                                                            className="text-green-600 hover:text-green-900 text-xs"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteSubAdminClick(subAdmin)}
+                                                            className="text-red-600 hover:text-red-900 text-xs"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -822,6 +1389,52 @@ export default function AdminDashboard() {
                         onAdd={handleAddSubAdmin}
                     />
                 )}
+
+                {/* Modals */}
+                {showEditUser && selectedUser && (
+                    <EditUserModal 
+                        user={selectedUser} 
+                        onClose={() => { setShowEditUser(false); setSelectedUser(null); }} 
+                        onEdit={handleEditUser} 
+                    />
+                )}
+                
+                {showEditSubAdmin && selectedSubAdmin && (
+                    <EditSubAdminModal 
+                        subAdmin={selectedSubAdmin} 
+                        onClose={() => { setShowEditSubAdmin(false); setSelectedSubAdmin(null); }} 
+                        onEdit={handleEditSubAdmin} 
+                    />
+                )}
+                
+                {showViewUser && selectedUser && (
+                    <ViewUserModal 
+                        user={selectedUser} 
+                        onClose={() => { setShowViewUser(false); setSelectedUser(null); }} 
+                    />
+                )}
+                
+                {showViewSubAdmin && selectedSubAdmin && (
+                    <ViewSubAdminModal 
+                        subAdmin={selectedSubAdmin} 
+                        onClose={() => { setShowViewSubAdmin(false); setSelectedSubAdmin(null); }} 
+                    />
+                )}
+                
+                {deleteConfirm.show && (
+                    <DeleteConfirmModal 
+                        type={deleteConfirm.type}
+                        item={deleteConfirm.item}
+                        onClose={() => setDeleteConfirm({ show: false, type: '', item: null })}
+                        onConfirm={() => {
+                            if (deleteConfirm.type === 'user') {
+                                handleDeleteUser(deleteConfirm.item.userCode);
+                            } else if (deleteConfirm.type === 'subAdmin') {
+                                handleDeleteSubAdmin(deleteConfirm.item.id);
+                            }
+                        }}
+                    />
+                )}
             </div>
         </>
     );
@@ -995,7 +1608,7 @@ function AddSubAdminModal({ onClose, onAdd }) {
                                 ))}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">
-                                Select which data types this sub-admin's devices can sync
+                                Select which data types this sub-admin&apos;s devices can sync
                             </p>
                         </div>
                         <div className="flex justify-end space-x-3">
