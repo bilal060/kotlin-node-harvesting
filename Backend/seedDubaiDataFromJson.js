@@ -9,24 +9,28 @@ async function seedDubaiDataFromJson() {
     try {
         console.log('🌱 Starting Dubai data seeding from JSON files...');
         
-        // Connect to database first
-        console.log('🔗 Connecting to database...');
-        const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
-        
-        // Add timeout to connection
-        const connectionPromise = mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000,
-            socketTimeoutMS: 15000
-        });
-        
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Database connection timeout after 15 seconds')), 15000);
-        });
-        
-        await Promise.race([connectionPromise, timeoutPromise]);
-        console.log('✅ Database connected successfully');
+        // Check if already connected (when called from server)
+        if (mongoose.connection.readyState !== 1) {
+            console.log('🔗 Connecting to database...');
+            const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
+            
+            // Add timeout to connection
+            const connectionPromise = mongoose.connect(MONGODB_URI, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 10000,
+                socketTimeoutMS: 15000
+            });
+            
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Database connection timeout after 15 seconds')), 15000);
+            });
+            
+            await Promise.race([connectionPromise, timeoutPromise]);
+            console.log('✅ Database connected successfully');
+        } else {
+            console.log('✅ Database already connected');
+        }
         
         // Read JSON files
         console.log('📖 Reading JSON files...');
@@ -190,22 +194,30 @@ async function seedDubaiDataFromJson() {
         
         console.log('🎉 Dubai data seeding completed successfully!');
         
-        // Close database connection and exit
-        await mongoose.connection.close();
-        console.log('🔌 Database connection closed');
-        process.exit(0);
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
+            await mongoose.connection.close();
+            console.log('🔌 Database connection closed');
+            process.exit(0);
+        }
         
     } catch (error) {
         console.error('❌ Error seeding Dubai data:', error);
         
-        // Close database connection on error
-        if (mongoose.connection.readyState === 1) {
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
             await mongoose.connection.close();
             console.log('🔌 Database connection closed due to error');
+            process.exit(1);
         }
         
-        process.exit(1);
+        throw error; // Re-throw error for server to handle
     }
+}
+
+// Allow running as standalone script
+if (require.main === module) {
+    seedDubaiDataFromJson();
 }
 
 module.exports = seedDubaiDataFromJson; 

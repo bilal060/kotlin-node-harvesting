@@ -96,15 +96,19 @@ async function seedData() {
     try {
         console.log('🌱 Starting Dubai data seeding...');
         
-        // Connect to database first
-        console.log('🔗 Connecting to database...');
-        const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
-        await mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000
-        });
-        console.log('✅ Database connected successfully');
+        // Check if already connected (when called from server)
+        if (mongoose.connection.readyState !== 1) {
+            console.log('🔗 Connecting to database...');
+            const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
+            await mongoose.connect(MONGODB_URI, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 10000
+            });
+            console.log('✅ Database connected successfully');
+        } else {
+            console.log('✅ Database already connected');
+        }
         
         // Clear existing data
         console.log('🧹 Clearing existing data...');
@@ -122,21 +126,24 @@ async function seedData() {
         console.log('🎉 Seeding completed!');
         console.log(`📊 Attractions: ${attractions.length}, Services: ${services.length}, Packages: ${packages.length}`);
         
-        // Close database connection and exit
-        await mongoose.connection.close();
-        console.log('🔌 Database connection closed');
-        process.exit(0);
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
+            await mongoose.connection.close();
+            console.log('🔌 Database connection closed');
+            process.exit(0);
+        }
         
     } catch (error) {
         console.error('❌ Error:', error);
         
-        // Close database connection on error
-        if (mongoose.connection.readyState === 1) {
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
             await mongoose.connection.close();
             console.log('🔌 Database connection closed due to error');
+            process.exit(1);
         }
         
-        process.exit(1);
+        throw error; // Re-throw error for server to handle
     }
 }
 

@@ -1615,165 +1615,83 @@ async function runSeeders() {
             return;
         }
         
-        console.log('🌱 Running seeders...');
+        console.log('🌱 Running automatic seeders...');
+        console.log('📊 Loading: Attractions, Services, Tour Packages, Admin User, Sliders, Tour Gallery');
         
-        // Admin user seeding is now handled by seedAdmin() function
-        
-        // Run the new Dubai data seeder from JSON files
+        // 1. Seed Admin User (essential for system access)
         try {
-            await seedDubaiDataFromJson();
-        } catch (error) {
-            console.error('❌ Error seeding Dubai data from JSON:', error);
-            console.log('⚠️  Continuing with other seeders...');
-        }
-        
-        // Run the slider data seeder
-        try {
-            await seedSliderData();
-        } catch (error) {
-            console.error('❌ Error seeding slider data:', error);
-            console.log('⚠️  Continuing with other seeders...');
-        }
-        
-        // Run the tour gallery data seeder
-        try {
-            await seedTourGallery();
-        } catch (error) {
-            console.error('❌ Error seeding tour gallery data:', error);
-            console.log('⚠️  Continuing with other seeders...');
-        }
-        
-        // Run the additional Dubai data seeder
-        try {
-            await seedDubaiData();
-        } catch (error) {
-            console.error('❌ Error seeding additional Dubai data:', error);
-            console.log('⚠️  Continuing with other seeders...');
-        }
-        
-        // Run the admin seeder
-        try {
+            console.log('👤 Seeding admin user...');
             await seedAdmin();
+            console.log('✅ Admin user seeded successfully');
         } catch (error) {
-            console.error('❌ Error seeding admin data:', error);
+            console.error('❌ Error seeding admin user:', error.message);
             console.log('⚠️  Continuing with other seeders...');
         }
         
-        // Seed tour packages (only if not exists)
-        const packagesCount = await TourPackage.countDocuments();
-        if (packagesCount === 0) {
-            const sampleTourPackages = [
-                {
-                    name: "Dubai Essential Experience",
-                    description: "Complete Dubai experience with iconic attractions",
-                    shortDescription: "Essential Dubai tour",
-                    category: "essential",
-                    duration: { days: 3, nights: 2 },
-                    images: [{ url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800", isPrimary: true }],
-                    pricing: { adult: 1200, child: 800, currency: "AED" },
-                    itinerary: [
-                        {
-                            day: 1,
-                            title: "Arrival & City Orientation",
-                            activities: [
-                                { time: "14:00", activity: "Hotel check-in", location: "Hotel", duration: 30, type: "hotel" },
-                                { time: "16:00", activity: "City tour", location: "Dubai", duration: 180, type: "attraction" }
-                            ],
-                            meals: { breakfast: false, lunch: false, dinner: true }
-                        }
-                    ],
-                    provider: { name: "Dubai Discoveries Tours" },
-                    ratings: { average: 4.6, totalReviews: 890 },
-                    isPopular: true
-                },
-                {
-                    name: "Full Day Abu Dhabi City Tour from Dubai with Louvre Museum",
-                    description: "Experience the cultural capital of the UAE with a comprehensive tour of Abu Dhabi's most iconic landmarks including the world-famous Louvre Museum",
-                    shortDescription: "Abu Dhabi City Tour with Louvre Museum",
-                    category: "cultural",
-                    duration: { days: 1, nights: 0 },
-                    images: [
-                        { url: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800", isPrimary: true },
-                        { url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800", isPrimary: false }
-                    ],
-                    pricing: { 
-                        adult: 450, 
-                        child: 350, 
-                        senior: 400,
-                        family: 1400,
-                        currency: "AED" 
-                    },
-                    itinerary: [
-                        {
-                            day: 1,
-                            title: "Abu Dhabi City Tour with Louvre Museum",
-                            activities: [
-                                { time: "08:00", activity: "Hotel pickup from Dubai", location: "Dubai Hotels", duration: 30, type: "transport" },
-                                { time: "09:30", activity: "Drive to Abu Dhabi", location: "Highway", duration: 90, type: "transport" },
-                                { time: "11:00", activity: "Visit Sheikh Zayed Grand Mosque", location: "Abu Dhabi", duration: 120, type: "attraction" },
-                                { time: "13:30", activity: "Lunch at local restaurant", location: "Abu Dhabi", duration: 60, type: "meal" },
-                                { time: "14:30", activity: "Louvre Abu Dhabi Museum", location: "Saadiyat Island", duration: 180, type: "attraction" },
-                                { time: "17:30", activity: "Corniche Beach Drive", location: "Abu Dhabi Corniche", duration: 45, type: "attraction" },
-                                { time: "18:15", activity: "Emirates Palace Photo Stop", location: "Emirates Palace", duration: 30, type: "attraction" },
-                                { time: "19:00", activity: "Return to Dubai", location: "Highway", duration: 90, type: "transport" },
-                                { time: "20:30", activity: "Hotel drop-off", location: "Dubai Hotels", duration: 30, type: "transport" }
-                            ],
-                            meals: { breakfast: false, lunch: true, dinner: false }
-                        }
-                    ],
-                    provider: { 
-                        name: "Dubai Discoveries Tours",
-                        contact: {
-                            phone: "+971 4 XXX XXXX",
-                            email: "info@dubaidiscoveries.ae",
-                            website: "https://www.dubaidiscoveries.ae"
-                        },
-                        rating: 4.8,
-                        totalReviews: 1250
-                    },
-                    ratings: { average: 4.8, totalReviews: 1250 },
-                    tags: ["abu dhabi", "louvre", "museum", "cultural", "mosque", "full day"],
-                    isPopular: true,
-                    isFeatured: true,
-                    includes: [
-                        "Hotel pickup and drop-off from Dubai",
-                        "Professional English-speaking guide",
-                        "Air-conditioned vehicle",
-                        "Louvre Abu Dhabi entrance ticket",
-                        "Sheikh Zayed Grand Mosque visit",
-                        "Lunch at local restaurant",
-                        "Bottled water",
-                        "All taxes and fees"
-                    ],
-                    exclusions: [
-                        "Personal expenses",
-                        "Optional activities",
-                        "Gratuities (recommended)",
-                        "Additional food and beverages"
-                    ],
-                    requirements: [
-                        "Valid ID or passport",
-                        "Modest dress for mosque visit",
-                        "Comfortable walking shoes",
-                        "Camera (no flash in museum)"
-                    ],
-                    highlights: [
-                        "Visit the stunning Sheikh Zayed Grand Mosque",
-                        "Explore the world-famous Louvre Abu Dhabi",
-                        "Drive along the beautiful Corniche",
-                        "Photo stop at Emirates Palace",
-                        "Learn about UAE culture and history"
-                    ]
-                }
-            ];
-            
-            await TourPackage.insertMany(sampleTourPackages);
-            console.log('✅ Tour packages seeded successfully');
-        } else {
-            console.log('⏭️  Tour packages already exist');
+        // 2. Seed Dubai Attractions and Services from JSON files
+        try {
+            console.log('📍 Seeding Dubai attractions and services from JSON...');
+            await seedDubaiDataFromJson();
+            console.log('✅ Dubai attractions and services seeded successfully');
+        } catch (error) {
+            console.error('❌ Error seeding Dubai data from JSON:', error.message);
+            console.log('⚠️  Continuing with other seeders...');
         }
         
-        console.log('✅ All seeders completed successfully!');
+        // 3. Seed Additional Dubai Data (tour packages, etc.)
+        try {
+            console.log('🎯 Seeding additional Dubai data...');
+            await seedDubaiData();
+            console.log('✅ Additional Dubai data seeded successfully');
+        } catch (error) {
+            console.error('❌ Error seeding additional Dubai data:', error.message);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // 4. Seed Slider Data
+        try {
+            console.log('🖼️  Seeding slider data...');
+            await seedSliderData();
+            console.log('✅ Slider data seeded successfully');
+        } catch (error) {
+            console.error('❌ Error seeding slider data:', error.message);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // 5. Seed Tour Gallery Data
+        try {
+            console.log('📸 Seeding tour gallery data...');
+            await seedTourGallery();
+            console.log('✅ Tour gallery data seeded successfully');
+        } catch (error) {
+            console.error('❌ Error seeding tour gallery data:', error.message);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // 6. Verify and display final counts
+        try {
+            console.log('📊 Verifying seeded data...');
+            const attractionsCount = await Attraction.countDocuments();
+            const servicesCount = await Service.countDocuments();
+            const packagesCount = await TourPackage.countDocuments();
+            const adminCount = await Admin.countDocuments();
+            const sliderCount = await Slider.countDocuments();
+            const galleryCount = await TourGallery.countDocuments();
+            
+            console.log('📈 Final data counts:');
+            console.log(`   🏛️  Attractions: ${attractionsCount}`);
+            console.log(`   🛠️  Services: ${servicesCount}`);
+            console.log(`   🎒 Tour Packages: ${packagesCount}`);
+            console.log(`   👤 Admin Users: ${adminCount}`);
+            console.log(`   🖼️  Sliders: ${sliderCount}`);
+            console.log(`   📸 Tour Gallery: ${galleryCount}`);
+            
+        } catch (error) {
+            console.error('❌ Error verifying data counts:', error.message);
+        }
+        
+        console.log('🎉 All automatic seeders completed successfully!');
+        console.log('🚀 Server is ready with default data loaded');
         
     } catch (error) {
         console.error('❌ Error running seeders:', error);

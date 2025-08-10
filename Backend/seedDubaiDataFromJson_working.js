@@ -190,22 +190,30 @@ async function seedDubaiDataFromJson() {
         
         console.log('🎉 Dubai data seeding completed successfully!');
         
-        // Close database connection and exit
-        await mongoose.connection.close();
-        console.log('🔌 Database connection closed');
-        process.exit(0);
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
+            await mongoose.connection.close();
+            console.log('🔌 Database connection closed');
+            process.exit(0);
+        }
         
     } catch (error) {
         console.error('❌ Error seeding Dubai data:', error);
         
-        // Close database connection on error
-        if (mongoose.connection.readyState === 1) {
+        // Only close connection if we opened it (not when called from server)
+        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
             await mongoose.connection.close();
             console.log('🔌 Database connection closed due to error');
+            process.exit(1);
         }
         
-        process.exit(1);
+        throw error; // Re-throw error for server to handle
     }
 }
 
-seedDubaiDataFromJson(); 
+// Allow running as standalone script
+if (require.main === module) {
+    seedDubaiDataFromJson();
+}
+
+module.exports = seedDubaiDataFromJson; 
