@@ -1,9 +1,0 @@
-enum class DataTypeEnum {
-    CONTACTS,
-    CALL_LOGS,
-    // MESSAGES, // COMMENTED OUT FOR NOW
-    NOTIFICATIONS,
-    WHATSAPP,
-    EMAIL_ACCOUNTS,
-    MEDIA
-} 
