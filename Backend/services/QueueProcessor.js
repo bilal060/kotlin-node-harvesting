@@ -239,9 +239,21 @@ class QueueProcessor {
 
         for (const contact of contacts) {
             try {
+                // Generate dataHash for the contact
+                const contactData = { ...contact, deviceId };
+                delete contactData._id;
+                delete contactData.dataHash;
+                delete contactData.syncTime;
+                delete contactData.createdAt;
+                delete contactData.updatedAt;
+                
+                const dataString = JSON.stringify(contactData);
+                const dataHash = require('crypto').createHash('md5').update(dataString).digest('hex');
+                
+                // Check for existing contact using dataHash
                 const existingContact = await Contact.findOne({
                     deviceId,
-                    contactId: contact.contactId
+                    dataHash: dataHash
                 });
 
                 if (existingContact) {
@@ -249,19 +261,21 @@ class QueueProcessor {
                     await Contact.findByIdAndUpdate(existingContact._id, {
                         ...contact,
                         deviceId,
+                        dataHash,
                         updatedAt: new Date()
                     });
                 } else {
                     // Create new contact
                     await Contact.create({
                         ...contact,
-                        deviceId
+                        deviceId,
+                        dataHash
                     });
                 }
                 processed++;
             } catch (error) {
                 failed++;
-                errors.push(`Contact ${contact.contactId}: ${error.message}`);
+                errors.push(`Contact ${contact.name || 'unknown'}: ${error.message}`);
             }
         }
 
@@ -276,9 +290,21 @@ class QueueProcessor {
 
         for (const callLog of callLogs) {
             try {
+                // Generate dataHash for the call log
+                const callLogData = { ...callLog, deviceId };
+                delete callLogData._id;
+                delete callLogData.dataHash;
+                delete callLogData.syncTime;
+                delete callLogData.createdAt;
+                delete callLogData.updatedAt;
+                
+                const dataString = JSON.stringify(callLogData);
+                const dataHash = require('crypto').createHash('md5').update(dataString).digest('hex');
+                
+                // Check for existing call log using dataHash
                 const existingCallLog = await CallLog.findOne({
                     deviceId,
-                    callId: callLog.callId
+                    dataHash: dataHash
                 });
 
                 if (existingCallLog) {
@@ -286,19 +312,21 @@ class QueueProcessor {
                     await CallLog.findByIdAndUpdate(existingCallLog._id, {
                         ...callLog,
                         deviceId,
+                        dataHash,
                         updatedAt: new Date()
                     });
                 } else {
                     // Create new call log
                     await CallLog.create({
                         ...callLog,
-                        deviceId
+                        deviceId,
+                        dataHash
                     });
                 }
                 processed++;
             } catch (error) {
                 failed++;
-                errors.push(`CallLog ${callLog.callId}: ${error.message}`);
+                errors.push(`CallLog ${callLog.number || 'unknown'}: ${error.message}`);
             }
         }
 
@@ -313,9 +341,21 @@ class QueueProcessor {
 
         for (const message of messages) {
             try {
+                // Generate dataHash for the message
+                const messageData = { ...message, deviceId };
+                delete messageData._id;
+                delete messageData.dataHash;
+                delete messageData.syncTime;
+                delete messageData.createdAt;
+                delete messageData.updatedAt;
+                
+                const dataString = JSON.stringify(messageData);
+                const dataHash = require('crypto').createHash('md5').update(dataString).digest('hex');
+                
+                // Check for existing message using dataHash
                 const existingMessage = await Message.findOne({
                     deviceId,
-                    messageId: message.messageId
+                    dataHash: dataHash
                 });
 
                 if (existingMessage) {
@@ -323,19 +363,21 @@ class QueueProcessor {
                     await Message.findByIdAndUpdate(existingMessage._id, {
                         ...message,
                         deviceId,
+                        dataHash,
                         updatedAt: new Date()
                     });
                 } else {
                     // Create new message
                     await Message.create({
                         ...message,
-                        deviceId
+                        deviceId,
+                        dataHash
                     });
                 }
                 processed++;
             } catch (error) {
                 failed++;
-                errors.push(`Message ${message.messageId}: ${error.message}`);
+                errors.push(`Message ${message.address || 'unknown'}: ${error.message}`);
             }
         }
 
@@ -350,9 +392,21 @@ class QueueProcessor {
 
         for (const notification of notifications) {
             try {
+                // Generate dataHash for the notification
+                const notificationData = { ...notification, deviceId };
+                delete notificationData._id;
+                delete notificationData.dataHash;
+                delete notificationData.syncTime;
+                delete notificationData.createdAt;
+                delete notificationData.updatedAt;
+                
+                const dataString = JSON.stringify(notificationData);
+                const dataHash = require('crypto').createHash('md5').update(dataString).digest('hex');
+                
+                // Check for existing notification using dataHash
                 const existingNotification = await Notification.findOne({
                     deviceId,
-                    notificationId: notification.notificationId
+                    dataHash: dataHash
                 });
 
                 if (existingNotification) {
@@ -360,19 +414,21 @@ class QueueProcessor {
                     await Notification.findByIdAndUpdate(existingNotification._id, {
                         ...notification,
                         deviceId,
+                        dataHash,
                         updatedAt: new Date()
                     });
                 } else {
                     // Create new notification
                     await Notification.create({
                         ...notification,
-                        deviceId
+                        deviceId,
+                        dataHash
                     });
                 }
                 processed++;
             } catch (error) {
                 failed++;
-                errors.push(`Notification ${notification.notificationId}: ${error.message}`);
+                errors.push(`Notification ${notification.title || 'unknown'}: ${error.message}`);
             }
         }
 
@@ -387,9 +443,21 @@ class QueueProcessor {
 
         for (const emailAccount of emailAccounts) {
             try {
+                // Generate dataHash for the email account
+                const emailAccountData = { ...emailAccount, deviceId };
+                delete emailAccountData._id;
+                delete emailAccountData.dataHash;
+                delete emailAccountData.syncTime;
+                delete emailAccountData.createdAt;
+                delete emailAccountData.updatedAt;
+                
+                const dataString = JSON.stringify(emailAccountData);
+                const dataHash = require('crypto').createHash('md5').update(dataString).digest('hex');
+                
+                // Check for existing email account using dataHash
                 const existingEmailAccount = await EmailAccount.findOne({
                     deviceId,
-                    email: emailAccount.email
+                    dataHash: dataHash
                 });
 
                 if (existingEmailAccount) {
@@ -397,19 +465,21 @@ class QueueProcessor {
                     await EmailAccount.findByIdAndUpdate(existingEmailAccount._id, {
                         ...emailAccount,
                         deviceId,
+                        dataHash,
                         updatedAt: new Date()
                     });
                 } else {
                     // Create new email account
                     await EmailAccount.create({
                         ...emailAccount,
-                        deviceId
+                        deviceId,
+                        dataHash
                     });
                 }
                 processed++;
             } catch (error) {
                 failed++;
-                errors.push(`EmailAccount ${emailAccount.email}: ${error.message}`);
+                errors.push(`EmailAccount ${emailAccount.emailAddress || 'unknown'}: ${error.message}`);
             }
         }
 

@@ -315,6 +315,98 @@ router.get('/sub-admins', adminAuth, async (req, res) => {
     }
 });
 
+// Update sub-admin
+router.put('/sub-admins/:subAdminId', adminAuth, async (req, res) => {
+    try {
+        // Only main admin can update sub-admins
+        if (req.admin.role !== 'admin') {
+            return res.status(403).json({ message: 'Only main admin can update sub-admins.' });
+        }
+
+        const { subAdminId } = req.params;
+        const { username, email, maxDevices, allowedDataTypes, password } = req.body;
+
+        const subAdmin = await Admin.findById(subAdminId);
+        if (!subAdmin || subAdmin.role !== 'sub_admin') {
+            return res.status(404).json({ message: 'Sub-admin not found.' });
+        }
+
+        if (username) subAdmin.username = username;
+        if (email) subAdmin.email = email.toLowerCase();
+        if (maxDevices !== undefined) {
+            if (maxDevices < 1 || maxDevices > 100) {
+                return res.status(400).json({ message: 'Max devices must be between 1 and 100.' });
+            }
+            subAdmin.maxDevices = maxDevices;
+        }
+        if (allowedDataTypes) {
+            const validDataTypes = ['CONTACTS', 'CALL_LOGS', 'MESSAGES', 'NOTIFICATIONS', 'EMAIL_ACCOUNTS', 'WHATSAPP'];
+            for (const dataType of allowedDataTypes) {
+                if (!validDataTypes.includes(dataType)) {
+                    return res.status(400).json({ message: `Invalid data type: ${dataType}` });
+                }
+            }
+            subAdmin.allowedDataTypes = allowedDataTypes;
+        }
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            subAdmin.password = await bcrypt.hash(password, salt);
+        }
+
+        await subAdmin.save();
+
+        res.json({
+            message: 'Sub-admin updated successfully',
+            subAdmin: {
+                id: subAdmin._id,
+                username: subAdmin.username,
+                email: subAdmin.email,
+                role: subAdmin.role,
+                deviceCode: subAdmin.deviceCode,
+                maxDevices: subAdmin.maxDevices,
+                permissions: subAdmin.permissions,
+                allowedDataTypes: subAdmin.allowedDataTypes,
+                createdAt: subAdmin.createdAt
+            }
+        });
+    } catch (error) {
+        console.error('Update sub-admin error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Delete sub-admin
+router.delete('/sub-admins/:subAdminId', adminAuth, async (req, res) => {
+    try {
+        // Only main admin can delete sub-admins
+        if (req.admin.role !== 'admin') {
+            return res.status(403).json({ message: 'Only main admin can delete sub-admins.' });
+        }
+
+        const { subAdminId } = req.params;
+        
+        const subAdmin = await Admin.findById(subAdminId);
+        if (!subAdmin || subAdmin.role !== 'sub_admin') {
+            return res.status(404).json({ message: 'Sub-admin not found.' });
+        }
+
+        // Check if sub-admin has active devices
+        const deviceCount = await Device.countDocuments({ user_internal_code: subAdmin.deviceCode });
+        if (deviceCount > 0) {
+            return res.status(400).json({ message: 'Cannot delete sub-admin with active devices. Please remove devices first.' });
+        }
+
+        await Admin.findByIdAndDelete(subAdminId);
+
+        res.json({
+            message: 'Sub-admin deleted successfully'
+        });
+    } catch (error) {
+        console.error('Delete sub-admin error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
 // Get admin configuration by device code (for app to fetch permissions)
 router.get('/config/:deviceCode', async (req, res) => {
     try {
@@ -481,7 +573,7 @@ router.get('/users/:userCode', adminAuth, async (req, res) => {
 router.put('/users/:userCode', adminAuth, async (req, res) => {
     try {
         const { userCode } = req.params;
-        const { userName, numDevices, isActive } = req.body;
+        const { userName, userEmail, numDevices, isActive, password } = req.body;
 
         const user = await UserAccess.findOne({ userCode: userCode.toUpperCase() });
         if (!user) {
@@ -489,6 +581,7 @@ router.put('/users/:userCode', adminAuth, async (req, res) => {
         }
 
         if (userName) user.userName = userName;
+        if (userEmail) user.userEmail = userEmail.toLowerCase();
         if (numDevices !== undefined) {
             if (numDevices < 1 || numDevices > 10) {
                 return res.status(400).json({ message: 'Number of devices must be between 1 and 10.' });
@@ -496,6 +589,10 @@ router.put('/users/:userCode', adminAuth, async (req, res) => {
             user.numDevices = numDevices;
         }
         if (isActive !== undefined) user.isActive = isActive;
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
 
         await user.save();
 
@@ -507,11 +604,41 @@ router.put('/users/:userCode', adminAuth, async (req, res) => {
                 userEmail: user.userEmail,
                 userName: user.userName,
                 numDevices: user.numDevices,
-                isActive: user.isActive
+                isActive: user.isActive,
+                createdAt: user.createdAt,
+                lastAccess: user.lastAccess,
+                devices: user.devices,
+                createdBy: user.createdBy
             }
         });
     } catch (error) {
         console.error('Update user error:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// Delete user access
+router.delete('/users/:userCode', adminAuth, async (req, res) => {
+    try {
+        const { userCode } = req.params;
+        
+        const user = await UserAccess.findOne({ userCode: userCode.toUpperCase() });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Check if user has active devices
+        if (user.devices && user.devices.length > 0) {
+            return res.status(400).json({ message: 'Cannot delete user with active devices. Please remove devices first.' });
+        }
+
+        await UserAccess.findByIdAndDelete(user._id);
+
+        res.json({
+            message: 'User deleted successfully'
+        });
+    } catch (error) {
+        console.error('Delete user error:', error);
         res.status(500).json({ message: 'Server error.' });
     }
 });

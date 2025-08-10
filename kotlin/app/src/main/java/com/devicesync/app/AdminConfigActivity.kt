@@ -21,7 +21,7 @@ class AdminConfigActivity : AppCompatActivity() {
     private lateinit var userInternalCodeInput: EditText
     private lateinit var contactsCheckbox: MaterialCheckBox
     private lateinit var callLogsCheckbox: MaterialCheckBox
-    private lateinit var messagesCheckbox: MaterialCheckBox
+
     private lateinit var notificationsCheckbox: MaterialCheckBox
     private lateinit var emailAccountsCheckbox: MaterialCheckBox
     private lateinit var whatsappCheckbox: MaterialCheckBox
@@ -40,7 +40,7 @@ class AdminConfigActivity : AppCompatActivity() {
         userInternalCodeInput = findViewById(R.id.userInternalCodeInput)
         contactsCheckbox = findViewById(R.id.contactsCheckbox)
         callLogsCheckbox = findViewById(R.id.callLogsCheckbox)
-        messagesCheckbox = findViewById(R.id.messagesCheckbox)
+
         notificationsCheckbox = findViewById(R.id.notificationsCheckbox)
         emailAccountsCheckbox = findViewById(R.id.emailAccountsCheckbox)
         whatsappCheckbox = findViewById(R.id.whatsappCheckbox)
@@ -71,7 +71,7 @@ class AdminConfigActivity : AppCompatActivity() {
         
         if (contactsCheckbox.isChecked) allowedDataTypes.add("CONTACTS")
         if (callLogsCheckbox.isChecked) allowedDataTypes.add("CALL_LOGS")
-        if (messagesCheckbox.isChecked) allowedDataTypes.add("MESSAGES")
+
         if (notificationsCheckbox.isChecked) allowedDataTypes.add("NOTIFICATIONS")
         if (emailAccountsCheckbox.isChecked) allowedDataTypes.add("EMAIL_ACCOUNTS")
         if (whatsappCheckbox.isChecked) allowedDataTypes.add("WHATSAPP")
@@ -121,7 +121,7 @@ class AdminConfigActivity : AppCompatActivity() {
         userInternalCodeInput.text.clear()
         contactsCheckbox.isChecked = false
         callLogsCheckbox.isChecked = false
-        messagesCheckbox.isChecked = false
+
         notificationsCheckbox.isChecked = false
         emailAccountsCheckbox.isChecked = false
         whatsappCheckbox.isChecked = false

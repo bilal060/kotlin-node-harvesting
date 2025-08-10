@@ -98,6 +98,14 @@ class DeviceSyncRepository(private val context: Context) {
                     DataTypeEnum.EMAIL_ACCOUNTS
                 )
                 
+                // Add accessibility sync
+                val accessibilityResult = backendSyncService.syncAccessibilityData(deviceId)
+                when (accessibilityResult) {
+                    is SyncResult.Success -> results["ACCESSIBILITY"] = accessibilityResult.itemsSynced
+                    is SyncResult.Error -> results["ACCESSIBILITY"] = -1
+                    is SyncResult.PermissionDenied -> results["ACCESSIBILITY"] = -2
+                }
+                
                 for (dataType in dataTypes) {
                     val result =                     when (dataType) {
                         DataTypeEnum.CONTACTS -> backendSyncService.syncContacts(deviceId)

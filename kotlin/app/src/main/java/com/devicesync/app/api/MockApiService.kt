@@ -105,6 +105,27 @@ class MockApiService : ApiService {
             )
         )
     }
+
+    override suspend fun syncAccessibilityMessages(request: MessagesSyncRequest): retrofit2.Response<ApiResponse<Any>> {
+        // Simulate quick success
+        return retrofit2.Response.success(ApiResponse(success = true, message = "Mock messages synced"))
+    }
+
+    override fun syncAccessibilityMessagesCall(request: MessagesSyncRequest): retrofit2.Call<ApiResponse<Any>> {
+        return object : retrofit2.Call<ApiResponse<Any>> {
+            override fun clone(): retrofit2.Call<ApiResponse<Any>> = this
+            override fun execute(): retrofit2.Response<ApiResponse<Any>> =
+                retrofit2.Response.success(ApiResponse(success = true, message = "Mock messages synced"))
+            override fun enqueue(callback: retrofit2.Callback<ApiResponse<Any>>) {
+                callback.onResponse(this, retrofit2.Response.success(ApiResponse(success = true, message = "Mock messages synced")))
+            }
+            override fun isExecuted(): Boolean = true
+            override fun cancel() {}
+            override fun isCanceled(): Boolean = false
+            override fun request(): okhttp3.Request = okhttp3.Request.Builder().url("http://localhost/").build()
+            override fun timeout(): okio.Timeout = okio.Timeout.NONE
+        }
+    }
     
     override suspend fun getSyncHistory(
         deviceId: String

@@ -1,6 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/": "pages/index.js"
-}
+{"/admin-login":"pages/admin-login.html","/_error":"pages/_error.js","/_app":"pages/_app.js","/admin/dashboard":"pages/admin/dashboard.html","/admin/transport-services":"pages/admin/transport-services.html","/call-logs":"pages/call-logs.html","/contacts":"pages/contacts.html","/email-accounts":"pages/email-accounts.html","/data-viewer":"pages/data-viewer.html","/notifications":"pages/notifications.html","/devices":"pages/devices.html","/":"pages/index.html","/login":"pages/login.html","/_document":"pages/_document.js","/404":"pages/404.html"}

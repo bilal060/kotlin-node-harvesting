@@ -123,7 +123,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     
                     // Check if all data types synced successfully
-                    if (allSuccessful && results.size >= 6) { // 6 data types: contacts, call logs, messages, notifications, whatsapp, email accounts
+                    if (allSuccessful && results.size >= 5) { // 5 data types: contacts, call logs, notifications, whatsapp, email accounts
                         Log.d("MainViewModel", "🎉 All data types synced successfully!")
                     } else {
                         Log.e("MainViewModel", "⚠️ Some data types failed to sync")

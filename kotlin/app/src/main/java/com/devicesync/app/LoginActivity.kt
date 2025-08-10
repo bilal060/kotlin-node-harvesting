@@ -21,6 +21,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var passwordInput: TextInputEditText
     private lateinit var loginButton: MaterialButton
     private lateinit var registerButton: MaterialButton
+    private lateinit var continueAsGuestButton: MaterialButton
     private lateinit var forgotPasswordButton: MaterialTextView
     private lateinit var loadingView: View
 
@@ -39,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
         registerButton = findViewById(R.id.registerButton)
+        continueAsGuestButton = findViewById(R.id.continueAsGuestButton)
         forgotPasswordButton = findViewById(R.id.forgotPasswordButton)
         loadingView = findViewById(R.id.loadingView)
     }
@@ -61,6 +63,10 @@ class LoginActivity : AppCompatActivity() {
         
         registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+        
+        continueAsGuestButton.setOnClickListener {
+            continueAsGuest()
         }
         
         forgotPasswordButton.setOnClickListener {
@@ -143,6 +149,16 @@ class LoginActivity : AppCompatActivity() {
         registerButton.isEnabled = !show
     }
 
+    private fun continueAsGuest() {
+        Log.d("LoginActivity", "🔄 Continuing as guest")
+        // Save a temporary guest token to indicate user is logged in
+        val settingsManager = com.devicesync.app.utils.SettingsManager(this)
+        settingsManager.saveAuthToken("guest_token")
+        
+        // Navigate to main activity
+        navigateToMain()
+    }
+    
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

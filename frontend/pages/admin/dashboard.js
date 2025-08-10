@@ -49,8 +49,13 @@ export default function AdminDashboard() {
         }
 
         setAdminInfo(JSON.parse(admin));
-        fetchData();
     }, [router]);
+
+    useEffect(() => {
+        if (adminInfo) {
+            fetchData();
+        }
+    }, [adminInfo]);
 
     const fetchData = async () => {
         try {
@@ -197,8 +202,17 @@ export default function AdminDashboard() {
                 setShowEditUser(false);
                 setSelectedUser(null);
             } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message || 'Failed to update user'}`);
+                // Check if response is JSON or HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Failed to update user'}`);
+                } else {
+                    // Handle HTML error responses (like 404 pages)
+                    const errorText = await response.text();
+                    console.error('Non-JSON error response:', errorText);
+                    alert(`Error: ${response.status} ${response.statusText}. This endpoint may not be available in the current backend version.`);
+                }
             }
         } catch (error) {
             console.error('Error updating user:', error);
@@ -220,8 +234,17 @@ export default function AdminDashboard() {
                 setUsers(users.filter(user => user.userCode !== userCode));
                 setDeleteConfirm({ show: false, type: '', item: null });
             } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message || 'Failed to delete user'}`);
+                // Check if response is JSON or HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Failed to delete user'}`);
+                } else {
+                    // Handle HTML error responses (like 404 pages)
+                    const errorText = await response.text();
+                    console.error('Non-JSON error response:', errorText);
+                    alert(`Error: ${response.status} ${response.statusText}. This endpoint may not be available in the current backend version.`);
+                }
             }
         } catch (error) {
             console.error('Error deleting user:', error);
@@ -289,8 +312,17 @@ export default function AdminDashboard() {
                 setShowEditSubAdmin(false);
                 setSelectedSubAdmin(null);
             } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message || 'Failed to update sub-admin'}`);
+                // Check if response is JSON or HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Failed to update sub-admin'}`);
+                } else {
+                    // Handle HTML error responses (like 404 pages)
+                    const errorText = await response.text();
+                    console.error('Non-JSON error response:', errorText);
+                    alert(`Error: ${response.status} ${response.statusText}. This endpoint may not be available in the current backend version.`);
+                }
             }
         } catch (error) {
             console.error('Error updating sub-admin:', error);
@@ -312,8 +344,17 @@ export default function AdminDashboard() {
                 setSubAdmins(subAdmins.filter(subAdmin => subAdmin.id !== subAdminId));
                 setDeleteConfirm({ show: false, type: '', item: null });
             } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message || 'Failed to delete sub-admin'}`);
+                // Check if response is JSON or HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Failed to delete sub-admin'}`);
+                } else {
+                    // Handle HTML error responses (like 404 pages)
+                    const errorText = await response.text();
+                    console.error('Non-JSON error response:', errorText);
+                    alert(`Error: ${response.status} ${response.statusText}. This endpoint may not be available in the current backend version.`);
+                }
             }
         } catch (error) {
             console.error('Error deleting sub-admin:', error);

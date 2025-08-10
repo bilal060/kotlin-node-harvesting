@@ -144,6 +144,21 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Continue as Guest Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/continueAsGuestButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="24dp"
+                android:text="Continue as Guest"
+                android:textAppearance="@style/TextAppearance.DubaiDiscoveries.Button"
+                android:textColor="@color/text_secondary"
+                app:icon="@drawable/ic_person"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="@color/text_secondary" />
+
             <!-- Forgot Password -->
             <LinearLayout
                 android:layout_width="match_parent"

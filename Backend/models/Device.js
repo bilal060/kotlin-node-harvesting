@@ -82,6 +82,11 @@ const deviceSchema = new mongoose.Schema({
     deviceFingerprint: {
         type: String,
         default: ''
+    },
+    // Platform information
+    platform: {
+        type: String,
+        default: 'android'
     }
 }, {
     timestamps: true

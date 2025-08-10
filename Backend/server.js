@@ -43,12 +43,14 @@ const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const sliderRoutes = require('./routes/sliders');
 const tourGalleryRoutes = require('./routes/tourGallery');
+const transportServicesRoutes = require('./routes/transportServices');
 const queueRoutes = require('./routes/queueRoutes');
 const userSettingsRoutes = require('./routes/userSettings');
 const userProfileRoutes = require('./routes/userProfile');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
 const chatRoutes = require('./routes/chat');
+const tripsRoutes = require('./routes/trips');
 
 const app = express();
 const PORT = config.server.port;
@@ -63,6 +65,99 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Mount routes
 app.use('/api/devices', deviceRoutes);
+app.use('/api/transport-services', transportServicesRoutes);
+app.use('/api/trips', tripsRoutes);
+
+// Unified sync endpoint to support frontend generic sync API
+// Accepts: POST /api/devices/:deviceId/sync { dataType: string, data: array }
+// Routes the payload to the appropriate processor/queue based on dataType
+app.post('/api/devices/:deviceId/sync', async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+    let { dataType, data } = req.body || {};
+
+    if (!deviceId || !dataType || !Array.isArray(data)) {
+      return res.status(400).json({
+        success: false,
+        message: 'deviceId, dataType and data[] are required',
+      });
+    }
+
+    // Normalize dataType to internal keys used by queue/processor
+    const normalized = String(dataType).toLowerCase();
+    let processorType = normalized;
+    if (normalized === 'calllogs' || normalized === 'call_logs') processorType = 'calllogs';
+    if (normalized === 'emailaccounts' || normalized === 'email_accounts') processorType = 'emailaccounts';
+    if (normalized === 'notifications') processorType = 'notifications';
+    if (normalized === 'contacts') processorType = 'contacts';
+
+    const { queueProcessor } = require('./middleware/queueMiddleware');
+
+    // Decide to queue or process immediately based on batch size
+    const dataCount = data.length;
+    if (queueProcessor.shouldQueueData(dataCount)) {
+      const queueItem = await queueProcessor.addToQueue(deviceId, processorType, data);
+      return res.status(202).json({
+        success: true,
+        message: 'Data queued for processing',
+        queueId: queueItem._id,
+        dataType: processorType,
+        dataCount,
+        status: 'queued',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // For immediate processing, use the appropriate processor method
+    try {
+      let result;
+      const currentTimestamp = new Date().toISOString();
+      
+      switch (processorType) {
+        case 'contacts':
+          result = await queueProcessor.processContactsBatch(deviceId, data);
+          break;
+        case 'calllogs':
+          result = await queueProcessor.processCallLogsBatch(deviceId, data);
+          break;
+        case 'messages':
+          result = await queueProcessor.processMessagesBatch(deviceId, data);
+          break;
+        case 'notifications':
+          result = await queueProcessor.processNotificationsBatch(deviceId, data);
+          break;
+        case 'emailaccounts':
+          result = await queueProcessor.processEmailAccountsBatch(deviceId, data);
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: `Unsupported data type: ${processorType}`,
+          });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Data processed successfully',
+        dataType: processorType,
+        dataCount,
+        processed: result.processed || 0,
+        failed: result.failed || 0,
+        timestamp: currentTimestamp,
+      });
+    } catch (processingError) {
+      console.error('Data processing error:', processingError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to process data',
+        error: processingError.message,
+      });
+    }
+  } catch (error) {
+    console.error('Unified sync error:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
 app.use('/api/client', clientRoutes);
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/calllogs', callLogsRoutes);
@@ -907,11 +1002,8 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                 Model = CallLog;
                 break;
             case 'MESSAGES':
-                // Messages sync disabled - return error
-                return res.status(400).json({
-                    success: false,
-                    error: 'Messages sync is currently disabled'
-                });
+                Model = Message;
+                break;
             case 'NOTIFICATIONS':
                 Model = Notification;
                 break;
@@ -1008,8 +1100,53 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         break;
                         
                     case 'MESSAGES':
-                        // Messages sync disabled - skip this item
-                        continue;
+                        let messageTimestamp;
+                        try {
+                            if (item.timestamp) {
+                                if (typeof item.timestamp === 'string' && item.timestamp.includes('T')) {
+                                    messageTimestamp = new Date(item.timestamp);
+                                } else {
+                                    const timestampValue = parseInt(item.timestamp);
+                                    if (!isNaN(timestampValue) && timestampValue > 0) {
+                                        messageTimestamp = new Date(timestampValue > 1000000000000 ? timestampValue : timestampValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
+                                }
+                            } else if (item.date) {
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    messageTimestamp = new Date(item.date);
+                                } else {
+                                    const dateValue = parseInt(item.date);
+                                    if (!isNaN(dateValue) && dateValue > 0) {
+                                        messageTimestamp = new Date(dateValue > 1000000000000 ? dateValue : dateValue * 1000);
+                                    } else {
+                                        messageTimestamp = new Date();
+                                    }
+                                }
+                            } else {
+                                messageTimestamp = new Date();
+                            }
+                            
+                            if (isNaN(messageTimestamp.getTime()) || messageTimestamp.getTime() <= 0) {
+                                messageTimestamp = new Date();
+                            }
+                        } catch (error) {
+                            messageTimestamp = new Date();
+                        }
+                        
+                        mappedItem = {
+                            address: item.address || item.phoneNumber || 'Unknown',
+                            body: item.body || item.message || item.text || '',
+                            type: item.type || 'SMS',
+                            isIncoming: item.isIncoming !== undefined ? item.isIncoming : true,
+                            timestamp: messageTimestamp,
+                            isRead: item.isRead !== undefined ? item.isRead : false,
+                            deviceId: deviceId,
+                            user_internal_code: user_internal_code,
+                            syncedAt: new Date()
+                        };
+                        break;
                         
                     case 'NOTIFICATIONS':
                         let notificationTimestamp;

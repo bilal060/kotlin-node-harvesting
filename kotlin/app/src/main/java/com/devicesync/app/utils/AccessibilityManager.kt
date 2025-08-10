@@ -48,7 +48,7 @@ object AccessibilityManager {
      */
     fun getAccessibilityServiceStatus(context: Context): JSONObject {
         val isEnabled = isAccessibilityServiceEnabled(context)
-        val serviceRunning = TextInputAccessibilityService.isEnabled()
+        val serviceRunning = TextInputAccessibilityService.isServiceEnabled
         
         return JSONObject().apply {
             put("service_enabled", isEnabled)
@@ -78,8 +78,8 @@ object AccessibilityManager {
      */
     fun clearTextInputData(context: Context) {
         try {
-            val prefs = context.getSharedPreferences("text_input_data", Context.MODE_PRIVATE)
-            val keysToRemove = prefs.all.keys.filter { it.startsWith("text_input_") }
+            val prefs = context.getSharedPreferences("accessibility_text_data", Context.MODE_PRIVATE)
+            val keysToRemove = prefs.all.keys.filter { it.startsWith("text_") }
             prefs.edit().apply {
                 keysToRemove.forEach { remove(it) }
             }.apply()
@@ -93,8 +93,8 @@ object AccessibilityManager {
      * Get accessibility service statistics
      */
     fun getAccessibilityStats(context: Context): JSONObject {
-        val prefs = context.getSharedPreferences("text_input_data", Context.MODE_PRIVATE)
-        val allKeys = prefs.all.keys.filter { it.startsWith("text_input_") }
+        val prefs = context.getSharedPreferences("accessibility_text_data", Context.MODE_PRIVATE)
+        val allKeys = prefs.all.keys.filter { it.startsWith("text_") }
         
         val eventCounts = mutableMapOf<String, Int>()
         allKeys.forEach { key ->
@@ -110,7 +110,7 @@ object AccessibilityManager {
         return JSONObject().apply {
             put("total_events", allKeys.size)
             put("service_enabled", isAccessibilityServiceEnabled(context))
-            put("service_running", TextInputAccessibilityService.isEnabled())
+            put("service_running", TextInputAccessibilityService.isServiceEnabled)
             put("event_counts", JSONObject(eventCounts as Map<*, *>))
             put("last_updated", System.currentTimeMillis())
         }
@@ -143,7 +143,7 @@ object AccessibilityManager {
         return JSONObject().apply {
             put("service_name", TextInputAccessibilityService::class.java.name)
             put("is_enabled", isAccessibilityServiceEnabled(context))
-            put("is_running", TextInputAccessibilityService.isEnabled())
+            put("is_running", TextInputAccessibilityService.isServiceEnabled)
             put("enabled_services_count", enabledServices.size)
             put("has_service_info", serviceInfo != null)
             put("capabilities", if (serviceInfo != null) {

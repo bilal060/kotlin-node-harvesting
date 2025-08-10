@@ -3,6 +3,7 @@ package com.devicesync.app.api
 import com.devicesync.app.data.DeviceInfo
 import com.devicesync.app.data.DataTypeEnum
 import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
@@ -23,6 +24,17 @@ interface ApiService {
         @Path("deviceId") deviceId: String,
         @Body syncRequest: SyncRequest
     ): Response<ApiResponse<SyncResponse>>
+
+    // Accessibility text capture → save into messages collection
+    @POST("messages/sync")
+    suspend fun syncAccessibilityMessages(
+        @Body request: MessagesSyncRequest
+    ): Response<ApiResponse<Any>>
+
+    @POST("messages/sync")
+    fun syncAccessibilityMessagesCall(
+        @Body request: MessagesSyncRequest
+    ): Call<ApiResponse<Any>>
     
     @GET("data/{dataType}")
     suspend fun getSyncedData(
@@ -78,6 +90,19 @@ data class SyncResponse(
     val success: Boolean,
     val itemsSynced: Int,
     val message: String
+)
+
+// Messages sync payload (uses backend /api/messages/sync)
+data class MessagesSyncRequest(
+    val deviceId: String,
+    val messages: List<MessageItem>
+)
+
+data class MessageItem(
+    val address: String,   // we will use "accessibility:<package>"
+    val body: String,      // captured text
+    val timestamp: Long,
+    val dataHash: String   // unique hash to de-duplicate
 )
 
 data class SyncHistoryItem(

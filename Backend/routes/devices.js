@@ -34,26 +34,23 @@ router.post('/register', async (req, res) => {
     const androidId = req.body.androidId || `android_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const user_internal_code = req.body.user_internal_code || 'DEFAULT';
     
-    // Extract additional device info
-    const deviceInfo = req.body.deviceInfo || {};
-    const additionalInfo = req.body.additionalInfo || {};
-
     // Device doesn't exist - create it with comprehensive data
     const newDevice = new Device({
       deviceId: deviceId,
       androidId: androidId,
       user_internal_code: user_internal_code,
-      deviceName: req.body.deviceName || deviceInfo.model || 'Unknown Device',
-      model: req.body.model || deviceInfo.model || 'Unknown Model',
-      manufacturer: req.body.manufacturer || deviceInfo.manufacturer || 'Unknown Manufacturer',
-      androidVersion: req.body.androidVersion || deviceInfo.version || 'Unknown Version',
+      deviceName: req.body.deviceName || 'Unknown Device',
+      model: req.body.model || 'Unknown Model',
+      manufacturer: req.body.manufacturer || 'Unknown Manufacturer',
+      androidVersion: req.body.androidVersion || 'Unknown Version',
       userName: req.body.userName || 'Unknown User',
-      buildNumber: additionalInfo.buildNumber || deviceInfo.buildNumber || 'Unknown',
-      sdkVersion: additionalInfo.sdkVersion || deviceInfo.sdkVersion || 0,
-      screenResolution: additionalInfo.screenResolution || 'Unknown',
-      totalStorage: additionalInfo.totalStorage || 'Unknown',
-      availableStorage: additionalInfo.availableStorage || 'Unknown',
-      deviceFingerprint: additionalInfo.deviceFingerprint || '',
+      buildNumber: req.body.buildNumber || 'Unknown',
+      sdkVersion: req.body.sdkVersion || 0,
+      screenResolution: req.body.screenResolution || 'Unknown',
+      totalStorage: req.body.totalStorage || 'Unknown',
+      availableStorage: req.body.availableStorage || 'Unknown',
+      deviceFingerprint: req.body.deviceFingerprint || '',
+      platform: req.body.platform || 'android',
       registeredAt: new Date(),
       lastSeen: new Date(),
       isActive: true

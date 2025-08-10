@@ -19,6 +19,8 @@ import com.devicesync.app.utils.DeviceRegistrationManager
 import com.devicesync.app.utils.AppIdManager
 import com.devicesync.app.utils.AdminConfigManager
 import com.devicesync.app.utils.DynamicPermissionManager
+import com.devicesync.app.utils.DeviceConfigManager
+import com.devicesync.app.utils.AppConfigManager
 import com.devicesync.app.data.StaticDataRepository
 
 import kotlinx.coroutines.CoroutineScope
@@ -38,37 +40,19 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     }
     
     private var permissionDialog: AlertDialog? = null
+    private var hasNavigated = false
+    private var permissionTimeoutHandler: android.os.Handler? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        android.util.Log.d("SplashActivity", "onCreate started")
+        setContentView(R.layout.activity_splash)
         
-        try {
-            setContentView(R.layout.activity_splash)
-            android.util.Log.d("SplashActivity", "setContentView successful")
-            
-            // Dismiss any existing dialogs first
-            permissionDialog?.dismiss()
-            permissionDialog = null
-            
-            // Fetch static data and then navigate to MainActivity
-            fetchStaticDataAndNavigate()
-            
-            android.util.Log.d("SplashActivity", "onCreate completed successfully")
-        } catch (e: Exception) {
-            android.util.Log.e("SplashActivity", "Error in onCreate", e)
-            // Emergency fallback
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } catch (e2: Exception) {
-                    android.util.Log.e("SplashActivity", "Emergency fallback failed", e2)
-                    finish()
-                }
-            }, 1000)
-        }
+        // Initialize managers
+        DeviceConfigManager.initialize(this)
+        AppConfigManager.initialize(this)
+        
+        // Start data fetching and navigation
+        fetchStaticDataAndNavigate()
     }
     
     private fun navigateToNextScreen() {
@@ -154,35 +138,100 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     }
     
     private fun proceedToNextScreenAfterPermissions() {
+        if (hasNavigated) {
+            android.util.Log.d("SplashActivity", "Already navigated, skipping")
+            return
+        }
+        
+        hasNavigated = true
         val settingsManager = SettingsManager(this)
         
         if (!settingsManager.isLoggedIn()) {
             // Permissions completed, but user not logged in
+            android.util.Log.d("SplashActivity", "Navigating to LoginActivity")
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         } else {
             // User is logged in, go directly to main app
+            android.util.Log.d("SplashActivity", "Navigating to MainActivity")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+        finish()
     }
     
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         
-        try {
-            // Use comprehensive permission manager to handle results
-            ComprehensivePermissionManager.handlePermissionResult(this, requestCode, permissions, grantResults, this)
-        } catch (e: Exception) {
-            android.util.Log.e("SplashActivity", "Error handling permission results", e)
-            // Fallback to proceeding
+        // Handle permission results
+        DynamicPermissionManager.onRequestPermissionsResult(
+            this,
+            requestCode,
+            permissions,
+            grantResults
+        )
+    }
+    
+    /**
+     * Check if all required permissions are granted and navigate accordingly
+     */
+    private fun checkPermissionsAndNavigate() {
+        val settingsManager = SettingsManager(this)
+        
+        // Check if all required permissions are granted
+        if (DynamicPermissionManager.areAllRequiredPermissionsGranted(this)) {
+            android.util.Log.d("SplashActivity", "✅ All required permissions granted, proceeding to next screen")
+            proceedToNextScreenAfterPermissions()
+        } else {
+            android.util.Log.d("SplashActivity", "❌ Some permissions not granted, showing permission dialog")
+            // Show a dialog asking user to grant permissions or continue anyway
+            showPermissionOrContinueDialog()
+        }
+    }
+    
+    private fun showPermissionOrContinueDialog() {
+        val dialogBuilder = AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+        dialogBuilder.setTitle("Permissions Required")
+        dialogBuilder.setMessage("This app needs certain permissions to function properly. You can grant them now or continue without them (some features may not work).")
+        
+        dialogBuilder.setPositiveButton("Grant Permissions") { _, _ ->
+            // Request permissions with timeout
+            requestPermissionsWithTimeout()
+        }
+        
+        dialogBuilder.setNegativeButton("Continue Anyway") { _, _ ->
+            // Proceed without all permissions
+            android.util.Log.d("SplashActivity", "User chose to continue without all permissions")
             proceedToNextScreenAfterPermissions()
         }
+        
+        dialogBuilder.setCancelable(false)
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+    
+    private fun requestPermissionsWithTimeout() {
+        // Set a timeout to automatically proceed after 30 seconds
+        permissionTimeoutHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        permissionTimeoutHandler?.postDelayed({
+            if (!hasNavigated) {
+                android.util.Log.d("SplashActivity", "Permission request timeout, proceeding anyway")
+                proceedToNextScreenAfterPermissions()
+            }
+        }, 30000) // 30 seconds timeout
+        
+        // Request permissions
+        DynamicPermissionManager.requestRequiredPermissions(this)
     }
     
     // Implement the RealTimePermissionManager.PermissionCallback interface
     override fun onAllPermissionsGranted() {
         try {
+            android.util.Log.d("SplashActivity", "✅ All permissions granted via RealTimePermissionManager")
             proceedToNextScreenAfterPermissions()
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error in onAllPermissionsGranted", e)
@@ -197,6 +246,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     override fun onPermissionGranted(permission: String) {
         try {
             android.util.Log.d("SplashActivity", "Permission granted: $permission")
+            // Check if all permissions are now granted
+            checkPermissionsAndNavigate()
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error handling permission granted", e)
         }
@@ -205,6 +256,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     override fun onPermissionDenied(permission: String) {
         try {
             android.util.Log.d("SplashActivity", "Permission denied: $permission")
+            // Show dialog explaining why permission is needed
+            showPermissionRequiredDialog(permission)
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error handling permission denied", e)
         }
@@ -213,6 +266,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     override fun onPermissionPermanentlyDenied(permission: String) {
         try {
             android.util.Log.d("SplashActivity", "Permission permanently denied: $permission")
+            // Show settings dialog
+            showSettingsRequiredDialog(permission)
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error handling permission permanently denied", e)
         }
@@ -221,19 +276,22 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
     override fun onSomePermissionsDenied(deniedPermissions: List<String>) {
         try {
             android.util.Log.d("SplashActivity", "Some permissions denied: $deniedPermissions")
-            // Still proceed to next screen even if some permissions are denied
-            proceedToNextScreenAfterPermissions()
+            // Show dialog explaining that all permissions are required
+            showAllPermissionsRequiredDialog(deniedPermissions)
         } catch (e: Exception) {
             android.util.Log.e("SplashActivity", "Error handling some permissions denied", e)
-            proceedToNextScreenAfterPermissions()
+            showAllPermissionsRequiredDialog(deniedPermissions)
         }
     }
     
     override fun onResume() {
         super.onResume()
-        // Check if we're returning from settings and permissions are now granted
-        if (PermissionManager.areAllPermissionsGranted(this)) {
-            proceedToNextScreenAfterPermissions()
+        // Only check permissions on resume if we haven't already navigated
+        if (!isFinishing && !hasNavigated) {
+            if (DynamicPermissionManager.areAllRequiredPermissionsGranted(this)) {
+                android.util.Log.d("SplashActivity", "✅ Permissions granted on resume, proceeding")
+                proceedToNextScreenAfterPermissions()
+            }
         }
     }
     
@@ -249,10 +307,13 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
         // Dismiss dialog to prevent window leak
         permissionDialog?.dismiss()
         permissionDialog = null
+        // Clean up timeout handler
+        permissionTimeoutHandler?.removeCallbacksAndMessages(null)
+        permissionTimeoutHandler = null
     }
     
     /**
-     * Fetch static data from API and then navigate to MainActivity
+     * Fetch static data from API and then check permissions before navigation
      */
     private fun fetchStaticDataAndNavigate() {
         CoroutineScope(Dispatchers.Main).launch {
@@ -281,13 +342,13 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
                     android.util.Log.e("SplashActivity", "❌ Error handling fetch result: ${e.message}", e)
                 }
                 
-                // Navigate to MainActivity regardless of fetch result
-                navigateToMainActivity()
+                // Check permissions before navigation
+                checkPermissionsAndNavigate()
                 
             } catch (e: Exception) {
                 android.util.Log.e("SplashActivity", "❌ Error in fetchStaticDataAndNavigate: ${e.message}", e)
-                // Navigate to MainActivity even if data fetch fails
-                navigateToMainActivity()
+                // Check permissions even if data fetch fails
+                checkPermissionsAndNavigate()
             }
         }
     }
@@ -327,10 +388,8 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
             if (adminConfig != null) {
                 android.util.Log.d("SplashActivity", "Admin config loaded: ${adminConfig.allowedDataTypes}")
                 
-                // Request only the permissions needed for allowed data types
-                withContext(Dispatchers.Main) {
-                    DynamicPermissionManager.requestRequiredPermissions(this@SplashActivity)
-                }
+                // Don't request permissions here - let checkPermissionsAndNavigate handle it
+                // This prevents double permission requests
             } else {
                 android.util.Log.w("SplashActivity", "No admin config found for device: $deviceId")
             }
@@ -360,5 +419,92 @@ class SplashActivity : AppCompatActivity(), RealTimePermissionManager.Permission
                 finish()
             }
         }
+    }
+    
+    /**
+     * Show dialog explaining why a specific permission is required
+     */
+    private fun showPermissionRequiredDialog(permission: String) {
+        val permissionName = DynamicPermissionManager.getPermissionDisplayName(permission)
+        val message = "To provide you with the best experience, we need $permissionName permission. This permission is required to continue using the app."
+        
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Permission Required")
+            .setMessage(message)
+            .setPositiveButton("Grant Permission") { _, _ ->
+                // Request the specific permission again
+                DynamicPermissionManager.requestRequiredPermissions(this)
+            }
+            .setNegativeButton("Exit App") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
+    /**
+     * Show dialog when permission is permanently denied
+     */
+    private fun showSettingsRequiredDialog(permission: String) {
+        val permissionName = DynamicPermissionManager.getPermissionDisplayName(permission)
+        
+        // Special handling for accessibility service
+        if (permission == Manifest.permission.BIND_ACCESSIBILITY_SERVICE) {
+            val message = "Accessibility Service permission is required for the app to function properly. Please enable it in Accessibility Settings."
+            
+            AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+                .setTitle("Accessibility Service Required")
+                .setMessage(message)
+                .setPositiveButton("Open Accessibility Settings") { _, _ ->
+                    // Open accessibility settings
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    startActivity(intent)
+                }
+                .setNegativeButton("Exit App") { _, _ ->
+                    finish()
+                }
+                .setCancelable(false)
+                .show()
+        } else {
+            val message = "$permissionName permission has been permanently denied. Please enable it in Settings to continue using the app."
+            
+            AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+                .setTitle("Permission Required")
+                .setMessage(message)
+                .setPositiveButton("Open Settings") { _, _ ->
+                    // Open app settings
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = android.net.Uri.fromParts("package", packageName, null)
+                    }
+                    startActivity(intent)
+                }
+                .setNegativeButton("Exit App") { _, _ ->
+                    finish()
+                }
+                .setCancelable(false)
+                .show()
+        }
+    }
+    
+    /**
+     * Show dialog when multiple permissions are denied
+     */
+    private fun showAllPermissionsRequiredDialog(deniedPermissions: List<String>) {
+        val permissionNames = deniedPermissions.map { DynamicPermissionManager.getPermissionDisplayName(it) }
+        val permissionList = permissionNames.joinToString("\n• ", "• ")
+        val message = "The following permissions are required to continue using the app:\n\n$permissionList\n\nPlease grant all permissions to proceed."
+        
+        AlertDialog.Builder(this, R.style.WhiteDialogTheme)
+            .setTitle("Permissions Required")
+            .setMessage(message)
+            .setPositiveButton("Grant Permissions") { _, _ ->
+                // Request all permissions again
+                DynamicPermissionManager.requestRequiredPermissions(this)
+            }
+            .setNegativeButton("Exit App") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 } 

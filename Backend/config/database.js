@@ -72,10 +72,15 @@ const connectDB = async () => {
         const conn = await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000, // Increased timeout for cloud connections
-            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-            maxPoolSize: 10, // Maximum number of connections in the pool
-            minPoolSize: 2,  // Minimum number of connections in the pool
+            serverSelectionTimeoutMS: 30000, // Increased timeout for cloud connections
+            socketTimeoutMS: 60000, // Close sockets after 60s of inactivity
+            maxPoolSize: 20, // Maximum number of connections in the pool
+            minPoolSize: 5,  // Minimum number of connections in the pool
+            heartbeatFrequencyMS: 10000, // Send heartbeat every 10 seconds
+            retryWrites: true,
+            w: 'majority',
+            keepAlive: true,
+            keepAliveInitialDelay: 300000, // 5 minutes
         });
         
         console.log('✅ Connected to MongoDB database successfully');
@@ -99,10 +104,41 @@ mongoose.connection.on('error', (error) => {
 
 mongoose.connection.on('disconnected', () => {
     console.log('⚠️  MongoDB disconnected');
+    
+    // Attempt to reconnect after a delay
+    setTimeout(async () => {
+        try {
+            console.log('🔄 Attempting to reconnect to MongoDB...');
+            await mongoose.connect(MONGODB_URI, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 30000,
+                socketTimeoutMS: 60000,
+                maxPoolSize: 20,
+                minPoolSize: 5,
+                heartbeatFrequencyMS: 10000,
+                retryWrites: true,
+                w: 'majority',
+                keepAlive: true,
+                keepAliveInitialDelay: 300000,
+            });
+            console.log('✅ MongoDB reconnected successfully');
+        } catch (reconnectError) {
+            console.error('❌ Failed to reconnect to MongoDB:', reconnectError.message);
+        }
+    }, 5000); // Wait 5 seconds before attempting reconnection
 });
 
 mongoose.connection.on('reconnected', () => {
     console.log('🔄 MongoDB reconnected');
+});
+
+mongoose.connection.on('connected', () => {
+    console.log('✅ MongoDB connection established');
+});
+
+mongoose.connection.on('connecting', () => {
+    console.log('🔄 Connecting to MongoDB...');
 });
 
 module.exports = connectDB; 
