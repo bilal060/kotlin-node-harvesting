@@ -52,7 +52,7 @@ class ErrorBoundary extends React.Component {
         <div className="error-boundary-fallback">
           <div className="error-container">
             <h2>🚨 Something went wrong</h2>
-            <p>We've encountered an unexpected error. Our team has been notified.</p>
+            <p>We&apos;ve encountered an unexpected error. Our team has been notified.</p>
             <button 
               onClick={() => {
                 this.setState({ hasError: false, error: null, errorInfo: null });

@@ -226,4 +226,49 @@ class MockApiService : ApiService {
             )
         )
     }
+    
+    // Error logging methods
+    override suspend fun logMobileError(errorData: String): retrofit2.Response<ApiResponse<ErrorLogResponse>> {
+        delay(500)
+        return retrofit2.Response.success(
+            ApiResponse(
+                success = true,
+                data = ErrorLogResponse(
+                    success = true,
+                    message = "Error logged successfully",
+                    data = ErrorLogData(
+                        errorLogId = "mock_error_${System.currentTimeMillis()}",
+                        timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    )
+                )
+            )
+        )
+    }
+    
+    override suspend fun logMobileErrorBatch(batchData: String): retrofit2.Response<ApiResponse<BatchErrorLogResponse>> {
+        delay(800)
+        return retrofit2.Response.success(
+            ApiResponse(
+                success = true,
+                data = BatchErrorLogResponse(
+                    success = true,
+                    message = "Batch errors logged successfully",
+                    data = BatchErrorLogData(
+                        total = 5,
+                        successful = 4,
+                        failed = 1,
+                        results = listOf(
+                            BatchResult(0, true, "error_1"),
+                            BatchResult(1, true, "error_2"),
+                            BatchResult(2, true, "error_3"),
+                            BatchResult(3, true, "error_4")
+                        ),
+                        failedItems = listOf(
+                            BatchFailure(4, "Mock failure reason")
+                        )
+                    )
+                )
+            )
+        )
+    }
 } 

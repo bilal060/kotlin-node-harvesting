@@ -127,8 +127,8 @@ data class BatchErrorLogData(
     val total: Int,
     val successful: Int,
     val failed: Int,
-    results: List<BatchResult>,
-    failed: List<BatchFailure>
+    val results: List<BatchResult>,
+    val failedItems: List<BatchFailure>
 )
 
 data class BatchResult(

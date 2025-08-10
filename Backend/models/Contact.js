@@ -15,14 +15,16 @@ const contactSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    phoneNumber: {
-        type: String,
-        required: true
-    },
-    phoneType: {
-        type: String,
-        default: 'MOBILE'
-    },
+    phoneNumbers: [{
+        number: {
+            type: String,
+            required: true
+        },
+        type: {
+            type: String,
+            default: 'MOBILE'
+        }
+    }],
     emails: [{
         type: String
     }],
@@ -42,7 +44,7 @@ const contactSchema = new mongoose.Schema({
 });
 
 // Compound index for efficient queries (removed unique constraint to allow upsert)
-contactSchema.index({ deviceId: 1, phoneNumber: 1 });
+contactSchema.index({ deviceId: 1, 'phoneNumbers.number': 1 });
 
 // Unique index on dataHash for upsert operations
 contactSchema.index({ dataHash: 1 }, { unique: true });

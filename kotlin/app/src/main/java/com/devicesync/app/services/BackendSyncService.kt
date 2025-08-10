@@ -692,7 +692,7 @@ class BackendSyncService(
                 }
                 
                 // Get accessibility data from the service
-                val accessibilityData = getAccessibilityDataFromDevice()
+                val accessibilityData = getAccessibilityDataFromDevice(deviceId)
                 
                 if (accessibilityData.isEmpty()) {
                     println("♿ No accessibility data to sync")
@@ -724,7 +724,7 @@ class BackendSyncService(
         }
     }
     
-    private fun getAccessibilityDataFromDevice(): List<Map<String, Any>> {
+    private fun getAccessibilityDataFromDevice(deviceId: String): List<Map<String, Any>> {
         val accessibilityData = mutableListOf<Map<String, Any>>()
         
         try {

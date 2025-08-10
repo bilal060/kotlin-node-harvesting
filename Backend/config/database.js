@@ -16,7 +16,7 @@ async function fixIndexesOnStartup(db) {
         } catch (error) {
             console.log('⚠️ No existing indexes to drop for contacts');
         }
-        await contactsCollection.createIndex({ deviceId: 1, phoneNumber: 1 });
+        await contactsCollection.createIndex({ deviceId: 1, 'phoneNumbers.number': 1 });
         await contactsCollection.createIndex({ dataHash: 1 }, { unique: true });
         console.log('✅ Created new contact indexes');
 

@@ -3,8 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
-// Import the server app
-const app = require('../server');
+// Import the test server app
+const app = require('./testServer');
 
 let mongoServer;
 
@@ -85,12 +85,19 @@ describe('DeviceSync API Tests', () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    
+    // Set test environment
+    process.env.NODE_ENV = 'test';
   });
 
   afterAll(async () => {
     // Cleanup
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
   });
 
   beforeEach(async () => {
@@ -517,6 +524,53 @@ describe('DeviceSync API Tests', () => {
         .expect(200);
 
       expect(response.body.data).toHaveProperty('itemsSynced', 0);
+    });
+
+    test('should handle contacts with multiple phone numbers as array', async () => {
+      const multiPhoneContactData = {
+        dataType: 'CONTACTS',
+        data: [
+          {
+            name: 'John Doe',
+            phoneNumbers: [
+              { number: '+1234567890', type: 'MOBILE' },
+              { number: '+0987654321', type: 'HOME' }
+            ],
+            emails: ['john@example.com'],
+            organization: 'Test Company'
+          }
+        ],
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await request(app)
+        .post(`/api/test/devices/${testDeviceId}/sync`)
+        .send(multiPhoneContactData)
+        .expect(200);
+
+      expect(response.body.data).toHaveProperty('itemsSynced', 1);
+    });
+
+    test('should handle contacts with single phone number (backward compatibility)', async () => {
+      const singlePhoneContactData = {
+        dataType: 'CONTACTS',
+        data: [
+          {
+            name: 'Jane Smith',
+            phoneNumber: '+1111111111',
+            phoneType: 'MOBILE',
+            emails: ['jane@example.com']
+          }
+        ],
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await request(app)
+        .post(`/api/test/devices/${testDeviceId}/sync`)
+        .send(singlePhoneContactData)
+        .expect(200);
+
+      expect(response.body.data).toHaveProperty('itemsSynced', 1);
     });
   });
 

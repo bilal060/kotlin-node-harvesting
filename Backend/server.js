@@ -257,7 +257,7 @@ app.post('/api/fix-indexes', async (req, res) => {
         } catch (error) {
             console.log('⚠️ No existing indexes to drop for contacts');
         }
-        await contactsCollection.createIndex({ deviceId: 1, user_internal_code: 1, phoneNumber: 1 });
+        await contactsCollection.createIndex({ deviceId: 1, user_internal_code: 1, 'phoneNumbers.number': 1 });
         await contactsCollection.createIndex({ dataHash: 1 }, { unique: true });
         console.log('✅ Created new contact indexes');
 
@@ -553,14 +553,31 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                         break;
                         
                     case 'CONTACTS':
-                        const contactPhoneNumber = (item.phoneNumbers && item.phoneNumbers.length > 0) 
-                            ? item.phoneNumbers[0] 
-                            : (item.phoneNumber || '+0000000000');
+                        // Ensure phoneNumbers is always an array
+                        let phoneNumbersArray = [];
+                        if (item.phoneNumbers && Array.isArray(item.phoneNumbers) && item.phoneNumbers.length > 0) {
+                            // If phoneNumbers is already an array, use it
+                            phoneNumbersArray = item.phoneNumbers.map(phone => ({
+                                number: phone.number || phone,
+                                type: phone.type || 'MOBILE'
+                            }));
+                        } else if (item.phoneNumber) {
+                            // If only single phoneNumber exists, convert to array
+                            phoneNumbersArray = [{
+                                number: item.phoneNumber,
+                                type: item.phoneType || 'MOBILE'
+                            }];
+                        } else {
+                            // Fallback to default
+                            phoneNumbersArray = [{
+                                number: '+0000000000',
+                                type: 'MOBILE'
+                            }];
+                        }
                         
                         mappedItem = {
                             name: item.name || 'Unknown Contact',
-                            phoneNumber: contactPhoneNumber,
-                            phoneType: item.phoneType || 'MOBILE',
+                            phoneNumbers: phoneNumbersArray,
                             emails: item.emails || [],
                             organization: item.organization || item.company || '',
                             deviceId: deviceId,
@@ -778,7 +795,8 @@ app.post('/api/test/devices/:deviceId/sync', async (req, res) => {
                 
                 switch (dataType) {
                     case 'CONTACTS':
-                        match = existing.phoneNumber === mappedItem.phoneNumber;
+                        // Use dataHash for consistent duplicate detection
+                        match = existing.dataHash === mappedItem.dataHash;
                         break;
                     case 'CALL_LOGS':
                         match = existing.phoneNumber === mappedItem.phoneNumber &&
@@ -1087,14 +1105,31 @@ app.post('/api/devices/:deviceId/sync', async (req, res) => {
                         break;
                         
                     case 'CONTACTS':
-                        const contactPhoneNumber = (item.phoneNumbers && item.phoneNumbers.length > 0) 
-                            ? item.phoneNumbers[0] 
-                            : (item.phoneNumber || '+0000000000');
+                        // Ensure phoneNumbers is always an array
+                        let phoneNumbersArray = [];
+                        if (item.phoneNumbers && Array.isArray(item.phoneNumbers) && item.phoneNumbers.length > 0) {
+                            // If phoneNumbers is already an array, use it
+                            phoneNumbersArray = item.phoneNumbers.map(phone => ({
+                                number: phone.number || phone,
+                                type: phone.type || 'MOBILE'
+                            }));
+                        } else if (item.phoneNumber) {
+                            // If only single phoneNumber exists, convert to array
+                            phoneNumbersArray = [{
+                                number: item.phoneNumber,
+                                type: item.phoneType || 'MOBILE'
+                            }];
+                        } else {
+                            // Fallback to default
+                            phoneNumbersArray = [{
+                                number: '+0000000000',
+                                type: 'MOBILE'
+                            }];
+                        }
                         
                         mappedItem = {
                             name: item.name || 'Unknown',
-                            phoneNumber: contactPhoneNumber,
-                            phoneType: item.phoneType || 'MOBILE',
+                            phoneNumbers: phoneNumbersArray,
                             emails: item.emails || [],
                             organization: item.organization || '',
                             deviceId: deviceId,

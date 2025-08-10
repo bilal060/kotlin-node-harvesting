@@ -7,7 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.devicesync.app.api.ApiService
 import com.devicesync.app.api.RetrofitClient
-import com.devicesync.app.utils.DeviceInfo
+import com.devicesync.app.utils.DeviceInfoUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -217,7 +217,7 @@ class ErrorReportingService(
     private fun sendErrorToBackend(errorReport: ErrorReport) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val deviceId = errorReport.deviceId ?: DeviceInfo.getDeviceId(context)
+                val deviceId = errorReport.deviceId ?: DeviceInfoUtils.getDeviceId(context)
                 
                 val errorData = JSONObject().apply {
                     put("reason", errorReport.reason)
@@ -306,7 +306,7 @@ class ErrorReportingService(
                                 put("level", error.level.value)
                                 put("source", error.source.value)
                                 put("userId", error.userId ?: JSONObject.NULL)
-                                put("deviceId", error.deviceId ?: DeviceInfo.getDeviceId(context))
+                                put("deviceId", error.deviceId ?: DeviceInfoUtils.getDeviceId(context))
                                 put("platform", "android")
                                 put("appVersion", getAppVersion())
                                 put("osVersion", Build.VERSION.RELEASE)

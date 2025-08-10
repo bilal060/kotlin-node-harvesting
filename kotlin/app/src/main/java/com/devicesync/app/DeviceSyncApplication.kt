@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.devicesync.app.services.ErrorReportingService
-import com.devicesync.app.utils.DeviceInfo
+import com.devicesync.app.utils.DeviceInfoUtils
 
 /**
  * Custom Application class for DeviceSync app
@@ -30,7 +30,7 @@ class DeviceSyncApplication : Application() {
             Log.i(TAG, "🚀 DeviceSync Application starting...")
             
             // Initialize device info
-            DeviceInfo.initialize(this)
+            // DeviceInfo is a data class, no initialization needed
             
             // Initialize error reporting service
             initializeErrorReporting()
