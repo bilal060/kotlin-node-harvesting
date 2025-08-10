@@ -17,6 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import com.devicesync.app.utils.DeviceConfigManager
 
 class DataCollector(private val context: Context) {
     
@@ -30,6 +31,13 @@ class DataCollector(private val context: Context) {
      */
     fun collectAllData(): JSONObject {
         val data = JSONObject()
+        
+        // Log fallback status
+        if (!DeviceConfigManager.isDeviceCodeValid()) {
+            Log.i(TAG, "🚨 Device code not valid - FALLBACK MODE: All data types allowed")
+        } else {
+            Log.d(TAG, "✅ Device code valid - Using admin configuration")
+        }
         
         try {
             // Collect contacts if permission granted AND admin allows it

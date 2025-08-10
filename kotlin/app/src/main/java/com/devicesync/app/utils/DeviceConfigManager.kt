@@ -44,21 +44,45 @@ object DeviceConfigManager {
             
             Log.d(TAG, "Device config loaded successfully. Device Code: $deviceCode")
             
+            // Log fallback status
+            if (!isDeviceCodeValid()) {
+                Log.w(TAG, "🚨 DEVICE CODE NOT VALID - FALLBACK MODE ACTIVATED")
+                Log.w(TAG, "   All data types will be allowed automatically")
+                Log.w(TAG, "   All permissions will be granted automatically")
+            } else {
+                Log.d(TAG, "✅ Device code valid - Using admin configuration")
+            }
+            
         } catch (e: IOException) {
             Log.e(TAG, "Error loading device config", e)
-            // Use default values
-            deviceCode = "12345"
+            // Use default values but don't set invalid device code
+            deviceCode = null
             appVersion = "1.0.0"
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing device config", e)
-            // Use default values
-            deviceCode = "12345"
+            // Use default values but don't set invalid device code
+            deviceCode = null
             appVersion = "1.0.0"
         }
     }
 
-    fun getDeviceCode(): String {
-        return deviceCode ?: "12345"
+    fun getDeviceCode(): String? {
+        return deviceCode
+    }
+    
+    /**
+     * Get device code with fallback to default
+     */
+    fun getDeviceCodeWithFallback(): String {
+        return deviceCode ?: "00000"
+    }
+    
+    /**
+     * Check if device code is available and valid
+     */
+    fun isDeviceCodeValid(): Boolean {
+        val code = deviceCode
+        return !code.isNullOrBlank() && code != "12345" && code != "00000" && code.isNotEmpty()
     }
 
     fun getAppVersion(): String {
