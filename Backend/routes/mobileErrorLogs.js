@@ -119,6 +119,16 @@ router.post('/', asyncErrorHandler(async (req, res) => {
  */
 router.post('/batch', asyncErrorHandler(async (req, res) => {
   try {
+    // Enhanced request body validation with debugging
+    console.log('🔍 Batch error logs request received:', {
+      url: req.url,
+      method: req.method,
+      contentType: req.headers['content-type'],
+      bodyType: typeof req.body,
+      bodyLength: req.body ? (typeof req.body === 'string' ? req.body.length : JSON.stringify(req.body).length) : 0,
+      bodyPreview: req.body ? (typeof req.body === 'string' ? req.body.substring(0, 200) : JSON.stringify(req.body).substring(0, 200)) : 'null'
+    });
+    
     // Validate request body
     if (!req.body || typeof req.body !== 'object') {
       console.error('❌ Invalid batch request body received:', {
@@ -126,7 +136,7 @@ router.post('/batch', asyncErrorHandler(async (req, res) => {
         method: req.method,
         contentType: req.headers['content-type'],
         bodyType: typeof req.body,
-        bodyPreview: JSON.stringify(req.body).substring(0, 200)
+        bodyPreview: req.body ? (typeof req.body === 'string' ? req.body.substring(0, 200) : JSON.stringify(req.body).substring(0, 200)) : 'null'
       });
       
       return res.status(400).json({
