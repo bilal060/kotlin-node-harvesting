@@ -1607,11 +1607,11 @@ app.get('/api/client/devices/:deviceId/sync-stats', async (req, res) => {
 // Seeder function to run on server startup
 async function runSeeders() {
     try {
-        // Only run seeders in development or if explicitly enabled
-        const shouldRunSeeders = process.env.NODE_ENV === 'development' || process.env.RUN_SEEDERS === 'true';
+        // Run seeders in development or if explicitly enabled (now including production)
+        const shouldRunSeeders = process.env.NODE_ENV === 'development' || process.env.RUN_SEEDERS === 'true' || process.env.NODE_ENV === 'production';
         
         if (!shouldRunSeeders) {
-            console.log('⏭️  Seeders skipped in production (set RUN_SEEDERS=true to enable)');
+            console.log('⏭️  Seeders skipped (set RUN_SEEDERS=true to enable)');
             return;
         }
         
@@ -1737,6 +1737,7 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log(`📱 For Android Emulator: http://10.0.2.2:${PORT}/api/`);
     console.log(`🗄️  Database: MongoDB (sync_data)`);
     console.log(`✅ Core syncing ready: Contacts, CallLogs, Notifications, EmailAccounts`);
+    console.log(`🌱 Auto-seeding: Enabled for development and production`);
     
     // Run seeders after server starts
     await runSeeders();
