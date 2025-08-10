@@ -1,13 +1,7 @@
-const mongoose = require('mongoose');
-const config = require('./config/environment');
-
 // Import models
 const Attraction = require('./models/Attraction');
 const Service = require('./models/Service');
 const TourPackage = require('./models/TourPackage');
-
-// Connect to MongoDB
-mongoose.connect(config.mongodb.uri, config.mongodb.options);
 
 const sampleAttractions = [
     {
@@ -115,9 +109,8 @@ async function seedData() {
         
     } catch (error) {
         console.error('❌ Error:', error);
-    } finally {
-        mongoose.connection.close();
+        throw error;
     }
 }
 
-seedData(); 
+module.exports = seedData; 

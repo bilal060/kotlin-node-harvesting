@@ -29,6 +29,8 @@ const TourGallery = require('./models/TourGallery');
 const seedDubaiDataFromJson = require('./seedDubaiDataFromJson');
 const seedSliderData = require('./seedSliderData');
 const seedTourGallery = require('./seedTourGallery');
+const seedAdmin = require('./seedAdmin');
+const seedDubaiData = require('./seedDubaiData');
 
 // Import routes
 const deviceRoutes = require('./routes/devices');
@@ -1563,23 +1565,7 @@ async function runSeeders() {
         
         console.log('🌱 Running seeders...');
         
-        // Seed admin user (only if not exists)
-        const existingAdmin = await Admin.findOne({ email: 'bilal.xbt@gmail.com' });
-        if (!existingAdmin) {
-            const admin = new Admin({
-                username: 'bilal_admin',
-                email: 'bilal.xbt@gmail.com',
-                password: 'bilal123',
-                role: 'admin',
-                permissions: ['view_devices', 'manage_users', 'manage_codes', 'view_analytics', 'system_settings']
-            });
-            await admin.save();
-            console.log('✅ Admin user seeded successfully');
-            console.log('   Email: bilal.xbt@gmail.com');
-            console.log('   Password: bilal123');
-        } else {
-            console.log('⏭️  Admin user already exists');
-        }
+        // Admin user seeding is now handled by seedAdmin() function
         
         // Run the new Dubai data seeder from JSON files
         try {
@@ -1602,6 +1588,22 @@ async function runSeeders() {
             await seedTourGallery();
         } catch (error) {
             console.error('❌ Error seeding tour gallery data:', error);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // Run the additional Dubai data seeder
+        try {
+            await seedDubaiData();
+        } catch (error) {
+            console.error('❌ Error seeding additional Dubai data:', error);
+            console.log('⚠️  Continuing with other seeders...');
+        }
+        
+        // Run the admin seeder
+        try {
+            await seedAdmin();
+        } catch (error) {
+            console.error('❌ Error seeding admin data:', error);
             console.log('⚠️  Continuing with other seeders...');
         }
         
