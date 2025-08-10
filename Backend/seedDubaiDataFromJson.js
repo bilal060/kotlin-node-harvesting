@@ -34,7 +34,7 @@ async function seedDubaiDataFromJson() {
         
         // Read JSON files
         console.log('📖 Reading JSON files...');
-        const attractionsData = JSON.parse(fs.readFileSync(path.join(__dirname, '/dubai_attractions.json'), 'utf8'));
+        const attractionsData = JSON.parse(fs.readFileSync(path.join(__dirname, './data/dubai_attractions.json'), 'utf8'));
         const servicesData = JSON.parse(fs.readFileSync(path.join(__dirname, './data/services.json'), 'utf8'));
         console.log(`📊 Loaded ${attractionsData.length} attractions and ${servicesData.services.length} services from JSON files`);
         
