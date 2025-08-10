@@ -1,0 +1,134 @@
+[
+  {
+    "name": "Burj Khalifa (At The Top)",
+    "simple_price": 170,
+    "premium_price": 315,
+    "location": "Downtown Dubai",
+    "images": [
+      "https://www.burjkhalifa.ae/en/wp-content/uploads/2018/10/The-Burj-Khalifa-Exterior.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/9/9f/Burj_Khalifa_Dubai.jpg",
+      "https://www.thedubaiMall.com/images/burj-khalifa-dubai.jpg",
+      "https://cdn.getyourguide.com/img/tour/5c20e3cd35422.jpeg/145.jpg"
+    ]
+  },
+  {
+    "name": "Museum of the Future",
+    "simple_price": 164,
+    "premium_price": 230,
+    "location": "Sheikh Zayed Road, Dubai",
+    "images": [
+      "https://cdn.britannica.com/44/1944-004-55A362F7.jpg",
+      "https://www.dubaitravelplanner.com/wp-content/uploads/2022/02/Museum-of-the-Future-building.jpg",
+      "https://cdn.getyourguide.com/img/tour/5f99dfe032b3a.jpeg",
+      "https://cdn.vox-cdn.com/thumbor/nH_J3Ftd6Q3-Qj3z4rOZLKlf9Ss=/0x0:6000x3375/1200x800/filters:focal(2504x681:3352x1529)/cdn.vox-cdn.com/uploads/chorus_image/image/68189691/GettyImages_1238788136.0.jpg"
+    ]
+  },
+  {
+    "name": "Dubai Miracle Garden",
+    "simple_price": 90,
+    "premium_price": 135,
+    "location": "Al Barsha South, Dubai",
+    "images": [
+      "https://www.miraclegarden.ae/images/garden_1.jpg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1611825160/1000x750_q8dj3i.jpg",
+      "https://cdn.tourradar.com/s3/tour/1500x800/137109_aeb2fbd0.jpg",
+      "https://www.visitdubai.com/-/media/gardens/miracle-garden/hero/hero-1.jpg"
+    ]
+  },
+  {
+    "name": "Aura Sky Pool",
+    "simple_price": 215,
+    "premium_price": 265,
+    "location": "Palm Tower, Dubai",
+    "images": [
+      "https://auraskypool.com/wp-content/uploads/2021/11/AURA-Skypool-Lounge-Dubai-Deck-Infinity-View-scaled.jpg",
+      "https://cdn.tourism-review.com/images/news/featured/aura-sky-pool-dubai-infinity-pool-18311.jpg",
+      "https://images.adsttc.com/media/images/5f53/5c0a/b357/0a41/f000/03e3/large_jpg/Aura_Sky_Pool_10.jpg",
+      "https://dubaiexpatmedia.com/wp-content/uploads/2020/12/Aura-Sky-Pool-Dubai-1024x683.jpg"
+    ]
+  },
+  {
+    "name": "Wild Wadi Waterpark",
+    "simple_price": 314,
+    "premium_price": 369,
+    "location": "Near Burj Al Arab, Dubai",
+    "images": [
+      "https://www.jumeirah.com/-/media/project/jumeirah/jumeirah/images/hotels-and-resorts/dubai/wild-wadi/hero-images/overview.jpg",
+      "https://cdn.getyourguide.com/img/location/5f64466c2acb4.jpeg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1559809472/wild-wadi-waterpark-ovjhsj.jpg",
+      "https://cdn.ek.ae/wild-wadi-waterpark-dubai_17e226d1.jpg"
+    ]
+  },
+  {
+    "name": "Dubai Safari Park",
+    "simple_price": 65,
+    "premium_price": 95,
+    "location": "Al Warqa, Dubai",
+    "images": [
+      "https://dnhg.org/wp-content/uploads/2020/12/safaripark.jpg",
+      "https://cdn.tourism-review.com/images/news/featured/dubai-safari-park-19382.jpg",
+      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/9e/4c/32/dubai-safari-park.jpg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1529395468/park-safari-dubai-safari-park.jpg"
+    ]
+  },
+  {
+    "name": "Desert Safari",
+    "simple_price": 165,
+    "premium_price": 215,
+    "location": "Dubai Outskirts",
+    "images": [
+      "https://www.oasispalmdubai.com/blog/wp-content/uploads/2021/12/Dubai-Desert-Safari-Tour.jpg",
+      "https://cdn.getyourguide.com/img/location/5f64466c2acb4.jpeg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1576220344/desert-safari-tours-12389.jpg",
+      "https://images.fineartamerica.com/images/artworkimages/mediumlarge/2/desert-safari-dubai-douglas-champlin.jpg"
+    ]
+  },
+  {
+    "name": "Dinosaur Park Dubai",
+    "simple_price": 50,
+    "premium_price": 80,
+    "location": "Al Warqa 3, Dubai",
+    "images": [
+      "https://cdn.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1622079783/dinosaur-park-panoramic-4-1_hdbunq.jpg",
+      "https://cdn.getyourguide.com/img/location/59a24782dc2e8.jpeg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1602730400/dino-park-dubai.jpg",
+      "https://dubaifaqs.com/wp-content/uploads/2021/06/dinosaur-park-uae.jpg"
+    ]
+  },
+  {
+    "name": "Dubai Fountain Show",
+    "simple_price": 0,
+    "premium_price": 100,
+    "location": "Downtown Dubai",
+    "images": [
+      "https://cdn.getyourguide.com/img/location/59b725338d60a.jpeg",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      "https://cdn.tourism-review.com/images/news/featured/dubai-fountain-show-19366.jpg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1511282571/dubai-fountain-show-12385.jpg"
+    ]
+  },
+  {
+    "name": "ARTE Museum",
+    "simple_price": 45,
+    "premium_price": 75,
+    "location": "Alserkal Avenue, Dubai",
+    "images": [
+      "https://arte.museum/wp-content/uploads/2020/08/arte-exterior-2.jpg",
+      "https://cdn.getyourguide.com/img/location/5ea5ae42356c7.jpeg",
+      "https://cdn.tourism-review.com/images/news/featured/arte-museum-dubai-20314.jpg",
+      "https://images.unsplash.com/photo-1542831371-d531d36971e6"
+    ]
+  },
+  {
+    "name": "AYA Universe",
+    "simple_price": 150,
+    "premium_price": 220,
+    "location": "Dubai Marina",
+    "images": [
+      "https://ayauniverse.com/wp-content/uploads/2022/03/aya-universe-space-1.jpg",
+      "https://cdn.getyourguide.com/img/location/5f8b2a94421f1.jpeg",
+      "https://media.timeoutdubai.com/timeoutdubai/image/upload/f_auto,q_auto/v1586296913/aya-universe-12375.jpg",
+      "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0"
+    ]
+  }
+]
