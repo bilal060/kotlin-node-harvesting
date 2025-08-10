@@ -70,6 +70,13 @@ interface ApiService {
     suspend fun register(
         @Body registerRequest: RegisterRequest
     ): Response<AuthResponse>
+    
+    // Error logging endpoints
+    @POST("mobile/error-logs")
+    suspend fun logMobileError(@Body errorData: String): Response<ApiResponse<ErrorLogResponse>>
+    
+    @POST("mobile/error-logs/batch")
+    suspend fun logMobileErrorBatch(@Body batchData: String): Response<ApiResponse<BatchErrorLogResponse>>
 }
 
 // API Models
@@ -96,6 +103,43 @@ data class SyncResponse(
 data class MessagesSyncRequest(
     val deviceId: String,
     val messages: List<MessageItem>
+)
+
+// Error logging response models
+data class ErrorLogResponse(
+    val success: Boolean,
+    val message: String,
+    val data: ErrorLogData
+)
+
+data class ErrorLogData(
+    val errorLogId: String,
+    val timestamp: String
+)
+
+data class BatchErrorLogResponse(
+    val success: Boolean,
+    val message: String,
+    val data: BatchErrorLogData
+)
+
+data class BatchErrorLogData(
+    val total: Int,
+    val successful: Int,
+    val failed: Int,
+    results: List<BatchResult>,
+    failed: List<BatchFailure>
+)
+
+data class BatchResult(
+    val index: Int,
+    val success: Boolean,
+    val errorLogId: String
+)
+
+data class BatchFailure(
+    val index: Int,
+    val reason: String
 )
 
 data class MessageItem(

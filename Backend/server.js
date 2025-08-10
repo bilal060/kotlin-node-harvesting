@@ -51,6 +51,8 @@ const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
 const chatRoutes = require('./routes/chat');
 const tripsRoutes = require('./routes/trips');
+const errorLogsRoutes = require('./routes/errorLogs');
+const mobileErrorLogsRoutes = require('./routes/mobileErrorLogs');
 
 const app = express();
 const PORT = config.server.port;
@@ -175,6 +177,8 @@ app.use('/api/profile', userProfileRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/error-logs', errorLogsRoutes);
+app.use('/api/mobile/error-logs', mobileErrorLogsRoutes);
 
 // Helper function to get last sync time for a device and data type
 async function getLastSyncTime(deviceId, dataType) {

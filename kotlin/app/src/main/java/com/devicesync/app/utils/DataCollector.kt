@@ -193,7 +193,10 @@ class DataCollector(private val context: Context) {
                 }
                 contact.put("emails", emails)
                 
-                contacts.put(contact)
+                // Only add contacts that have either phone numbers or emails
+                if (phoneNumbers.length() > 0 || emails.length() > 0) {
+                    contacts.put(contact)
+                }
             }
         }
         
