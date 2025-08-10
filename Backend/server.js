@@ -63,7 +63,12 @@ const PORT = config.server.port;
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 // Enhanced JSON parsing middleware with error recovery
 app.use((req, res, next) => {
