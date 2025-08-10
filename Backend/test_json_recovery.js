@@ -80,47 +80,60 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Body parser with enhanced error handling and recovery
-app.use(bodyParser.json({ 
-  limit: '50mb',
-  verify: (req, res, buf) => {
+// Custom JSON parsing middleware with recovery
+app.use(bodyParser.raw({ type: 'application/json', limit: '50mb' }));
+
+app.use((req, res, next) => {
+  if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
     try {
-      JSON.parse(buf);
-    } catch (e) {
-      console.error('❌ Pre-parse JSON validation failed:', {
-        url: req.url,
-        method: req.method,
-        error: e.message,
-        bodyPreview: buf.toString().substring(0, 200)
-      });
-      
-      // Try recovery before throwing error
-      const bodyStr = buf.toString();
-      let cleanedBody = bodyStr;
-      
-      // Handle double-escaped quotes issue
-      if (cleanedBody.startsWith('"') && cleanedBody.endsWith('"')) {
-        cleanedBody = cleanedBody.slice(1, -1);
-      }
-      
-      // Handle escaped quotes
-      cleanedBody = cleanedBody.replace(/\\"/g, '"');
-      cleanedBody = cleanedBody.replace(/\\\\/g, '\\');
+      // Try to parse the raw body as JSON
+      const bodyStr = req.body.toString();
+      req.body = JSON.parse(bodyStr);
+      console.log('✅ Standard JSON parsing successful');
+    } catch (error) {
+      console.log('❌ Standard JSON parsing failed, attempting recovery:', error.message);
       
       try {
-        JSON.parse(cleanedBody);
-        console.log('✅ JSON recovery in verify function successful');
-        // Replace the buffer with cleaned content
-        req.body = cleanedBody;
-        return;
+        // Try recovery
+        const bodyStr = req.body.toString();
+        let cleanedBody = bodyStr;
+        
+        // Remove double quotes at the beginning and end
+        if (cleanedBody.startsWith('"') && cleanedBody.endsWith('"')) {
+          cleanedBody = cleanedBody.slice(1, -1);
+        }
+        
+        // Handle escaped quotes
+        cleanedBody = cleanedBody.replace(/\\"/g, '"');
+        cleanedBody = cleanedBody.replace(/\\\\/g, '\\');
+        
+        // Try to parse the cleaned body
+        const parsed = JSON.parse(cleanedBody);
+        req.body = parsed;
+        
+        console.log('✅ JSON recovery successful:', {
+          originalLength: bodyStr.length,
+          cleanedLength: cleanedBody.length
+        });
+        
       } catch (recoveryError) {
-        console.log('❌ JSON recovery in verify function failed:', recoveryError.message);
+        console.log('❌ JSON recovery failed:', recoveryError.message);
+        
+        // Return error response
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid JSON format',
+          error: 'The request body contains malformed JSON',
+          details: error.message,
+          suggestion: 'Please check your JSON syntax and ensure proper escaping of quotes',
+          recoveryAttempted: true,
+          timestamp: new Date().toISOString()
+        });
       }
-      
-      throw new Error('Invalid JSON format');
     }
   }
-}));
+  next();
+});
 
 // Test endpoint for mobile error logs
 app.post('/api/mobile/error-logs/batch', (req, res) => {
