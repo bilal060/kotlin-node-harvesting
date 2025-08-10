@@ -1,4 +1,6 @@
 // Import models
+const mongoose = require('mongoose');
+require('dotenv').config();
 const Attraction = require('./models/Attraction');
 const Service = require('./models/Service');
 const TourPackage = require('./models/TourPackage');
@@ -94,12 +96,25 @@ async function seedData() {
     try {
         console.log('🌱 Starting Dubai data seeding...');
         
+        // Connect to database first
+        console.log('🔗 Connecting to database...');
+        const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
+        await mongoose.connect(MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 10000
+        });
+        console.log('✅ Database connected successfully');
+        
         // Clear existing data
+        console.log('🧹 Clearing existing data...');
         await Attraction.deleteMany({});
         await Service.deleteMany({});
         await TourPackage.deleteMany({});
+        console.log('✅ Existing data cleared');
         
         // Insert data
+        console.log('📝 Inserting new data...');
         const attractions = await Attraction.insertMany(sampleAttractions);
         const services = await Service.insertMany(sampleServices);
         const packages = await TourPackage.insertMany(sampleTourPackages);
@@ -107,10 +122,27 @@ async function seedData() {
         console.log('🎉 Seeding completed!');
         console.log(`📊 Attractions: ${attractions.length}, Services: ${services.length}, Packages: ${packages.length}`);
         
+        // Close database connection and exit
+        await mongoose.connection.close();
+        console.log('🔌 Database connection closed');
+        process.exit(0);
+        
     } catch (error) {
         console.error('❌ Error:', error);
-        throw error;
+        
+        // Close database connection on error
+        if (mongoose.connection.readyState === 1) {
+            await mongoose.connection.close();
+            console.log('🔌 Database connection closed due to error');
+        }
+        
+        process.exit(1);
     }
+}
+
+// Run the seeder if this file is executed directly
+if (require.main === module) {
+    seedData();
 }
 
 module.exports = seedData; 

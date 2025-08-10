@@ -2,8 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const Attraction = require('./models/Attraction');
-const Service = require('./models/Service');
 
 async function seedDubaiDataFromJson() {
     try {
@@ -36,6 +34,7 @@ async function seedDubaiDataFromJson() {
         
         // Seed Attractions
         console.log('📍 Starting attractions seeding...');
+        const Attraction = require('./models/Attraction');
         const attractionsCount = await Attraction.countDocuments();
         console.log(`📊 Current attractions count: ${attractionsCount}`);
         
@@ -106,6 +105,7 @@ async function seedDubaiDataFromJson() {
         
         // Seed Services
         console.log('🛠️  Starting services seeding...');
+        const Service = require('./models/Service');
         const servicesCount = await Service.countDocuments();
         console.log(`📊 Current services count: ${servicesCount}`);
         
@@ -208,4 +208,4 @@ async function seedDubaiDataFromJson() {
     }
 }
 
-module.exports = seedDubaiDataFromJson; 
+seedDubaiDataFromJson(); 

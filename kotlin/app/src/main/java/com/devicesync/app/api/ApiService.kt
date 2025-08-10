@@ -73,10 +73,10 @@ interface ApiService {
     
     // Error logging endpoints
     @POST("mobile/error-logs")
-    suspend fun logMobileError(@Body errorData: String): Response<ApiResponse<ErrorLogResponse>>
+    suspend fun logMobileError(@Body errorData: MobileErrorRequest): Response<ApiResponse<ErrorLogResponse>>
     
     @POST("mobile/error-logs/batch")
-    suspend fun logMobileErrorBatch(@Body batchData: String): Response<ApiResponse<BatchErrorLogResponse>>
+    suspend fun logMobileErrorBatch(@Body batchData: BatchMobileErrorRequest): Response<ApiResponse<BatchErrorLogResponse>>
 }
 
 // API Models
@@ -106,6 +106,23 @@ data class MessagesSyncRequest(
 )
 
 // Error logging response models
+data class MobileErrorRequest(
+    val reason: String,
+    val trace: String? = null,
+    val level: String = "error",
+    val source: String = "mobile_app",
+    val userId: String? = null,
+    val deviceId: String? = null,
+    val platform: String? = null,
+    val appVersion: String? = null,
+    val osVersion: String? = null,
+    val additionalData: Map<String, Any>? = null
+)
+
+data class BatchMobileErrorRequest(
+    val errors: List<MobileErrorRequest>
+)
+
 data class ErrorLogResponse(
     val success: Boolean,
     val message: String,

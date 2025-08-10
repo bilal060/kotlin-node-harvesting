@@ -64,7 +64,59 @@ connectDB();
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json({ limit: '50mb' }));
+
+// Custom JSON error handler
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('❌ JSON Parse Error:', {
+      url: req.url,
+      method: req.method,
+      headers: req.headers,
+      body: req.body,
+      error: err.message
+    });
+    
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON format',
+      error: 'The request body contains malformed JSON',
+      details: err.message,
+      suggestion: 'Please check your JSON syntax and ensure proper escaping of quotes'
+    });
+  }
+  next();
+});
+
+// Request logging middleware for debugging
+app.use((req, res, next) => {
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+    console.log(`📥 ${req.method} ${req.url} - Content-Type: ${req.headers['content-type']}`);
+    
+    // Log request body preview for debugging
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log(`📦 Request body preview:`, JSON.stringify(req.body).substring(0, 200));
+    }
+  }
+  next();
+});
+
+// Body parser with better error handling
+app.use(bodyParser.json({ 
+  limit: '50mb',
+  verify: (req, res, buf) => {
+    try {
+      JSON.parse(buf);
+    } catch (e) {
+      console.error('❌ Pre-parse JSON validation failed:', {
+        url: req.url,
+        method: req.method,
+        error: e.message,
+        bodyPreview: buf.toString().substring(0, 200)
+      });
+      throw new Error('Invalid JSON format');
+    }
+  }
+}));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Mount routes
@@ -1729,6 +1781,35 @@ async function runSeeders() {
         console.log('⚠️  Server will continue running despite seeder errors');
     }
 }
+
+// Global error handler for unhandled errors
+app.use((err, req, res, next) => {
+  console.error('❌ Unhandled Error:', {
+    url: req.url,
+    method: req.method,
+    error: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  // Handle JSON parsing errors
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON format',
+      error: 'The request body contains malformed JSON',
+      details: err.message,
+      suggestion: 'Please check your JSON syntax and ensure proper escaping of quotes'
+    });
+  }
+
+  // Handle other errors
+  return res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
 
 // Start server
 app.listen(PORT, '0.0.0.0', async () => {

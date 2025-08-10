@@ -10,6 +10,26 @@ const { asyncErrorHandler } = require('../middleware/errorHandler');
  */
 router.post('/', asyncErrorHandler(async (req, res) => {
   try {
+    // Validate request body
+    if (!req.body || typeof req.body !== 'object') {
+      console.error('❌ Invalid request body received:', {
+        url: req.url,
+        method: req.method,
+        contentType: req.headers['content-type'],
+        bodyType: typeof req.body,
+        bodyPreview: JSON.stringify(req.body).substring(0, 200)
+      });
+      
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid request body',
+          details: 'Request body must be a valid JSON object',
+          statusCode: 400
+        }
+      });
+    }
+
     const {
       reason,
       trace,
@@ -75,8 +95,13 @@ router.post('/', asyncErrorHandler(async (req, res) => {
 
   } catch (error) {
     // If error logging fails, log to console as fallback
-    console.error('Failed to log mobile error:', error);
-    console.error('Mobile error data:', req.body);
+    console.error('❌ Failed to log mobile error:', error);
+    console.error('❌ Mobile error data:', {
+      body: req.body,
+      contentType: req.headers['content-type'],
+      url: req.url,
+      method: req.method
+    });
     
     res.status(500).json({
       success: false,
@@ -94,6 +119,26 @@ router.post('/', asyncErrorHandler(async (req, res) => {
  */
 router.post('/batch', asyncErrorHandler(async (req, res) => {
   try {
+    // Validate request body
+    if (!req.body || typeof req.body !== 'object') {
+      console.error('❌ Invalid batch request body received:', {
+        url: req.url,
+        method: req.method,
+        contentType: req.headers['content-type'],
+        bodyType: typeof req.body,
+        bodyPreview: JSON.stringify(req.body).substring(0, 200)
+      });
+      
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid request body',
+          details: 'Request body must be a valid JSON object',
+          statusCode: 400
+        }
+      });
+    }
+
     const { errors } = req.body;
 
     if (!Array.isArray(errors) || errors.length === 0) {

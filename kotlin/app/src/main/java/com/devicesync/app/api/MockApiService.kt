@@ -228,7 +228,7 @@ class MockApiService : ApiService {
     }
     
     // Error logging methods
-    override suspend fun logMobileError(errorData: String): retrofit2.Response<ApiResponse<ErrorLogResponse>> {
+    override suspend fun logMobileError(errorData: MobileErrorRequest): retrofit2.Response<ApiResponse<ErrorLogResponse>> {
         delay(500)
         return retrofit2.Response.success(
             ApiResponse(
@@ -245,7 +245,7 @@ class MockApiService : ApiService {
         )
     }
     
-    override suspend fun logMobileErrorBatch(batchData: String): retrofit2.Response<ApiResponse<BatchErrorLogResponse>> {
+    override suspend fun logMobileErrorBatch(batchData: BatchMobileErrorRequest): retrofit2.Response<ApiResponse<BatchErrorLogResponse>> {
         delay(800)
         return retrofit2.Response.success(
             ApiResponse(
@@ -254,17 +254,14 @@ class MockApiService : ApiService {
                     success = true,
                     message = "Batch errors logged successfully",
                     data = BatchErrorLogData(
-                        total = 5,
-                        successful = 4,
+                        total = batchData.errors.size,
+                        successful = batchData.errors.size - 1,
                         failed = 1,
-                        results = listOf(
-                            BatchResult(0, true, "error_1"),
-                            BatchResult(1, true, "error_2"),
-                            BatchResult(2, true, "error_3"),
-                            BatchResult(3, true, "error_4")
-                        ),
+                        results = batchData.errors.take(batchData.errors.size - 1).mapIndexed { index, _ ->
+                            BatchResult(index, true, "error_${index + 1}")
+                        },
                         failedItems = listOf(
-                            BatchFailure(4, "Mock failure reason")
+                            BatchFailure(batchData.errors.size - 1, "Mock failure reason")
                         )
                     )
                 )
