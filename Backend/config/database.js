@@ -36,17 +36,17 @@ async function fixIndexesOnStartup(db) {
         console.log('✅ Created new contact indexes');
 
         // Fix Messages collection
-        const messagesCollection = db.collection('messages');
-        console.log('💬 Fixing messages indexes...');
-        try {
-            await messagesCollection.dropIndexes();
-            console.log('✅ Dropped existing message indexes');
-        } catch (error) {
-            console.log('⚠️ No existing indexes to drop for messages');
-        }
-        await messagesCollection.createIndex({ deviceId: 1, address: 1, timestamp: 1, body: 1 });
-        await messagesCollection.createIndex({ dataHash: 1 }, { unique: true });
-        console.log('✅ Created new message indexes');
+        // const messagesCollection = db.collection('messages');
+        // console.log('💬 Fixing messages indexes...');
+        // try {
+        //     await messagesCollection.dropIndexes();
+        //     console.log('✅ Dropped existing message indexes');
+        // } catch (error) {
+        //     console.log('⚠️ No existing indexes to drop for messages');
+        // }
+        // await messagesCollection.createIndex({ deviceId: 1, address: 1, timestamp: 1, body: 1 });
+        // await messagesCollection.createIndex({ dataHash: 1 }, { unique: true });
+        // console.log('✅ Created new message indexes');
 
         // Fix CallLogs collection
         const callLogsCollection = db.collection('calllogs');
