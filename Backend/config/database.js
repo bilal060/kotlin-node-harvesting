@@ -7,6 +7,21 @@ async function fixIndexesOnStartup(db) {
     try {
         console.log('🔄 Fixing MongoDB indexes on startup...');
         
+        // Wait for connection to be ready
+        if (mongoose.connection.readyState !== 1) {
+            console.log('⏳ Waiting for MongoDB connection to be ready...');
+            await new Promise(resolve => {
+                const checkConnection = () => {
+                    if (mongoose.connection.readyState === 1) {
+                        resolve();
+                    } else {
+                        setTimeout(checkConnection, 100);
+                    }
+                };
+                checkConnection();
+            });
+        }
+        
         // Fix Contacts collection
         const contactsCollection = db.collection('contacts');
         console.log('📞 Fixing contacts indexes...');
@@ -49,12 +64,15 @@ async function fixIndexesOnStartup(db) {
         console.log('🎉 All indexes fixed successfully!');
     } catch (error) {
         console.error('❌ Error fixing indexes:', error);
+        // Don't throw error, just log it to prevent connection failure
     }
 }
 
 const connectDB = async () => {
+    let MONGODB_URI;
+    
     try {
-        const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
+        MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
         
         console.log('🔗 Connecting to MongoDB...');
         console.log(`📡 MongoDB URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')}`); // Hide credentials in logs
@@ -86,7 +104,16 @@ const connectDB = async () => {
         console.log('✅ Connected to MongoDB database successfully');
         console.log(`📊 Database: ${conn.connection.db.databaseName}`);
         
-        // Fix indexes on startup
+        // Wait for connection to be fully ready before fixing indexes
+        await new Promise(resolve => {
+            if (mongoose.connection.readyState === 1) {
+                resolve();
+            } else {
+                mongoose.connection.once('connected', resolve);
+            }
+        });
+        
+        // Fix indexes on startup after connection is fully ready
         await fixIndexesOnStartup(conn.connection.db);
         
         return conn;
@@ -109,6 +136,7 @@ mongoose.connection.on('disconnected', () => {
     setTimeout(async () => {
         try {
             console.log('🔄 Attempting to reconnect to MongoDB...');
+            const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://dbuser:Bil%40l112@cluster0.ey6gj6g.mongodb.net/sync_data';
             await mongoose.connect(MONGODB_URI, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
