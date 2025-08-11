@@ -482,8 +482,8 @@ async function seedDubaiDataFromJson() {
         
         console.log('🎉 Dubai data seeding completed successfully!');
         
-        // Only close connection if we opened it (not when called from server)
-        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
+        // Only close connection if we opened it AND we're running standalone (not when called from server)
+        if (mongoose.connection.readyState === 1 && require.main === module) {
             await mongoose.connection.close();
             console.log('🔌 Database connection closed');
             process.exit(0);
@@ -492,8 +492,8 @@ async function seedDubaiDataFromJson() {
     } catch (error) {
         console.error('❌ Error seeding Dubai data:', error);
         
-        // Only close connection if we opened it (not when called from server)
-        if (mongoose.connection.readyState === 1 && process.env.NODE_ENV !== 'development') {
+        // Only close connection if we opened it AND we're running standalone (not when called from server)
+        if (mongoose.connection.readyState === 1 && require.main === module) {
             await mongoose.connection.close();
             console.log('🔌 Database connection closed due to error');
             process.exit(1);
