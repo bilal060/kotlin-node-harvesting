@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dubai Discoveries</string>
+    
+    <!-- Permission Related -->
+    <string name="permission_required">Permission Required</string>
+    <string name="grant_permissions">Grant Permissions</string>
+    <string name="permissions_denied">Permissions Denied</string>
+    <string name="permission_error">Permission Error</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="accessibility_service_required">Accessibility Service Required</string>
+    <string name="accessibility_service_message">This app requires accessibility service to function properly. Please enable it in Settings > Accessibility.</string>
+    <string name="accessibility_mandatory">Accessibility service is mandatory for this app to function. Please enable it to continue.</string>
+    
+    <!-- Welcome Messages -->
+    <string name="welcome_message">Welcome to Dubai Discoveries!</string>
+    <string name="welcome_subtitle">Discover the magic of Dubai</string>
+    <string name="permission_gateway_title">Permission Gateway</string>
+    <string name="permission_gateway_message">Your device needs additional permissions to proceed.</string>
+    
+    <!-- Feature Names -->
+    <string name="attractions">Attractions</string>
+    <string name="services">Services</string>
+    <string name="tour_packages">Tour Packages</string>
+    <string name="profile">Profile</string>
+    <string name="live_chat">Live Chat</string>
+    
+    <!-- Status Messages -->
+    <string name="ready_to_check">Ready to check permissions</string>
+    <string name="checking_permissions">Checking permissions...</string>
+    <string name="verifying_permissions">Verifying permissions with server...</string>
+    <string name="permissions_granted">All permissions granted! Redirecting...</string>
+    <string name="permission_denied_message">Permission denied for %1$s feature</string>
+    <string name="coming_soon">%1$s feature coming soon!</string>
+    
+    <!-- Navigation -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    
+    <!-- Device Info -->
+    <string name="device_code">Device Code: 61250</string>
+    <string name="app_information">App Information</string>
+    
+    <!-- Buttons -->
+    <string name="check_permissions_continue">Check Permissions and Continue</string>
+    <string name="build_itinerary">Build Your Itinerary</string>
+    <string name="explore_features">Explore Features</string>
+    
+    <!-- Error Messages -->
+    <string name="network_error">Network error: %1$s</string>
+    <string name="parse_error">Failed to parse response: %1$s</string>
+    <string name="request_failed">Request failed with code: %1$d</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">Dubai Discoveries accessibility service helps provide enhanced functionality and better user experience.</string>
+</resources>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".HomeActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Welcome Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/welcome_header_background"
+            android:padding="24dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/welcomeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎉 Welcome to Dubai Discoveries!"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your permissions have been verified successfully. You can now access all the amazing features of Dubai Discoveries!"
+                android:textSize="16sp"
+                android:textColor="@color/white_70"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+        <!-- Permission Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/permissions_status_background"
+            android:padding="20dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔐 Permission Status"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/permissionStatusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading permissions..."
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="2dp"
+                android:fontFamily="monospace" />
+
+        </LinearLayout>
+
+        <!-- Feature Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚀 Explore Features"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Attractions Button -->
+            <Button
+                android:id="@+id/attractionsButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="🏛️ Attractions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Services Button -->
+            <Button
+                android:id="@+id/servicesButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="🛎️ Services"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Tour Packages Button -->
+            <Button
+                android:id="@+id/tourPackagesButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="🗺️ Tour Packages"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Profile Button -->
+            <Button
+                android:id="@+id/profileButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="👤 Profile"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/feature_button_background"
+                android:textColor="@color/white"
+                android:layout_marginBottom="24dp" />
+
+        </LinearLayout>
+
+        <!-- App Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/app_info_background"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📱 App Information"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_color"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Code: 61250"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
